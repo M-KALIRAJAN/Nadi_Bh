@@ -1,0 +1,29 @@
+class RouteNames {
+  static const String splash = '/splash';
+  static const String login = '/login';
+  static const String Account = '/account';
+  static const String language = '/language';
+  static const String about = '/about';
+  static const String bottomnav = '/bottomnav';
+  static const String accountverfy = '/accountverfy';
+  static const String uploadcard = '/uploadcard';
+  static const String welcome = '/welcome';
+  static const String individualAccount = '/individualAccount';
+  static const stepper = '/stepper';
+  static const String Terms = '/terms';
+  static const String opt = '/otp';
+  static const String accountcreated = '/accountcreated';
+  static const String allservice = '/allservice';
+  static const String creterequest = '/creterequest';
+  static const String servicerequestsubmitted = '/servicerequestsubmitted';
+    static const String  pointdetails = '/pointdetails';
+    static const String serviceRequestDetails = '/serviceRequestDetails';
+    static const String editprfoile = '/editprfoile';
+    static const String requestcreatesucess = '/requestcreatesucess';
+    static const String sendservicerequest = '/sendservicerequest';
+ static const String forgotpassword = '/forgotpassword';
+ static const String viewalllogs = '/viewalllogs';
+ static const String nodifications ='/nodifications';
+ static const String phonewithotp ='/phonewithotp';
+
+}

@@ -1,0 +1,474 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/routing/app_router.dart';
+import 'package:nadi_user_app/services/request_service.dart';
+import 'package:nadi_user_app/widgets/app_back.dart';
+import 'package:nadi_user_app/widgets/app_date_picker.dart';
+import 'package:nadi_user_app/widgets/app_time_picker.dart';
+import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
+import 'package:nadi_user_app/widgets/media_upload_widget.dart';
+import 'package:nadi_user_app/widgets/record_widget.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'dart:async';
+
+class SendServiceRequest extends StatefulWidget {
+  final String title;
+  final String serviceId;
+  final String? imagePath;
+
+  const SendServiceRequest({
+    super.key,
+    required this.title,
+    this.imagePath,
+    required this.serviceId,
+  });
+
+  @override
+  State<SendServiceRequest> createState() => _SendServiceRequestState();
+}
+
+class _SendServiceRequestState extends State<SendServiceRequest> {
+  final TextEditingController _dateController = TextEditingController();
+  List<Map<String, dynamic>> issueList = [];
+  final ImagePicker _picker = ImagePicker();
+  List<XFile> selectedImages = [];
+  bool _isLoading = false;
+  RequestSerivices _requestSerivices = RequestSerivices();
+  final TextEditingController descriptionController = TextEditingController();
+  String? selectedIssueId;
+  bool isChecked = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool isRecording = false;
+  String? recordedFilePath;
+  bool isPlaying = false;
+  final TextEditingController _timeController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    issuseList();
+  }
+
+  Future<void> playPauseVoice() async {
+    if (recordedFilePath == null) return;
+
+    if (isPlaying) {
+      await _audioPlayer.pause();
+      setState(() => isPlaying = false);
+    } else {
+      await _audioPlayer.stop(); //  VERY IMPORTANT (reset previous audio)
+      await _audioPlayer.play(DeviceFileSource(recordedFilePath!));
+      setState(() => isPlaying = true);
+    }
+  }
+
+  Future<bool> requestMicPermission() async {
+    try {
+      final status = await Permission.microphone.status;
+
+      if (status.isGranted) {
+        return true;
+      }
+
+      final result = await Permission.microphone.request();
+      return result.isGranted;
+    } catch (e) {
+      AppLogger.error("Permission error: $e");
+      return false;
+    }
+  }
+
+  Future<void> issuseList() async {
+    final response = await _requestSerivices.IssuseList();
+    if (response != null) {
+      setState(() {
+        issueList = response;
+      });
+    }
+    AppLogger.debug("respose ${jsonEncode(response)}");
+  }
+
+  Future<void> pickImage(ImageSource source) async {
+    final XFile? image = await _picker.pickImage(
+      source: source,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        selectedImages.add(image);
+      });
+    }
+  }
+
+  Future<void> SendRequest() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      AppLogger.warn("**************************************88");
+      AppLogger.warn("selectcategoryId $widget.serviceId");
+      final response = await _requestSerivices.createServiceRequestes(
+        serviceId: widget.serviceId!,
+        issuesId: selectedIssueId!,
+        feedback: descriptionController.text,
+        scheduleService: _dateController.text,
+        immediateAssistance: isChecked,
+        images: selectedImages.map((e) => File(e.path)).toList(),
+        voiceFile: recordedFilePath != null ? File(recordedFilePath!) : null,
+      );
+      AppLogger.warn("createServiceRequestes ${jsonEncode(response)}");
+      final serviceRequestId = response?['data']?['serviceRequestID']?.toString();
+      AppLogger.info("serviceRequestId $serviceRequestId");
+      if (mounted) setState(() => _isLoading = false);
+      if (response != null) {
+        final message = response['message'];
+        if (message == "Service created successfully" &&  serviceRequestId != null) {
+          context.push(RouteNames.requestcreatesucess ,extra: serviceRequestId);
+        }
+        //  ERROR FROM API (ACCOUNT NOT VERIFIED etc.)
+        else {
+          SnackbarHelper.showError(context, message);
+        }
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Something went wrong")));
+      }
+    } catch (e) {
+      AppLogger.error(" $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget imageShimmer() {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(
+          width: double.infinity,
+          height: 200,
+          decoration: BoxDecoration(
+            color: Colors.grey,
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // TOP HEADER
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 17,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppCircleIconButton(
+                      icon: Icons.arrow_back,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                  ],
+                ),
+              ),
+
+              const Divider(),
+
+              const SizedBox(height: 15),
+
+              // MAIN CONTENT
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 17),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // SERVICE IMAGE
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: widget.imagePath != null
+                              ? CachedNetworkImage(
+                                  imageUrl: widget.imagePath!,
+                                  width: double.infinity,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => imageShimmer(),
+                                )
+                              : imageShimmer(),
+                        ),
+                        const SizedBox(height: 25),
+                        const Text(
+                          "Issue  Details",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        DropdownButtonFormField<String>(
+                          value: selectedIssueId,
+                          decoration: InputDecoration(
+                            labelText: "Select Issuse*",
+                            floatingLabelStyle: const TextStyle(
+                              color: AppColors.btn_primery,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppColors.btn_primery,
+                                width: 1.5,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          items: issueList.map((issue) {
+                            return DropdownMenuItem<String>(
+                              value: issue['_id'],
+                              child: Text(issue['issue']),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedIssueId = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                        // DESCRIPTION FIELD
+                        TextField(
+                          controller: descriptionController,
+                          minLines: 5,
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          decoration: InputDecoration(
+                            labelText: "Describe your issue…",
+                            floatingLabelStyle: const TextStyle(
+                              color: AppColors.btn_primery,
+                            ),
+                            alignLabelWithHint: true,
+                            contentPadding: EdgeInsets.all(14),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppColors.btn_primery,
+                                width: 1.5,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+
+                        const SizedBox(height: 22),
+                        const Text(
+                          "Perfered Date",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        AppDatePicker(
+                          controller: _dateController,
+                          label: "Select Date",
+                          onDateSelected: (date) {
+                            print("Selected Date: $date");
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Perfered Time",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        AppTimePicker(
+                          controller: _timeController,
+                          label: "selected Time",
+                          onTimeSelected: (time) {
+                            // Do something with the selected time
+                            print("User selected: $time");
+                          },
+                        ),
+                        const SizedBox(height: 22),
+
+                        const Text(
+                          "Media Upload (optional)",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // UPLOAD BUTTON
+                        MediaUploadWidget(
+                          images: selectedImages,
+                          onAddTap: () {
+                            showImagePickerSheet(context);
+                          },
+                          onRemoveTap: (index) {
+                            setState(() {
+                              selectedImages.removeAt(index);
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 15),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isChecked,
+                              activeColor: AppColors.btn_primery,
+                              checkColor: Colors.white,
+                              onChanged: (bool? newValue) {
+                                setState(() {
+                                  isChecked = newValue!;
+                                });
+                              },
+                            ),
+                            const Text("Need immitated Asstience"),
+                          ],
+                        ),
+                        RecordWidget(
+                          onRecordComplete: (file) {
+                            recordedFilePath = file?.path;
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                        if (recordedFilePath != null && !isRecording) ...[
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    isPlaying ? Icons.pause : Icons.play_arrow,
+                                  ),
+                                  onPressed: playPauseVoice,
+                                ),
+                                const Text("Recorded Voice"),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      recordedFilePath = null;
+                                      isPlaying = false;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 15),
+                        ],
+                        const SizedBox(height: 15),
+                        // ACTION BUTTONS
+                        AppButton(
+                          text: "Send Request",
+                          onPressed: () {
+                            SendRequest();
+                          },
+                          isLoading: _isLoading,
+                          color: AppColors.btn_primery,
+                          width: double.infinity,
+                        ),
+
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showImagePickerSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text("Camera"),
+                onTap: () {
+                  Navigator.pop(context);
+                  pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text("Gallery"),
+                onTap: () {
+                  Navigator.pop(context);
+                  pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
