@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:nadi_user_app/providers/HelpAndSuppord_Provider.dart';
 import 'package:nadi_user_app/providers/Privacypolicy_Provider.dart';
 import 'package:nadi_user_app/providers/aboutProvider.dart';
 import 'package:nadi_user_app/providers/theme_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
+import 'package:nadi_user_app/widgets/dialogs/common_app_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsView extends ConsumerStatefulWidget {
@@ -184,7 +186,9 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                     settingItem(
                       text: "Help & Support",
                       icon: Image.asset("assets/icons/help.png"),
-                      onTap: () {},
+                      onTap: () {
+                        showHelpAndSupport(context);
+                      },
                     ),
                     const SizedBox(height: 15),
 
@@ -401,247 +405,155 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
     );
   }
 
-  void showAppDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final aboutAsync = ref.watch(aboutProvider);
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(17),
-                child: aboutAsync.when(
-                  data: (about) {
-                    final item = about.data.first;
+void showAppDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) {
+      return Consumer(
+        builder: (context, ref, _) {
+          final aboutAsync = ref.watch(aboutProvider);
 
-                    return SizedBox(
-                      height:
-                          MediaQuery.of(context).size.height *
-                          0.6, //  dialog max height
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          // Title
-                          Text(
-                            item.title,
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
+          return aboutAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => CommonAppDialog(
+              title: "Error",
+              content: Text(e.toString()),
+            ),
+            data: (about) {
+              final item = about.data.first;
 
-                          const SizedBox(height: 15),
-
-                          // 🔽 SCROLLABLE CONTENT
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  ...item.content.map(
-                                    (text) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 8),
-                                      child: Text(
-                                        text,
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // Version
-                          Text(
-                            "Version ${item.version}",
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
-                          ),
-
-                          const SizedBox(height: 15),
-
-                          AppButton(
-                            text: "Close",
-                            height: 45,
-                            onPressed: () => Navigator.pop(context),
-                            color: AppColors.btn_primery,
-                            width: double.infinity,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-
-                  error: (err, _) => Column(
+              return CommonAppDialog(
+                title: item.title,
+                content: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      const Text(
-                        "Error",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                      ...item.content.map(
+                        (text) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            text,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Text(err.toString()),
-                      const SizedBox(height: 16),
-                      AppButton(
-                        text: "Close",
-                        onPressed: () => Navigator.pop(context),
-                        color: Colors.red,
-                        height: 50,
-                        width: double.infinity,
+                      Text(
+                        "Version ${item.version}",
+                        style: const TextStyle(fontSize: 13, color: Colors.grey),
                       ),
                     ],
                   ),
-                  loading: () => const SizedBox(
-                    height: 100,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+}
 
-  void showPrivacyPolicyDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final privacypolicyAsync = ref.watch(Privacypolicyprovider);
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(17),
-                child: privacypolicyAsync.when(
-                  data: (privacy) {
-                    final item = privacy.data.first;
-                    return SizedBox(
-                      height:
-                          MediaQuery.of(context).size.height *
-                          0.6, //  dialog max height
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          Text(
-                            item.title,
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 15),
-                          CachedNetworkImage(
-                            imageUrl: "${ImageBaseUrl.baseUrl}/${item.media}",
-                            height: 140,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
 
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  ...item.content.map(
-                                    (text) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 8),
-                                      child: Text(
-                                        text,
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          GestureDetector(
-                            onTap: () async {
-                              final uri = Uri.parse(item.link);
+void showHelpAndSupport(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) {
+      return Consumer(
+        builder: (context, ref, _) {
+          final helpAsync = ref.watch(helpandsupportprovider);
 
-                              try {
-                                await launchUrl(
-                                  uri,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } catch (e) {
-                                debugPrint("Failed to open link: $e");
-                              }
-                            },
+          return helpAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => CommonAppDialog(
+              title: "Error",
+              content: Text(e.toString()),
+            ),
+            data: (help) {
+              final item = help.data.first;
 
-                            child: Text(
-                              item.link,
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                decoration: TextDecoration.underline,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          AppButton(
-                            text: "Close",
-                            onPressed: () => Navigator.pop(context),
-                            color: AppColors.btn_primery,
-                            height: 50,
-                            width: double.infinity,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  error: (err, _) => Column(
+              return CommonAppDialog(
+                title: "Help And Support",
+                content: SingleChildScrollView(
+                  child: Text(item.content),
+                ),
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
+void showPrivacyPolicyDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) {
+      return Consumer(
+        builder: (context, ref, _) {
+          final privacyAsync = ref.watch(Privacypolicyprovider);
+
+          return privacyAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => CommonAppDialog(
+              title: "Error",
+              content: Text(e.toString()),
+            ),
+            data: (privacy) {
+              final item = privacy.data.first;
+
+              return CommonAppDialog(
+                title: item.title,
+                content: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      const Text(
-                        "Error",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                      CachedNetworkImage(
+                        imageUrl:
+                            "${ImageBaseUrl.baseUrl}/${item.media}",
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(height: 10),
+                      ...item.content.map(
+                        (text) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(text, textAlign: TextAlign.center),
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Text(err.toString()),
-                      const SizedBox(height: 10),
-                      AppButton(
-                        text: "Close",
-                        onPressed: () => Navigator.pop(context),
-                        color: Colors.red,
-                        height: 50,
-                        width: double.infinity,
+                      GestureDetector(
+                        onTap: () async {
+                          await launchUrl(
+                            Uri.parse(item.link),
+                            mode: LaunchMode.externalApplication,
+                          );
+                        },
+                        child: Text(
+                          item.link,
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  loading: () => const SizedBox(
-                    height: 100,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+                closeButtonColor: AppColors.btn_primery,
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+}
 }
 
 
