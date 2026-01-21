@@ -88,7 +88,7 @@ static Future<String> getfcmToken()async{
     await prefs.remove(_tokenKey);
   }
 
-  // ================== LOGIN FLAG ==================
+  // ================== LOGIN FLAG ==================   
   static Future<void> setLoggedIn(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_loginKey, value);

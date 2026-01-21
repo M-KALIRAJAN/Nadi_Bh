@@ -231,6 +231,7 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
+
   @override
   void initState() {
     super.initState();

@@ -7,6 +7,7 @@ import 'package:nadi_user_app/views/auth/sign_in_otp.dart';
 import 'package:nadi_user_app/views/screens/edit_profile.dart';
 import 'package:nadi_user_app/views/screens/nodifications.dart';
 import 'package:nadi_user_app/views/screens/point_details.dart';
+import 'package:nadi_user_app/views/screens/points_nodification.dart';
 import 'package:nadi_user_app/views/screens/send_service_request.dart';
 import 'package:nadi_user_app/views/screens/service_request_details.dart';
 import 'package:nadi_user_app/views/screens/view_all_logs.dart';
@@ -80,6 +81,10 @@ final appRouter = GoRouter(
       path: RouteNames.nodifications,
       builder: (context, state) => const Nodifications(),
       ),
+      GoRoute(
+        path: RouteNames.pointnodification,
+        builder: (context, state) => const PointsNodification(),
+        ),
     GoRoute(
       path: RouteNames.accountverfy,
       builder: (context, state) => const AccountVerification(),

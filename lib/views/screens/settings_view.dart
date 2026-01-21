@@ -11,7 +11,6 @@ import 'package:nadi_user_app/providers/aboutProvider.dart';
 import 'package:nadi_user_app/providers/theme_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
-import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 import 'package:nadi_user_app/widgets/dialogs/common_app_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 

@@ -514,7 +514,6 @@ class _LoginViewState extends State<LoginView> {
                           ),
 
                           const SizedBox(height: 10),
-
                           const Center(child: Text("OR")),
                           const SizedBox(height: 10),
                           InkWell(

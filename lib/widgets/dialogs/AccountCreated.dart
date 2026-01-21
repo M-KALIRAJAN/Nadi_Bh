@@ -52,55 +52,58 @@ class _AccountcreatedState extends State<Accountcreated>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background_clr,
-      body: SafeArea(
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    "assets/images/accountcreated.png",
-                    height: 190,
-                    width: 190,
-                  ),
-                  const SizedBox(height: 10),
-
-                 const Text(
-                    "Account Created",
-                    style: TextStyle(
-                      fontSize: AppFontSizes.large,
-                      fontWeight: FontWeight.w700,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: AppColors.background_clr,
+        body: SafeArea(
+          child: Center(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      "assets/images/accountcreated.png",
+                      height: 190,
+                      width: 190,
                     ),
-                  ),
-                  const SizedBox(height: 5),
-
-                 const Text(
-                    "Successfully!",
-                    style: TextStyle(
-                      fontSize: AppFontSizes.large,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.btn_primery,
+                    const SizedBox(height: 10),
+      
+                   const Text(
+                      "Account Created",
+                      style: TextStyle(
+                        fontSize: AppFontSizes.large,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 15),
-
-                 const Text(
-                    "Welcome to Nadi Bahrain Services. You can now\nsign in to your new account.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.borderGrey,
-                      fontSize: AppFontSizes.small,
-                      height: 1.4,
+                    const SizedBox(height: 5),
+      
+                   const Text(
+                      "Successfully!",
+                      style: TextStyle(
+                        fontSize: AppFontSizes.large,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.btn_primery,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 15),
+      
+                   const Text(
+                      "Welcome to Nadi Bahrain Services. You can now\nsign in to your new account.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.borderGrey,
+                        fontSize: AppFontSizes.small,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -198,8 +198,9 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
       );
 
       AppLogger.warn("createServiceRequestes ${jsonEncode(response)}");
-final serviceRequestId = response?['data']?['serviceRequestID']?.toString();
-  AppLogger.warn("serviceRequestID $serviceRequestId");
+      final serviceRequestId = response?['data']?['serviceRequestID']
+          ?.toString();
+      AppLogger.warn("serviceRequestID $serviceRequestId");
       if (!mounted) return;
 
       setState(() => _isLoading = false);
@@ -208,8 +209,9 @@ final serviceRequestId = response?['data']?['serviceRequestID']?.toString();
         final message = response['message'];
 
         //  SUCCESS
-        if (message == "Service created successfully" && serviceRequestId != null) {
-          context.push(RouteNames.requestcreatesucess ,extra: serviceRequestId);
+        if (message == "Service created successfully" &&
+            serviceRequestId != null) {
+          context.push(RouteNames.requestcreatesucess, extra: serviceRequestId);
         }
         //  ERROR FROM API (ACCOUNT NOT VERIFIED etc.)
         else {
@@ -431,8 +433,19 @@ final serviceRequestId = response?['data']?['serviceRequestID']?.toString();
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 15),
 
+                      const SizedBox(height: 3),
+                      Text(
+                        "${selectedImages.length} / 10 images selected",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: selectedImages.length == 10
+                              ? Colors.red
+                              : Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       MediaUploadWidget(
                         images: selectedImages,
                         onAddTap: () {
@@ -446,58 +459,7 @@ final serviceRequestId = response?['data']?['serviceRequestID']?.toString();
                       ),
 
                       const SizedBox(height: 15),
-                      // Container(
-                      //   height: 49,
-                      //   width: double.infinity,
-                      //   decoration: BoxDecoration(
-                      //     borderRadius: BorderRadius.circular(12),
-                      //     color: Color.fromRGBO(76, 149, 129, 100),
-                      //   ),
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.all(8.0),
-                      //     child: GestureDetector(
-                      //       onTap: VoiceRecord,
-                      //       child: Container(
-                      //         height: 49,
-                      //         width: double.infinity,
-                      //         decoration: BoxDecoration(
-                      //           borderRadius: BorderRadius.circular(12),
-                      //           color: isRecording
-                      //               ? const Color.fromARGB(255, 8, 101, 42)
-                      //               : Color.fromRGBO(76, 149, 129, 1),
-                      //         ),
-                      //         padding: const EdgeInsets.symmetric(
-                      //           horizontal: 12,
-                      //         ),
-                      //         child: Row(
-                      //           children: [
-                      //             Icon(
-                      //               isRecording ? Icons.stop : Icons.mic,
-                      //               color: Colors.white,
-                      //             ),
-                      //             const SizedBox(width: 10),
-                      //             Text(
-                      //               isRecording
-                      //                   ? "Recording... "
-                      //                   : "Record Voice",
-                      //               style: const TextStyle(
-                      //                 color: Colors.white,
-                      //                 fontSize: 16,
-                      //               ),
-                      //             ),
-                      //             const Spacer(),
-                      //             if (isRecording)
-                      //               const Icon(
-                      //                 Icons.circle,
-                      //                 color: Colors.white,
-                      //                 size: 12,
-                      //               ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                   
                       const SizedBox(height: 15),
                       RecordWidget(
                         onRecordComplete: (file) {

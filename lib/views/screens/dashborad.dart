@@ -5,7 +5,6 @@ import 'package:nadi_user_app/models/Userdashboard_model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,8 +44,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
   Future<void> getUserData() async {
     final response = await _homeViewService.userDashboard();
-    await AppPreferences.saveusername(response.name ?? "");
-    await AppPreferences.savePoints(response.points ?? 0);
+    await AppPreferences.saveusername(response.name );
+    await AppPreferences.savePoints(response.points );
     AppLogger.warn("getUserData********* ${response.name}");
     setState(() {
       dashboard = response;

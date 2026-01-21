@@ -5,14 +5,15 @@ import 'package:nadi_user_app/core/constants/app_consts.dart';
 class IndividualPointsCard extends StatelessWidget {
   final String date;
   final String text;
-  final Image icon;
+  final String status;
   final String points;
   const IndividualPointsCard({
     super.key,
     required this.date,
     required this.text,
-    required this.icon,
+
     required this.points,
+    required this.status,
   });
 
   @override
@@ -56,15 +57,35 @@ class IndividualPointsCard extends StatelessWidget {
             ),
             Row(
               children: [
-                icon,
+                status == "debit"
+                    ? Image.asset(
+                        "assets/icons/down.png",
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.contain,
+                      )
+                    : Image.asset(
+                        "assets/icons/up.png",
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.contain,
+                      ),
                 SizedBox(width: 3),
-                Text(
-                  points,
-                  style: TextStyle(
-                    color: AppColors.btn_primery,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                status == "debit"
+                    ? Text(
+                        " -${points}",
+                        style: TextStyle(
+                          color: Color.fromRGBO(187, 62, 64, 1),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    : Text(
+                         " +${points}",
+                        style: TextStyle(
+                          color: AppColors.btn_primery,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ],
             ),
           ],

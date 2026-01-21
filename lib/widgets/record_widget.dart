@@ -1,13 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class RecordWidget extends StatefulWidget {
-  final Function(File?)? onRecordComplete; // callback to send recorded file to parent
+  final Function(File?)? onRecordComplete;
 
   const RecordWidget({super.key, this.onRecordComplete});
 
@@ -52,7 +53,8 @@ class _RecordWidgetState extends State<RecordWidget> {
     if (!hasPermission) return;
 
     final dir = await getApplicationDocumentsDirectory();
-    final path = '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final path =
+        '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     await _audioRecorder.start(
       RecordConfig(
@@ -117,7 +119,7 @@ class _RecordWidgetState extends State<RecordWidget> {
           child: Container(
             height: 50,
             decoration: BoxDecoration(
-              color: isRecording ? Colors.red : Colors.green,
+              color: isRecording ? Colors.red : AppColors.button_secondary,
               borderRadius: BorderRadius.circular(12),
             ),
             alignment: Alignment.center,
@@ -134,28 +136,47 @@ class _RecordWidgetState extends State<RecordWidget> {
             ),
           ),
         ),
+        const SizedBox(height: 10),
         if (recordedFilePath != null && !isRecording)
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                onPressed: playPauseVoice,
+          Container(
+            height: 52,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                  offset: Offset(0, 4), 
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                    onPressed: playPauseVoice,
+                  ),
+                  const Text("Recorded Voice"),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        recordedFilePath = null;
+                        isPlaying = false;
+                      });
+                      if (widget.onRecordComplete != null) {
+                        widget.onRecordComplete!(null);
+                      }
+                    },
+                  ),
+                ],
               ),
-             const Text("Recorded Voice"),
-             const  Spacer(),
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  setState(() {
-                    recordedFilePath = null;
-                    isPlaying = false;
-                  });
-                  if (widget.onRecordComplete != null) {
-                    widget.onRecordComplete!(null);
-                  }
-                },
-              ),
-            ],
+            ),
           ),
       ],
     );

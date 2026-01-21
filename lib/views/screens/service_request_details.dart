@@ -14,11 +14,12 @@ class ServiceRequestDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// TIMELINE DATA (MAP BASED)
-    final timestamps = serviceData["statusTimestamps"];
-    final bool technicianAccepted = serviceData["technicianAccepted"] == true;
-    final String serviceStatus = serviceData["serviceStatus"];
+    /// ---------- IMAGES ----------
+    final List<String> images = getServiceImages(serviceData);
 
+    /// ---------- TIMELINE ----------
+    final timestamps = serviceData["statusTimestamps"];
+    final String serviceStatus = serviceData["serviceStatus"];
     final List acceptedTechnicians = serviceData["acceptedTechnicians"] ?? [];
 
     const List<String> statusOrder = [
@@ -29,117 +30,58 @@ class ServiceRequestDetails extends StatelessWidget {
       "paymentInProgress",
       "completed",
     ];
-    String getStepState(String stepKey, String currentStatus, Map timestamps) {
-      final stepIndex = statusOrder.indexOf(stepKey);
-      final currentIndex = statusOrder.indexOf(currentStatus);
 
-      if (timestamps[stepKey] != null) return "completed";
-      if (stepIndex == currentIndex) return "current";
-      return "pending";
-    }
+    final steps = [
+      {
+        "key": "submitted",
+        "title": "Request Submitted",
+        "description": "Your service request has been successfully submitted.",
+        "time": timestamps["submitted"],
+      },
+      {
+        "key": "accepted",
+        "title": "Admin Processing Request",
+        "description": "Nadi team is reviewing the details of your request.",
+        "time": timestamps["accepted"],
+      },
+      {
+        "key": "technicianAssigned",
+        "title": "Technician Assigned",
+        "description": "A technician has been assigned to your request.",
+        "time": timestamps["technicianAssigned"],
+        "acceptedTechnicians": acceptedTechnicians,
+      },
+      {
+        "key": "inProgress",
+        "title": "Service In Progress",
+        "description": "Technician is working on your service",
+        "time": timestamps["inProgress"],
+      },
+      {
+        "key": "paymentInProgress",
+        "title": "Payment In Progress",
+        "description": "Waiting for payment confirmation.",
+        "time": timestamps["paymentInProgress"],
+        "payment": serviceData["payment"],
+      },
+      {
+        "key": "completed",
+        "title": "Service Completed",
+        "description": "Service has been successfully completed.",
+        "time": timestamps["completed"],
+      },
+    ].map((e) => {...e, "currentStatus": serviceStatus}).toList();
 
-    final steps =
-        [
-          {
-            "key": "submitted",
-            "title": "Request Submitted",
-            "description":
-                "Your service request has been successfully submitted.",
-            "time": timestamps["submitted"],
-          },
-          {
-            "key": "accepted",
-            "title": "Admin Processing Request",
-            "description":
-                "Nadi team is reviewing the details of your request.",
-            "time": timestamps["accepted"],
-          },
-          {
-            "key": "technicianAssigned",
-            "title": "Technician Assigned",
-            "description": "A technician has been assigned to your request.",
-            "time": timestamps["technicianAssigned"],
-            "acceptedTechnicians": acceptedTechnicians,
-          },
-          {
-            "key": "inProgress",
-            "title": "Service In Progress",
-            "description": "Technician is working on your service",
-            "time": timestamps["inProgress"],
-          },
-          {
-            "key": "paymentInProgress",
-            "title": "Payment In Progress",
-            "description": "Waiting for payment confirmation.",
-            "time": timestamps["paymentInProgress"],
-            "payment": serviceData["payment"],
-          },
-          {
-            "key": "completed",
-            "title": "Service Completed",
-            "description": "Service has been successfully completed.",
-            "time": timestamps["completed"],
-          },
-        ].map((step) {
-          return {
-            ...step,
-            "currentStatus": serviceStatus, 
-          };
-        }).toList();
-
-    Widget ImageShimmer() {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 80,
-                decoration: BoxDecoration(color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    String getServiceImage(Map<String, dynamic> serviceData) {
-      final List media = serviceData["media"] ?? [];
-
-      //  Pick ONLY the first image
-      for (final file in media) {
-        final String name = file.toString().toLowerCase();
-
-        if (name.endsWith(".png") ||
-            name.endsWith(".jpg") ||
-            name.endsWith(".jpeg") ||
-            name.endsWith(".webp") ||
-            name.endsWith(".svg")) {
-          return "${ImageBaseUrl.baseUrl}/$file";
-        }
-      }
-
-      return "${ImageBaseUrl.baseUrl}/${serviceData["serviceId"]["serviceImage"]}";
-    }
-
+    /// ---------- UI ----------
     return Scaffold(
       backgroundColor: AppColors.background_clr,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            /// HEADER IMAGE
+            /// HEADER IMAGE (MULTI IMAGE)
             Stack(
               children: [
-                CachedNetworkImage(
-                  imageUrl: getServiceImage(serviceData),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  placeholder: (context, url) => ImageShimmer(),
-                  height: 220,
-                ),
+                ServiceImagePager(images: images, height: 220),
                 Positioned(
                   top: 50,
                   left: 20,
@@ -157,128 +99,17 @@ class ServiceRequestDetails extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
-                  /// TITLE
                   const Text(
                     "Service Request Details",
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  /// SERVICE OVERVIEW
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 30,
-                          height: 130,
-                          decoration: const BoxDecoration(
-                            color: Color.fromRGBO(13, 95, 72, 0.2),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              bottomLeft: Radius.circular(12),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Image.asset(
-                                "assets/icons/tag.png",
-                                height: 24,
-                                width: 24,
-                              ),
-                              Image.asset(
-                                "assets/icons/repair.png",
-                                height: 24,
-                                width: 24,
-                              ),
-                              Image.asset(
-                                "assets/icons/tag.png",
-                                height: 24,
-                                width: 24,
-                              ),
-                              Image.asset(
-                                "assets/icons/repair.png",
-                                height: 24,
-                                width: 24,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Service Overview",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  serviceData["serviceRequestID"],
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  serviceData["serviceId"]["name"],
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  formatIsoDateForUI(
-                                    serviceData["statusTimestamps"]["submitted"],
-                                  ),
-
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 10, right: 10),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.btn_primery,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            serviceData["serviceStatus"],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 20),
-                  // PROGRESS TRACKER (IMAGE LIKE)
+
+                  /// PROGRESS
                   ServiceProgressTimeline(steps: steps),
                   const SizedBox(height: 20),
-                  // COMPLAINT DETAILS
+
+                  /// COMPLAINT DETAILS
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -297,21 +128,15 @@ class ServiceRequestDetails extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          serviceData['feedback'],
-                          style: TextStyle(fontSize: 13),
+                          serviceData["feedback"] ?? "",
+                          style: const TextStyle(fontSize: 13),
                         ),
                         const SizedBox(height: 12),
-                        CachedNetworkImage(
-                  imageUrl: getServiceImage(serviceData),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  placeholder: (context, url) => ImageShimmer(),
-                  height: 150,
-                  
-                )
+                        ServiceImagePager(images: images, height: 200),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
 
                   /// FEEDBACK
@@ -321,9 +146,9 @@ class ServiceRequestDetails extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           "Feedback",
                           style: TextStyle(
@@ -342,6 +167,98 @@ class ServiceRequestDetails extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// ---------- IMAGE HELPERS ----------
+  List<String> getServiceImages(Map<String, dynamic> data) {
+    final List media = data["media"] ?? [];
+    final List<String> images = [];
+
+    for (final file in media) {
+      final name = file.toString().toLowerCase();
+      if (name.endsWith(".png") ||
+          name.endsWith(".jpg") ||
+          name.endsWith(".jpeg") ||
+          name.endsWith(".webp")) {
+        images.add("${ImageBaseUrl.baseUrl}/$file");
+      }
+    }
+
+    if (images.isEmpty && data["serviceId"]?["serviceImage"] != null) {
+      images.add(
+        "${ImageBaseUrl.baseUrl}/${data["serviceId"]["serviceImage"]}",
+      );
+    }
+
+    return images;
+  }
+
+  Widget ServiceImagePager({
+    required List<String> images,
+    required double height,
+  }) {
+    if (images.isEmpty) return const SizedBox.shrink();
+
+    final PageController controller = PageController();
+    final ValueNotifier<int> currentPage = ValueNotifier(0);
+
+    return SizedBox(
+      height: height,
+      width: double.infinity,
+      child: Stack(
+        children: [
+          /// IMAGES
+          PageView.builder(
+            controller: controller,
+            itemCount: images.length,
+            onPageChanged: (index) => currentPage.value = index,
+            itemBuilder: (_, index) {
+              return CachedNetworkImage(
+                imageUrl: images[index],
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(color: Colors.grey),
+                ),
+                errorWidget: (_, __, ___) =>
+                    const Center(child: Icon(Icons.broken_image)),
+              );
+            },
+          ),
+
+          if (images.length > 1)
+            Positioned(
+              bottom: 10,
+              left: 0,
+              right: 0,
+              child: ValueListenableBuilder<int>(
+                valueListenable: currentPage,
+                builder: (_, value, __) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      images.length,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: value == index ? 12 : 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: value == index
+                              ? AppColors.btn_primery
+                              : AppColors.button_secondary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -462,7 +379,11 @@ class _TimelineTile extends StatelessWidget {
         (data["acceptedTechnicians"] as List).isNotEmpty;
 
     final bool showPayment = data["payment"] != null;
-    final double lineHeight = showTechnicians ? 120.0 : showPayment ? 80:70.0;
+    final double lineHeight = showTechnicians
+        ? 120.0
+        : showPayment
+        ? 80
+        : 70.0;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,10 +498,7 @@ class _TimelineTile extends StatelessWidget {
               if (showPayment) ...[
                 const SizedBox(height: 5),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                   
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
                   // decoration: BoxDecoration(
                   //   color: Colors.green.shade50,
                   //   borderRadius: BorderRadius.circular(10),
@@ -588,14 +506,17 @@ class _TimelineTile extends StatelessWidget {
                   // ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.currency_rupee,
-                        size: 18,
-                        color: Colors.green,
+                      const Text(
+                        "BHD",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
                       ),
-                      const SizedBox(width: 3),
+                      const SizedBox(width: 5),
                       Text(
-                        "BH to Pay: BD ${data["payment"]}",
+                        "To Pay: ${double.parse(data["payment"].toString()).toStringAsFixed(3)}",
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

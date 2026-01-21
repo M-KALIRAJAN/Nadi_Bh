@@ -126,13 +126,15 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
         voiceFile: recordedFilePath != null ? File(recordedFilePath!) : null,
       );
       AppLogger.warn("createServiceRequestes ${jsonEncode(response)}");
-      final serviceRequestId = response?['data']?['serviceRequestID']?.toString();
+      final serviceRequestId = response?['data']?['serviceRequestID']
+          ?.toString();
       AppLogger.info("serviceRequestId $serviceRequestId");
       if (mounted) setState(() => _isLoading = false);
       if (response != null) {
         final message = response['message'];
-        if (message == "Service created successfully" &&  serviceRequestId != null) {
-          context.push(RouteNames.requestcreatesucess ,extra: serviceRequestId);
+        if (message == "Service created successfully" &&
+            serviceRequestId != null) {
+          context.push(RouteNames.requestcreatesucess, extra: serviceRequestId);
         }
         //  ERROR FROM API (ACCOUNT NOT VERIFIED etc.)
         else {
@@ -342,8 +344,19 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                           ),
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 3),
+                        Text(
+                          "${selectedImages.length} / 10 images selected",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selectedImages.length == 10
+                                ? Colors.red
+                                : Colors.grey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
 
+                        const SizedBox(height: 8),
                         // UPLOAD BUTTON
                         MediaUploadWidget(
                           images: selectedImages,
