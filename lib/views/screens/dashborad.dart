@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nadi_user_app/core/utils/BlinkingDot.dart';
 import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/models/Userdashboard_model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
+import 'package:nadi_user_app/services/ongoing_service.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,22 +32,37 @@ class _DashboardState extends ConsumerState<Dashboard> {
   String userName = "";
   String accountType = "";
   final HomeViewService _homeViewService = HomeViewService();
+  final OngoingService _ongoingService = OngoingService();
   DateTime? lastBackPressed;
   UserdashboardModel? dashboard;
+  Map<String, dynamic>? _ongoing;
   @override
   void initState() {
     super.initState();
     get_preferencevalue();
     getUserData();
+    fetchongoinproces();
     Future.microtask(() {
       ref.read(serviceListProvider.notifier).refresh();
     });
   }
 
+  Future<void> fetchongoinproces() async {
+    try {
+      final result = await _ongoingService.fetchongoingprocess();
+      setState(() {
+        _ongoing = result;
+      });
+      debugPrint("RESULT: $_ongoing");
+    } catch (e) {
+      debugPrint("ERROR: $e");
+    }
+  }
+
   Future<void> getUserData() async {
     final response = await _homeViewService.userDashboard();
-    await AppPreferences.saveusername(response.name );
-    await AppPreferences.savePoints(response.points );
+    await AppPreferences.saveusername(response.name);
+    await AppPreferences.savePoints(response.points);
     AppLogger.warn("getUserData********* ${response.name}");
     setState(() {
       dashboard = response;
@@ -113,6 +130,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
+    final data = _ongoing?['data'];
+final bool isOngoing = data != null && data['status'] == 'inProgress';
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -129,7 +148,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
               Container(
                 height: 170,
                 width: double.infinity,
-                padding: const EdgeInsets.only(left: 20,right: 20),
+                padding: const EdgeInsets.only(left: 20, right: 20),
                 decoration: BoxDecoration(
                   // color: AppColors.btn_primery,
                   gradient: LinearGradient(
@@ -200,7 +219,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                               ),
                             ],
                           ),
-                      
+
                           Container(
                             height: 40,
                             width: 40,
@@ -308,6 +327,113 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   ],
                 ),
               ),
+              data != null
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // LEFT: Icon
+                          Container(
+                            height: 42,
+                            width: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.red,
+                              size: 22,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // CENTER: Technician name + Request ID
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data['technicianName'],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Request ID: ${data['requestId']}",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // RIGHT: Status chip
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isOngoing
+                                  ? Colors.green.shade50
+                                  : Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isOngoing) ...[
+                                  const BlinkingDot(),
+                                  const SizedBox(width: 6),
+                                ],
+                                Text(
+                                  isOngoing ? "ONGOING" : "COMPLETED",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isOngoing
+                                        ? Colors.green.shade800
+                                        : Colors.grey.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
+
               SizedBox(height: 10),
               Column(
                 children: [
@@ -466,7 +592,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       horizontal: 20,
                     ),
                     child: Container(
-                      height: 162,
+                      height: 172,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -517,29 +643,11 @@ class _DashboardState extends ConsumerState<Dashboard> {
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                DonutChartExample(),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    statusItem(Color(0xFF0A615A), "Completed"),
-                                    statusItem(Colors.grey, "Pending"),
-                                    statusItem(
-                                      AppColors.gold_coin,
-                                      "Inprogress",
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                     Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                       child: DonutChartExample(),
+                     ),
+
                         ],
                       ),
                     ),

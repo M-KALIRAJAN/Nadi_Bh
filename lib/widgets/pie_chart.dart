@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:pie_chart/pie_chart.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/models/ServiceOverview_Model.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
-import 'package:pie_chart/pie_chart.dart';
-import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 
 class DonutChartExample extends StatefulWidget {
   const DonutChartExample({super.key});
@@ -15,7 +15,6 @@ class DonutChartExample extends StatefulWidget {
 
 class _DonutChartExampleState extends State<DonutChartExample> {
   final HomeViewService _homeViewService = HomeViewService();
-
   ServiceoverviewModel? serviceoverview;
 
   @override
@@ -25,61 +24,172 @@ class _DonutChartExampleState extends State<DonutChartExample> {
   }
 
   Future<void> getServiceOverview() async {
-    final response = await _homeViewService.serviceoverview();
-    setState(() {
-      serviceoverview = response;
-    });
+    try {
+      final response = await _homeViewService.serviceoverview();
+      setState(() {
+        serviceoverview = response;
+      });
 
-    AppLogger.success("UI LOG → Completed: ${response.serviceCompletedCount}");
-    AppLogger.success("UI LOG → Pending: ${response.servicePendingCount}");
-    AppLogger.success("UI LOG → Progress: ${response.serviceProgressCount}");
+      AppLogger.success("Completed: ${response.serviceCompletedCount}");
+      AppLogger.success("Pending: ${response.servicePendingCount}");
+      AppLogger.success("Progress: ${response.serviceProgressCount}");
+    } catch (e) {
+      AppLogger.error("Service overview error: $e");
+    }
   }
+
+  int get totalCount {
+    if (serviceoverview == null) return 0;
+    return serviceoverview!.serviceCompletedCount +
+        serviceoverview!.serviceProgressCount +
+        serviceoverview!.servicePendingCount;
+  }
+
+  Map<String, double> buildServiceDataMap() {
+    if (serviceoverview == null) return {};
+    return {
+      "Completed": serviceoverview!.serviceCompletedCount.toDouble(),
+      "In Progress": serviceoverview!.serviceProgressCount.toDouble(),
+      "Pending": serviceoverview!.servicePendingCount.toDouble(),
+    };
+  }
+
+  final List<Color> serviceColors = [
+    AppColors.btn_primery, // Completed
+    AppColors.gold_coin, // In Progress
+    Colors.grey, // Pending
+  ];
 
   @override
   Widget build(BuildContext context) {
-    Map<String, double> buildServiceDataMap() {
-      return {
-        "Completed": serviceoverview!.serviceCompletedCount.toDouble(),
-        "In Progress": serviceoverview!.serviceProgressCount.toDouble(),
-        "Pending": serviceoverview!.servicePendingCount.toDouble(),
-      };
-    }
-
-    final List<Color> serviceColors = [
-      AppColors.btn_primery,
-      AppColors.gold_coin,
-      Colors.grey,
-    ];
-
     if (serviceoverview == null) {
-      // SHIMMER EFFECT
       return Shimmer.fromColors(
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
-        child: Container(
-          height: 100,
-          width: 120,
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            shape: BoxShape.circle,
-          ),
+        child: Row(
+          children: [
+            Container(
+              height: 120,
+              width: 120,
+              decoration: const BoxDecoration(
+                color: Colors.grey,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              children: List.generate(
+                3,
+                (_) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  height: 16,
+                  width: 120,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
 
     final serviceDataMap = buildServiceDataMap();
 
-    return SizedBox(
-      height: 100,
-      width: 120,
-      child: PieChart(
-        dataMap: serviceDataMap,
-        chartRadius: 80,
-        chartType: ChartType.ring,
-        ringStrokeWidth: 22,
-        colorList: serviceColors,
-        legendOptions: const LegendOptions(showLegends: false),
-        chartValuesOptions: const ChartValuesOptions(showChartValues: false),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 120,
+          width: 120,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PieChart(
+                dataMap: serviceDataMap,
+                chartRadius: 80,
+                chartType: ChartType.ring,
+                ringStrokeWidth: 22,
+                colorList: serviceColors,
+                legendOptions: const LegendOptions(showLegends: false),
+                chartValuesOptions: const ChartValuesOptions(
+                  showChartValues: false,
+                ),
+              ),
+
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    totalCount.toString(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    "Total",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 20),
+
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildLegend(
+                color: AppColors.btn_primery,
+                label: "Completed",
+                count: serviceoverview!.serviceCompletedCount,
+              ),
+              _buildLegend(
+                color: AppColors.gold_coin,
+                label: "In Progress",
+                count: serviceoverview!.serviceProgressCount,
+              ),
+              _buildLegend(
+                color: Colors.grey,
+                label: "Pending",
+                count: serviceoverview!.servicePendingCount,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegend({
+    required Color color,
+    required String label,
+    required int count,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+          Text(
+            count.toString(),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

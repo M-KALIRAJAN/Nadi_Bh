@@ -48,7 +48,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
   bool isChecked = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool isRecording = false;
-  String? recordedFilePath;
+  File? recordedVoice;
   bool isPlaying = false;
   final TextEditingController _timeController = TextEditingController();
   @override
@@ -58,14 +58,16 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
   }
 
   Future<void> playPauseVoice() async {
-    if (recordedFilePath == null) return;
+    if (recordedVoice == null) return;
 
     if (isPlaying) {
       await _audioPlayer.pause();
       setState(() => isPlaying = false);
     } else {
-      await _audioPlayer.stop(); //  VERY IMPORTANT (reset previous audio)
-      await _audioPlayer.play(DeviceFileSource(recordedFilePath!));
+      await _audioPlayer.stop();
+      await _audioPlayer.play(
+        DeviceFileSource(recordedVoice!.path), // ✅ FIX
+      );
       setState(() => isPlaying = true);
     }
   }
@@ -117,13 +119,14 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
       AppLogger.warn("**************************************88");
       AppLogger.warn("selectcategoryId $widget.serviceId");
       final response = await _requestSerivices.createServiceRequestes(
-        serviceId: widget.serviceId!,
+        serviceId: widget.serviceId,
         issuesId: selectedIssueId!,
         feedback: descriptionController.text,
         scheduleService: _dateController.text,
         immediateAssistance: isChecked,
         images: selectedImages.map((e) => File(e.path)).toList(),
-        voiceFile: recordedFilePath != null ? File(recordedFilePath!) : null,
+        time: _timeController.text,
+        voice: recordedVoice,
       );
       AppLogger.warn("createServiceRequestes ${jsonEncode(response)}");
       final serviceRequestId = response?['data']?['serviceRequestID']
@@ -331,7 +334,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                           label: "selected Time",
                           onTimeSelected: (time) {
                             // Do something with the selected time
-                            print("User selected: $time");
+                            print("User selected********************8: $time");
                           },
                         ),
                         const SizedBox(height: 22),
@@ -388,45 +391,10 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                         ),
                         RecordWidget(
                           onRecordComplete: (file) {
-                            recordedFilePath = file?.path;
+                            recordedVoice = file;
                           },
                         ),
-                        const SizedBox(height: 15),
-                        if (recordedFilePath != null && !isRecording) ...[
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(
-                                    isPlaying ? Icons.pause : Icons.play_arrow,
-                                  ),
-                                  onPressed: playPauseVoice,
-                                ),
-                                const Text("Recorded Voice"),
-                                const Spacer(),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      recordedFilePath = null;
-                                      isPlaying = false;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 15),
-                        ],
+                      
                         const SizedBox(height: 15),
                         // ACTION BUTTONS
                         AppButton(

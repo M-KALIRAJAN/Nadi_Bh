@@ -158,7 +158,7 @@ class _RecentActivityState extends State<RecentActivity> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          formatIsoDateForUI(log.time.toString() ?? ""),
+                          formatIsoDateForUI(log.time.toString()),
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 12,

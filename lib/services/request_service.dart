@@ -24,7 +24,8 @@ class RequestSerivices {
     required String scheduleService,
     required bool immediateAssistance,
     required List<File> images,
-    File? voiceFile,
+    File? voice,
+    required String time
   }) async {
     try {
       final formData = FormData();
@@ -34,6 +35,7 @@ class RequestSerivices {
         MapEntry("serviceId", serviceId),
         MapEntry("issuesId", issuesId),
         MapEntry("feedback", feedback),
+        MapEntry("scheduleServiceTime", time),
         MapEntry("scheduleService", scheduleService),
         MapEntry("immediateAssistance", immediateAssistance ? "true" : "false"),
       ]);
@@ -52,13 +54,13 @@ class RequestSerivices {
       }
 
       // Voice file (optional)
-      if (voiceFile != null) {
+      if (voice != null) {
         formData.files.add(
           MapEntry(
             "voice",
             await MultipartFile.fromFile(
-              voiceFile.path,
-              filename: voiceFile.path.split('/').last,
+              voice.path,
+              filename: voice.path.split('/').last,
             ),
           ),
         );

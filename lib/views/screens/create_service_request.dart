@@ -31,7 +31,8 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
   bool isChecked = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool isRecording = false;
-  String? recordedFilePath;
+  File? recordedVoice;
+
   bool isPlaying = false;
 
   final TextEditingController descriptionController = TextEditingController();
@@ -92,66 +93,20 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
     }
   }
 
-  // Future<void> startRecording() async {
-  //   final hasPermission = await requestMicPermission();
-
-  //   if (!hasPermission) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("Microphone permission required")),
-  //     );
-  //     return;
-  //   }
-
-  //   final dir = await getApplicationDocumentsDirectory();
-  //   final path =
-  //       '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
-  //   await _audioRecorder.start(
-  //     RecordConfig(
-  //       encoder: AudioEncoder.aacLc,
-  //       bitRate: 128000,
-  //       sampleRate: 44100,
-  //     ),
-  //     path: path,
-  //   );
-
-  //   setState(() {
-  //     isRecording = true;
-  //     recordedFilePath = path;
-  //   });
-  // }
-
-  // Future<void> stopRecording() async {
-  //   final path = await _audioRecorder.stop();
-
-  //   await _audioPlayer.stop();
-  //   setState(() {
-  //     isRecording = false;
-  //     recordedFilePath = path;
-  //     isPlaying = false;
-  //   });
-  // }
-
   Future<void> playPauseVoice() async {
-    if (recordedFilePath == null) return;
+    if (recordedVoice == null) return;
 
     if (isPlaying) {
       await _audioPlayer.pause();
       setState(() => isPlaying = false);
     } else {
-      await _audioPlayer.stop(); //  VERY IMPORTANT (reset previous audio)
-      await _audioPlayer.play(DeviceFileSource(recordedFilePath!));
+      await _audioPlayer.stop();
+      await _audioPlayer.play(
+        DeviceFileSource(recordedVoice!.path), //  FIX
+      );
       setState(() => isPlaying = true);
     }
   }
-
-  // Future<void> VoiceRecord() async {
-  //   if (isRecording) {
-  //     await stopRecording();
-  //   } else {
-  //     await startRecording();
-  //   }
-  // }
 
   Future<void> pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(
@@ -188,13 +143,16 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
     setState(() => _isLoading = true);
 
     try {
+      final File? voiceFile = recordedVoice;
       final response = await _requestSerivices.createServiceRequestes(
         serviceId: selectcategoryId!,
         issuesId: selectedIssueId!,
         feedback: descriptionController.text,
         scheduleService: _dateController.text,
         immediateAssistance: isChecked,
+        time: _timeController.text,
         images: selectedImages.map((e) => File(e.path)).toList(),
+        voice: recordedVoice,
       );
 
       AppLogger.warn("createServiceRequestes ${jsonEncode(response)}");
@@ -459,12 +417,12 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       ),
 
                       const SizedBox(height: 15),
-                   
+
                       const SizedBox(height: 15),
                       RecordWidget(
                         onRecordComplete: (file) {
                           setState(() {
-                            recordedFilePath = file?.path;
+                            recordedVoice = file; //  STORE FILE DIRECTLY
                           });
                         },
                       ),
