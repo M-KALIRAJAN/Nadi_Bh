@@ -23,7 +23,7 @@ class _TermsandconditionsState extends State<Termsandconditions> {
       try{
      final userId = await AppPreferences.getUserId();
      final fcmToken = await AppPreferences.getfcmToken();
-       AppLogger.error(" fcmToken *******************: $fcmToken");
+      //  AppLogger.error(" fcmToken *******************: $fcmToken");
        final response = await _authService.TermsAndSonditions(userId: userId!,fcmToken:fcmToken);
        
     //     final responsesendotp = await _authService.SendOTP(userId: userId!,);
