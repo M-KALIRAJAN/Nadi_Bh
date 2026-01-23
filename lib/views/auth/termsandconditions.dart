@@ -18,34 +18,36 @@ class _TermsandconditionsState extends State<Termsandconditions> {
   bool isChecked = false;
   bool _isLoading = false;
   AuthService _authService = AuthService();
-   Future<void> CompleteRegistration(BuildContext context)async{
-      setState(() => _isLoading = true);
-      try{
-     final userId = await AppPreferences.getUserId();
-     final fcmToken = await AppPreferences.getfcmToken();
+  Future<void> CompleteRegistration(BuildContext context) async {
+    setState(() => _isLoading = true);
+    try {
+      final userId = await AppPreferences.getUserId();
+      final fcmToken = await AppPreferences.getfcmToken();
       //  AppLogger.error(" fcmToken *******************: $fcmToken");
-       final response = await _authService.TermsAndSonditions(userId: userId!,fcmToken:fcmToken);
-       
-    //     final responsesendotp = await _authService.SendOTP(userId: userId!,);
-    //    AppLogger.success("CompleteRegistration : $response");
-    //     //  AppLogger.success("responsesendotp : $responsesendotp");
-    //    if(response != null  && responsesendotp != null  ){
-    //       final otp = responsesendotp['otp'].toString();
-      
-     
-    // Future.delayed(const Duration(seconds: 1), () {
+      final response = await _authService.TermsAndSonditions(
+        userId: userId!,
+        fcmToken: fcmToken,
+      );
 
-    //   });
-           
-    //    }
-        context.push(RouteNames.opt);
-      }catch(e){
-        AppLogger.error("CompleteRegistration error: $e");
-      }finally {
-    setState(() => _isLoading = false);
+      //     final responsesendotp = await _authService.SendOTP(userId: userId!,);
+      //    AppLogger.success("CompleteRegistration : $response");
+      //     //  AppLogger.success("responsesendotp : $responsesendotp");
+      //    if(response != null  && responsesendotp != null  ){
+      //       final otp = responsesendotp['otp'].toString();
+
+      // Future.delayed(const Duration(seconds: 1), () {
+
+      //   });
+
+      //    }
+      context.push(RouteNames.opt);
+    } catch (e) {
+      AppLogger.error("CompleteRegistration error: $e");
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
-   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +60,7 @@ class _TermsandconditionsState extends State<Termsandconditions> {
               const SizedBox(height: 16),
 
               /// Title
-             const Text(
+              const Text(
                 "Terms & Conditions",
                 style: TextStyle(
                   fontSize: AppFontSizes.xLarge,
@@ -85,7 +87,7 @@ class _TermsandconditionsState extends State<Termsandconditions> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       /// Header
-                     const Text(
+                      const Text(
                         "Our Commitments To You",
                         style: TextStyle(
                           color: AppColors.btn_primery,
@@ -110,7 +112,7 @@ There are many variations of passages of Lorem Ipsum available, but the majority
 
                       const Spacer(),
 
-                     const Text(
+                      const Text(
                         "Read the full Terms & Conditions",
                         style: TextStyle(
                           color: AppColors.btn_primery,
@@ -158,12 +160,11 @@ There are many variations of passages of Lorem Ipsum available, but the majority
                 ),
                 child: AppButton(
                   text: "Complete Registration",
-                   isLoading: _isLoading,
+                  isLoading: _isLoading,
                   onPressed: () {
-                    if (isChecked){
-                       CompleteRegistration(context);
+                    if (isChecked) {
+                      CompleteRegistration(context);
                     }
-                 
                   },
                   color: isChecked
                       ? AppColors.btn_primery
