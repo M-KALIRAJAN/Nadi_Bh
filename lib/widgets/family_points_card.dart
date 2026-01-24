@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 
 class FamilyPointsCard extends StatelessWidget {
-  final String date;
+
   final String text;
   final String subtext;
   final String points;
 
   const FamilyPointsCard({
     super.key,
-    required this.date,
     required this.text,
-  
-    required this.points, required this.subtext,
+    required this.points,
+    required this.subtext,
   });
 
   @override
@@ -25,24 +24,22 @@ class FamilyPointsCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-                   CircleAvatar(
-            radius: 20,
-            child: ClipOval(
-              child: Image.asset(
-                "assets/images/service.png",
-                fit: BoxFit.cover,
-                width: 40,
-                height: 40,
-              ),
-            ),
-          ),
-          SizedBox(width: 10,),
+          //          CircleAvatar(
+          //   radius: 20,
+          //   child: ClipOval(
+          //     child: Image.asset(
+          //       "assets/images/service.png",
+          //       fit: BoxFit.cover,
+          //       width: 40,
+          //       height: 40,
+          //     ),
+          //   ),
+          // ),
+          SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-       
-              
                 Text(
                   text,
                   maxLines: 1,
@@ -52,16 +49,15 @@ class FamilyPointsCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                 
-                     Text(
-                  subtext,
+
+                Text(
+                  "+973 $subtext" ,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: AppFontSizes.small,
                     fontWeight: FontWeight.w500,
-
                   ),
                 ),
               ],
@@ -70,13 +66,12 @@ class FamilyPointsCard extends StatelessWidget {
 
           const SizedBox(width: 10),
 
-      
           Text(
             points,
             style: TextStyle(
               color: Color.fromRGBO(213, 155, 8, 1),
               fontWeight: FontWeight.w600,
-              fontSize: 16
+              fontSize: 16,
             ),
           ),
         ],

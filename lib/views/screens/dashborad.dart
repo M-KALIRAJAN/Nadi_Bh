@@ -4,6 +4,7 @@ import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/models/Userdashboard_model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/ongoing_service.dart';
@@ -44,6 +45,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
     fetchongoinproces();
     Future.microtask(() {
       ref.read(serviceListProvider.notifier).refresh();
+      ref.refresh(fetchpointsnodification);
     });
   }
 
@@ -130,8 +132,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
+    final notificationCount = ref.watch(fetchpointsnodification);
     final data = _ongoing?['data'];
-final bool isOngoing = data != null && data['status'] == 'inProgress';
+    final bool isOngoing = data != null && data['status'] == 'inProgress';
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -229,7 +232,7 @@ final bool isOngoing = data != null && data['status'] == 'inProgress';
                             ),
                             child: InkWell(
                               onTap: () {
-                                context.push(RouteNames.nodifications);
+                                context.push(RouteNames.pointnodification);
                               },
                               child: Center(
                                 child: Stack(
@@ -239,26 +242,46 @@ final bool isOngoing = data != null && data['status'] == 'inProgress';
                                       color: Colors.white,
                                       size: 27,
                                     ),
-                                    Positioned(
-                                      left: 11,
-                                      child: Container(
-                                        height: 14,
-                                        width: 14,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.white,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "25",
-                                            style: TextStyle(
-                                              color: AppColors.btn_primery,
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.bold,
+                                    notificationCount.when(
+                                      loading: () => const SizedBox(),
+                                      error: (_, __) => const SizedBox(),
+                                      data: (response) {
+                                        final count = response.data.length;
+
+                                        if (count == 0) return const SizedBox();
+
+                                        final displayText = count > 99
+                                            ? "99+"
+                                            : "$count";
+
+                                        return Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            height: 16,
+                                            constraints: const BoxConstraints(
+                                              minWidth: 16,
+                                            ),
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white,
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                displayText,
+                                                style: TextStyle(
+                                                  color: AppColors.btn_primery,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -643,11 +666,10 @@ final bool isOngoing = data != null && data['status'] == 'inProgress';
                               ],
                             ),
                           ),
-                     Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                       child: DonutChartExample(),
-                     ),
-
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: DonutChartExample(),
+                          ),
                         ],
                       ),
                     ),

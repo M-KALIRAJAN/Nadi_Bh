@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/views/auth/forgotpassword.dart';
 import 'package:nadi_user_app/views/auth/sign_in_otp.dart';
+import 'package:nadi_user_app/views/screens/HelpSupportView.dart';
+import 'package:nadi_user_app/views/screens/PrivacyPolicyView.dart';
 import 'package:nadi_user_app/views/screens/edit_profile.dart';
 import 'package:nadi_user_app/views/screens/nodifications.dart';
 import 'package:nadi_user_app/views/screens/point_details.dart';
@@ -28,6 +29,7 @@ import 'package:nadi_user_app/views/screens/CustomSplashScreen.dart';
 import 'package:nadi_user_app/views/screens/ServiceRequest.dart';
 import 'package:nadi_user_app/views/screens/create_service_request.dart';
 import 'package:nadi_user_app/widgets/dialogs/RequestCreateSucess.dart';
+
 final appRouter = GoRouter(
   initialLocation: RouteNames.splash,
 
@@ -39,27 +41,28 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteNames.phonewithotp,
       builder: (context, state) => const SignInOtp(),
-      ),
+    ),
     GoRoute(
       path: RouteNames.language,
       builder: (context, state) => const LanguangeView(),
-    ), GoRoute(
+    ),
+    GoRoute(
       path: RouteNames.forgotpassword,
       builder: (context, state) => const Forgotpassword(),
     ),
-  GoRoute(
-  path: RouteNames.requestcreatesucess,
-  builder: (context, state) {
-    // Cast state.extra to String safely
-    final serviceRequestId = state.extra as String?;
-    if (serviceRequestId == null) {
-      return Scaffold(
-        body: Center(child: Text("No Service Request ID found")),
-      );
-    }
-    return Requestcreatesucess(serviceRequestId: serviceRequestId);
-  },
-),
+    GoRoute(
+      path: RouteNames.requestcreatesucess,
+      builder: (context, state) {
+        // Cast state.extra to String safely
+        final serviceRequestId = state.extra as String?;
+        if (serviceRequestId == null) {
+          return Scaffold(
+            body: Center(child: Text("No Service Request ID found")),
+          );
+        }
+        return Requestcreatesucess(serviceRequestId: serviceRequestId);
+      },
+    ),
 
     GoRoute(
       path: RouteNames.login,
@@ -80,31 +83,44 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteNames.nodifications,
       builder: (context, state) => const Nodifications(),
-      ),
-      GoRoute(
-        path: RouteNames.pointnodification,
-        builder: (context, state) => const PointsNodification(),
-        ),
+    ),
+    GoRoute(
+      path: RouteNames.pointnodification,
+      builder: (context, state) => const PointsNodification(),
+    ),
+    GoRoute(
+      path: RouteNames.aboutscreen,
+      builder: (context, state) => const AboutView(),
+    ),
+    GoRoute(
+      path: RouteNames.helpSupport,
+      builder: (context, state) => const HelpSupportView(),
+    ),
+    GoRoute(
+      path: RouteNames.privacyPolicy,
+      builder: (context, state) => const PrivacyPolicyView(),
+    ),
+
     GoRoute(
       path: RouteNames.accountverfy,
       builder: (context, state) => const AccountVerification(),
     ),
     GoRoute(
       path: RouteNames.creterequest,
-      builder: (context, state) =>const  CreateServiceRequest(),
+      builder: (context, state) => const CreateServiceRequest(),
     ),
-    
+
     GoRoute(
       path: RouteNames.uploadcard,
       builder: (context, state) => const UploadIdView(),
     ),
-      GoRoute(
+    GoRoute(
       path: RouteNames.viewalllogs,
       builder: (context, state) => const ViewAllLogs(),
     ),
     GoRoute(
       path: RouteNames.welcome,
-      builder: (context, state) =>const  WelcomeView(),
+      builder: (context, state) => const WelcomeView(),
     ),
     GoRoute(
       path: RouteNames.serviceRequestDetails,
@@ -133,18 +149,18 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: RouteNames.accountcreated,
-      builder: (context, state) =>const Accountcreated(),
+      builder: (context, state) => const Accountcreated(),
     ),
-   GoRoute(
-  path: RouteNames.opt,
-  builder: (context, state) {
-    final otp = state.extra as String?;
-    return Otp(receivedOtp: otp);
-  },
-),
+    GoRoute(
+      path: RouteNames.opt,
+      builder: (context, state) {
+        final otp = state.extra as String?;
+        return Otp(receivedOtp: otp);
+      },
+    ),
 
     GoRoute(
-      builder: (context, state) =>const EditProfile(),
+      builder: (context, state) => const EditProfile(),
       path: RouteNames.editprfoile,
     ),
     GoRoute(
@@ -155,18 +171,18 @@ final appRouter = GoRouter(
       path: RouteNames.pointdetails,
       builder: (context, state) => const PointDetails(),
     ),
-GoRoute(
-  path: RouteNames.sendservicerequest,
-  builder: (context, state) {
-    final data = state.extra as Map<String, dynamic>;
+    GoRoute(
+      path: RouteNames.sendservicerequest,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
 
-    return SendServiceRequest(
-      title: data['title'],
-      imagePath: data['imagePath'],
-       serviceId: data['serviceId'],
-    );
-  },
-),
+        return SendServiceRequest(
+          title: data['title'],
+          imagePath: data['imagePath'],
+          serviceId: data['serviceId'],
+        );
+      },
+    ),
 
     GoRoute(
       path: RouteNames.bottomnav,

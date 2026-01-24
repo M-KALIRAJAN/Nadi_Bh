@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:nadi_user_app/providers/family_member_points_list.dart';
+import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/widgets/family_points_card.dart';
 import 'package:nadi_user_app/widgets/individual_points_card.dart';
+import 'package:nadi_user_app/widgets/IncomingPointsRequestCard.dart';
 
 class PointDetails extends ConsumerStatefulWidget {
   const PointDetails({super.key});
@@ -26,7 +29,11 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
   void initState() {
     super.initState();
     _loadUserData();
-    Future.microtask(() => ref.refresh(pointshistoryprovider));
+    Future.microtask(() {
+      ref.refresh(pointshistoryprovider);
+      ref.refresh(fetchpointsnodification);
+      ref.refresh(FamilymemberpointslistProvider);
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -46,6 +53,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
   @override
   Widget build(BuildContext context) {
     final pointhistoryAsync = ref.watch(pointshistoryprovider);
+    final notificationCount = ref.watch(fetchpointsnodification);
+    final familymemberpointlist = ref.watch(FamilymemberpointslistProvider);
     return Scaffold(
       backgroundColor: AppColors.background_clr,
       body: Column(
@@ -56,7 +65,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
             children: [
               // Background Header
               Container(
-                height: 200,
+                height: 195,
                 width: double.infinity,
                 padding: EdgeInsets.only(top: 48, left: 20, right: 20),
                 decoration: BoxDecoration(
@@ -95,17 +104,57 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
 
                     InkWell(
                       onTap: () => context.push(RouteNames.pointnodification),
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                        child: const Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withOpacity(0.3),
+                            ),
+                            child: const Icon(
+                              Icons.notifications,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                          notificationCount.when(
+                            data: (response) {
+                              final count = response.data.length;
+                              final countText = count > 99 ? "99+" : "$count";
+                              return Positioned(
+                                top: 0,
+                                right: 5,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  height: 16,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      countText,
+                                      style: TextStyle(
+                                        color: AppColors.gold_coin,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            error: (_, _) => const SizedBox(),
+                            loading: () => const SizedBox(),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -114,12 +163,11 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
 
               // Positioned Profile Card
               Positioned(
-                bottom: -60,
+                bottom: -40,
                 left: 20,
                 right: 20,
                 child: Container(
-                  height: 162,
-
+                  height: 140,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
                     color: const Color.fromRGBO(217, 165, 32, 100),
@@ -129,7 +177,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: 70,
+                        height: 63,
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
@@ -154,7 +202,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 10),
 
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -206,7 +254,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      
                       Center(
                         child: Text(
                           points.toString(),
@@ -223,28 +271,51 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               ),
             ],
           ),
-const SizedBox(height: 55,),
-         
+          const SizedBox(height: 50),
+
+          /// 🔔 Incoming Points Requests
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Incoming Point Requests",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+
+                IncomingPointsRequestCard(
+                  name: "Ravi",
+                  date: "05 Jan 2026",
+                  points: "200",
+                  onAccept: () {
+                    // call accept API
+                  },
+                  onReject: () {
+                    // call reject API
+                  },
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 5, left: 15, bottom: 0),
+            child: const Text(
+              "Point History:",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   /// POINT HISTORY
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 15,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Point History",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                
-
                         pointhistoryAsync.when(
                           loading: () =>
                               const Center(child: CircularProgressIndicator()),
@@ -255,16 +326,13 @@ const SizedBox(height: 55,),
                               style: const TextStyle(color: Colors.red),
                             ),
                           ),
-
                           data: (response) {
                             final data = response.data;
-
                             if (data.isEmpty) {
                               return const Text("No History Found");
                             }
-
                             return ListView.builder(
-                              shrinkWrap: true, 
+                              shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: data.length,
                               itemBuilder: (context, index) {
@@ -272,7 +340,9 @@ const SizedBox(height: 55,),
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 10),
                                   child: IndividualPointsCard(
-                                    date: formatIsoDateForUI(item.updatedAt.toString()),
+                                    date: formatIsoDateForUI(
+                                      item.updatedAt.toString(),
+                                    ),
                                     text: item.history,
                                     status: item.status,
                                     points: item.points.toString(),
@@ -285,58 +355,76 @@ const SizedBox(height: 55,),
                       ],
                     ),
                   ),
-                 
                   if (accountType == "FA")
-                     
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 15,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Family Points",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                    familymemberpointlist.when(
+                      loading: () => const SizedBox(),
+                      error: (e, _) => const SizedBox(),
+                      data: (familypoints) {
+                        final data = familypoints.data;
+                        if (data.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Text("No Family Points Found"),
+                          );
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Family Points",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  final n = data[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: FamilyPointsCard(
+                                      text: n.basicInfo.fullName,
+                                      subtext: n.basicInfo.mobileNumber
+                                          .toString(),
+                                      points: n.points.toString(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 20),
-                          FamilyPointsCard(
-                            date: "2025-07-28",
-                            text: "Earned from daily",
-                            subtext: "individual points",
-                            points: "500",
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
- 
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15,),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          height: 38,
-                          width: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color.fromRGBO(217, 165, 32, 100),
-                          ),
-                          child: Image.asset("assets/icons/send.png"),
-                        ),
-                        Container(
-                          height: 38,
-                          width: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color.fromRGBO(217, 165, 32, 100),
-                          ),
-                          child: Image.asset("assets/icons/add.png"),
-                        ),
-                      ],
-                    ),
-                  ),
+
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(horizontal: 15),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: [
+                  //       Container(
+                  //         height: 38,
+                  //         width: 38,
+                  //         decoration: BoxDecoration(
+                  //           shape: BoxShape.circle,
+                  //           color: const Color.fromRGBO(217, 165, 32, 100),
+                  //         ),
+                  //         child: Image.asset("assets/icons/send.png"),
+                  //       ),
+                  //       Container(
+                  //         height: 38,
+                  //         width: 38,
+                  //         decoration: BoxDecoration(
+                  //           shape: BoxShape.circle,
+                  //           color: const Color.fromRGBO(217, 165, 32, 100),
+                  //         ),
+                  //         child: Image.asset("assets/icons/add.png"),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),

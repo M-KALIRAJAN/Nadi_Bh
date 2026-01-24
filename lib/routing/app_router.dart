@@ -26,5 +26,9 @@ class RouteNames {
  static const String nodifications ='/nodifications';
  static const String phonewithotp ='/phonewithotp';
  static const String pointnodification ="/pointnodification";
+ static const aboutscreen = "/aboutscreen";
+static const helpSupport = "/help-support";
+static const privacyPolicy = "/privacy-policy";
+
 
 }

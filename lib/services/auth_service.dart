@@ -294,11 +294,13 @@ class AuthService {
   Future<Map<String, dynamic>?> LoginApi({
     required String email,
     required String password,
+    required String fcmToken
   }) async {
     try {
+      print(" fcmToken*******77777777777777 $fcmToken");
       final response = await _dio.post(
         "user-account/signin",
-        data: {"email": email, "password": password},
+        data: {"email": email, "password": password ,fcmToken:"fcmToken"},
       );
       return response.data;
     } on DioException catch (e) {

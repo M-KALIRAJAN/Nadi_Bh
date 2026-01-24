@@ -178,7 +178,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                       text: "About App",
                       icon: Image.asset("assets/icons/i.png"),
                       onTap: () {
-                        showAppDialog(context);
+                        context.push(RouteNames.about);
                       },
                     ),
                     const SizedBox(height: 15),
@@ -186,9 +186,10 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                       text: "Help & Support",
                       icon: Image.asset("assets/icons/help.png"),
                       onTap: () {
-                        showHelpAndSupport(context);
+                        context.push(RouteNames.helpSupport);
                       },
                     ),
+
                     const SizedBox(height: 15),
 
                     Row(
@@ -309,9 +310,10 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                       text: "Privacy Policy",
                       icon: Image.asset("assets/icons/policy.png"),
                       onTap: () {
-                        showPrivacyPolicyDialog(context);
+                        context.push(RouteNames.privacyPolicy);
                       },
                     ),
+
                     const SizedBox(height: 20),
 
                     Row(
@@ -404,155 +406,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
     );
   }
 
-void showAppDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return Consumer(
-        builder: (context, ref, _) {
-          final aboutAsync = ref.watch(aboutProvider);
 
-          return aboutAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => CommonAppDialog(
-              title: "Error",
-              content: Text(e.toString()),
-            ),
-            data: (about) {
-              final item = about.data.first;
-
-              return CommonAppDialog(
-                title: item.title,
-                content: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ...item.content.map(
-                        (text) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            text,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Version ${item.version}",
-                        style: const TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
-    },
-  );
-}
-
-
-void showHelpAndSupport(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return Consumer(
-        builder: (context, ref, _) {
-          final helpAsync = ref.watch(helpandsupportprovider);
-
-          return helpAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => CommonAppDialog(
-              title: "Error",
-              content: Text(e.toString()),
-            ),
-            data: (help) {
-              final item = help.data.first;
-
-              return CommonAppDialog(
-                title: "Help And Support",
-                content: SingleChildScrollView(
-                  child: Text(item.content),
-                ),
-              );
-            },
-          );
-        },
-      );
-    },
-  );
-}
-
-
-
-void showPrivacyPolicyDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return Consumer(
-        builder: (context, ref, _) {
-          final privacyAsync = ref.watch(Privacypolicyprovider);
-
-          return privacyAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => CommonAppDialog(
-              title: "Error",
-              content: Text(e.toString()),
-            ),
-            data: (privacy) {
-              final item = privacy.data.first;
-
-              return CommonAppDialog(
-                title: item.title,
-                content: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl:
-                            "${ImageBaseUrl.baseUrl}/${item.media}",
-                        height: 140,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(height: 10),
-                      ...item.content.map(
-                        (text) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(text, textAlign: TextAlign.center),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () async {
-                          await launchUrl(
-                            Uri.parse(item.link),
-                            mode: LaunchMode.externalApplication,
-                          );
-                        },
-                        child: Text(
-                          item.link,
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                closeButtonColor: AppColors.btn_primery,
-              );
-            },
-          );
-        },
-      );
-    },
-  );
-}
 }
 
 

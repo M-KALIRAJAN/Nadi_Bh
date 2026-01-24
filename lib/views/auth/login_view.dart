@@ -315,10 +315,12 @@ class _LoginViewState extends State<LoginView> {
 
     final loginData = controller.getLoginData();
     final fcmToken = await AppPreferences.getfcmToken();
+  print(" fcmToken******************: $fcmToken");
     try {
       final response = await _authService.LoginApi(
         email: loginData.email,
         password: loginData.password,
+        fcmToken:fcmToken
       );
       print(" loginData: $response");
       if (response != null && response['token'] != null) {
