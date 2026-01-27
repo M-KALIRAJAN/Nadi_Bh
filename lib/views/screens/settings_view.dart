@@ -1,18 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
-import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
-import 'package:nadi_user_app/providers/HelpAndSuppord_Provider.dart';
-import 'package:nadi_user_app/providers/Privacypolicy_Provider.dart';
-import 'package:nadi_user_app/providers/aboutProvider.dart';
 import 'package:nadi_user_app/providers/theme_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
+import 'package:nadi_user_app/services/lockout_service.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
-import 'package:nadi_user_app/widgets/dialogs/common_app_dialog.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingsView extends ConsumerStatefulWidget {
   const SettingsView({super.key});
@@ -23,7 +17,7 @@ class SettingsView extends ConsumerStatefulWidget {
 
 class _SettingsViewState extends ConsumerState<SettingsView> {
   bool isToggleOn = false;
-
+  final LockoutService _lockoutService = LockoutService();
   // Reusable theme selector
   Widget themeOption(String type) {
     final currentTheme = ref.watch(themeProvider);
@@ -129,13 +123,22 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   @override
   Widget build(BuildContext context) {
     Future<void> _logout(BuildContext context) async {
-      // Clear all local storage
-      await AppPreferences.clearAll();
-      await AppPreferences.setLoggedIn(false);
-      // Optional: reset theme to system
-      // ref.read(themeProvider.notifier).changeTheme(ThemeMode.system);
+      try {
+        // Call backend logout
+        await _lockoutService.fetchLockout();
+        // Clear local storage
+        await AppPreferences.clearAll();
+        await AppPreferences.setLoggedIn(false);
 
-      context.go(RouteNames.splash);
+        // Navigate to splash
+        context.go(RouteNames.splash);
+      } catch (e) {
+        debugPrint('❌ Logout failed: $e');
+        // Still force logout if backend fails
+        await AppPreferences.clearAll();
+        await AppPreferences.setLoggedIn(false);
+        context.go(RouteNames.splash);
+      }
     }
 
     return Scaffold(
@@ -150,7 +153,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                 children: [
                   AppCircleIconButton(
                     icon: Icons.arrow_back,
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.push(RouteNames.bottomnav),
                   ),
                   const Text(
                     "Settings",
@@ -178,7 +181,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                       text: "About App",
                       icon: Image.asset("assets/icons/i.png"),
                       onTap: () {
-                        context.push(RouteNames.about);
+                        context.push(RouteNames.aboutscreen);
                       },
                     ),
                     const SizedBox(height: 15),
@@ -405,8 +408,6 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
       ),
     );
   }
-
-
 }
 
 

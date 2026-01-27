@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/utils/BlinkingDot.dart';
 import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
@@ -65,6 +66,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
     final response = await _homeViewService.userDashboard();
     await AppPreferences.saveusername(response.name);
     await AppPreferences.savePoints(response.points);
+    await AppPreferences.saveUserImage(response.image);
     AppLogger.warn("getUserData********* ${response.name}");
     setState(() {
       dashboard = response;
@@ -178,26 +180,52 @@ class _DashboardState extends ConsumerState<Dashboard> {
                         children: [
                           Row(
                             children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.btn_primery,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: const CircleAvatar(
-                                  radius: 22,
-                                  backgroundColor: Colors.blue,
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
+                              dashboard == null
+                                  ? const CircleAvatar(
+                                      radius: 22,
+                                      backgroundColor: Colors.grey,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : (dashboard!.image == null ||
+                                        dashboard!.image!.isEmpty)
+                                  ? Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.btn_primery,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: const CircleAvatar(
+                                        radius: 22,
+                                        backgroundColor: Colors.blue,
+                                        child: Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    )
+                                  : CachedNetworkImage(
+                                      imageUrl:
+                                          "${ImageBaseUrl.baseUrl}/${dashboard!.image}",
+                                      imageBuilder: (context, imageProvider) =>
+                                          CircleAvatar(
+                                            radius: 22,
+                                            backgroundImage: imageProvider,
+                                          ),
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                    ),
+
                               const SizedBox(width: 12),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -632,7 +660,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  "Servie Overview",
+                                  "Service Overview",
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,

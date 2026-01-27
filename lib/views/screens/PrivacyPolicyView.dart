@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/providers/Privacypolicy_Provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,7 +14,15 @@ class PrivacyPolicyView extends ConsumerWidget {
     final privacyAsync = ref.watch(Privacypolicyprovider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Privacy Policy")),
+      appBar: AppBar(
+        title: const Text(
+          "Privacy Policy",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: AppColors.btn_primery,
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
+      ),
       body: privacyAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(e.toString())),
@@ -25,8 +34,7 @@ class PrivacyPolicyView extends ConsumerWidget {
             child: Column(
               children: [
                 CachedNetworkImage(
-                  imageUrl:
-                      "${ImageBaseUrl.baseUrl}/${item.media}",
+                  imageUrl: "${ImageBaseUrl.baseUrl}/${item.media}",
                   height: 160,
                   width: double.infinity,
                   fit: BoxFit.cover,

@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/views/auth/forgotpassword.dart';
 import 'package:nadi_user_app/views/auth/sign_in_otp.dart';
+import 'package:nadi_user_app/views/screens/AboutView.dart';
 import 'package:nadi_user_app/views/screens/HelpSupportView.dart';
 import 'package:nadi_user_app/views/screens/PrivacyPolicyView.dart';
+import 'package:nadi_user_app/views/screens/allPointHistory.dart';
 import 'package:nadi_user_app/views/screens/edit_profile.dart';
 import 'package:nadi_user_app/views/screens/nodifications.dart';
 import 'package:nadi_user_app/views/screens/point_details.dart';
@@ -32,7 +34,6 @@ import 'package:nadi_user_app/widgets/dialogs/RequestCreateSucess.dart';
 
 final appRouter = GoRouter(
   initialLocation: RouteNames.splash,
-
   routes: [
     GoRoute(
       path: RouteNames.splash,
@@ -90,7 +91,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: RouteNames.aboutscreen,
-      builder: (context, state) => const AboutView(),
+      builder: (context, state) => const AboutsView(),
     ),
     GoRoute(
       path: RouteNames.helpSupport,
@@ -100,7 +101,10 @@ final appRouter = GoRouter(
       path: RouteNames.privacyPolicy,
       builder: (context, state) => const PrivacyPolicyView(),
     ),
-
+GoRoute(
+  path: RouteNames.allPointHistory,
+  builder: (context, state) => const AllPointHistory(),
+),
     GoRoute(
       path: RouteNames.accountverfy,
       builder: (context, state) => const AccountVerification(),
@@ -190,3 +194,5 @@ final appRouter = GoRouter(
     ),
   ],
 );
+
+

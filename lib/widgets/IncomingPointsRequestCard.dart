@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
-import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
+
 
 class IncomingPointsRequestCard extends StatelessWidget {
   final String name;
@@ -122,7 +122,7 @@ Row(
         ),
         child: const Text(
           "Accept",
-          style: TextStyle(fontSize: 14),
+          style: TextStyle(fontSize: 14,color: Colors.white),
         ),
       ),
     ),

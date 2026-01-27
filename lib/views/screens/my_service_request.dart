@@ -85,7 +85,7 @@ class _MyServiceRequestState extends State<MyServiceRequest> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AppCircleIconButton(icon: Icons.arrow_back, onPressed: () {}),
+                  AppCircleIconButton(icon: Icons.arrow_back,     onPressed: () => context.push(RouteNames.bottomnav),),
                   const Text(
                     "MY Service Request",
                     style: TextStyle(

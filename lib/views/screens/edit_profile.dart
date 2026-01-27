@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,7 +64,7 @@ class _EditProfileState extends State<EditProfile> {
           text: addresses.isNotEmpty ? addresses[0]['building'] : '',
         );
         blockController = TextEditingController(
-          text: addresses.isNotEmpty ? addresses[0]['blockId'] : '',
+          text: addresses.isNotEmpty ? addresses[0]['city'] : '',
         );
         floorController = TextEditingController(
           text: addresses.isNotEmpty ? addresses[0]['floor']?.toString() : '',
@@ -101,53 +103,82 @@ class _EditProfileState extends State<EditProfile> {
 
   Future<void> saveProfile() async {
     final userId = await AppPreferences.getUserId();
-    final payload = {
+
+    // Ensure mobile number is numeric
+    final mobileNumber = int.tryParse(mobileController.text.trim());
+    if (mobileNumber == null) {
+      AppLogger.error("❌ Invalid mobile number");
+      return;
+    }
+
+    // Build payload as Map (not JSON string)
+    final Map<String, dynamic> payload = {
       "userId": userId,
       "basicInfo": {
-        "fullName": fullNameController.text,
-        "email": emailController.text,
-        "mobileNumber": mobileController.text,
+        "fullName": fullNameController.text.trim(),
+        "email": emailController.text.trim(),
+        "mobileNumber": mobileNumber,
       },
       "address": {
-        "building": buildingController.text,
-        "blockId": blockController.text,
-        "floor": floorController.text,
-        "aptNo": apartmentController.text,
+        "building": buildingController.text.trim(),
+        "city": blockController.text.trim(),
+        "floor": floorController.text.trim(),
+        "aptNo": apartmentController.text.trim(),
       },
     };
+
+    // Convert to FormData
+    final Map<String, dynamic> formMap = {
+      ...payload,
+      if (profileImage != null)
+        "image": await MultipartFile.fromFile(
+          profileImage!.path,
+          filename: profileImage!.path.split('/').last,
+        ),
+    };
+
+    final formData = FormData.fromMap(formMap);
+
+    AppLogger.info("📦 FormData payload keys: ${formMap.keys}");
+    if (profileImage != null)
+      AppLogger.info("🖼️ Image Path: ${profileImage!.path}");
+
     try {
-      final response = await _profileService.EditProfile(payload: payload);
-      
-      AppLogger.success(" Edit response :$response");
-        // ✅ Update cache immediately
-    final updatedProfile = {
-      "data": {
-        "basicInfo": {
-          "fullName": fullNameController.text,
-          "email": emailController.text,
-          "mobileNumber": mobileController.text,
+      final response = await _profileService.editProfile(formData: formData);
+      AppLogger.success("✅ API RESPONSE: $response");
+
+      // Update local cache
+      final updatedProfile = {
+        "data": {
+          "basicInfo": {
+            "fullName": fullNameController.text.trim(),
+            "email": emailController.text.trim(),
+            "mobileNumber": mobileNumber,
+            "image": response?['data']?['basicInfo']?['image'],
+          },
         },
-     
-      },
-      "addresses": [
-        {
-          "building": buildingController.text,
-          "blockId": blockController.text,
-          "floor": floorController.text,
-          "aptNo": apartmentController.text,
-        }
-      ],
-      "familyMembers": familyMembers,
-    };
-     await AppPreferences.saveProfileData(updatedProfile);
-          // Return true to indicate success
-    if (mounted) {
-      context.pop(true);  // <-- Pop with value
+        "addresses": [
+          {
+            "building": buildingController.text.trim(),
+            "city": blockController.text.trim(),
+            "floor": floorController.text.trim(),
+            "aptNo": apartmentController.text.trim(),
+          },
+        ],
+        "familyMembers": familyMembers,
+      };
+
+      AppLogger.info("💾 Updated Local Profile Cache: $updatedProfile");
+      await AppPreferences.saveProfileData(updatedProfile);
+
+      if (mounted) context.pop(true);
+    } on DioException catch (e) {
+      AppLogger.error("❌ STATUS: ${e.response?.statusCode}");
+      AppLogger.error("❌ DATA: ${e.response?.data}");
+    } catch (e, stack) {
+      AppLogger.error("❌ UNKNOWN ERROR: $e");
+      AppLogger.error(stack.toString());
     }
-    } catch (e) {
-      AppLogger.error("Edit Profile :$e");
-    }
-    AppLogger.warn("payload $payload ");
   }
 
   @override
@@ -174,11 +205,11 @@ class _EditProfileState extends State<EditProfile> {
                       context.pop(context);
                     },
                   ),
-                 const Text(
+                  const Text(
                     "Edit Profile",
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                   ),
-                 const Text(""),
+                  const Text(""),
                 ],
               ),
             ),
@@ -198,15 +229,28 @@ class _EditProfileState extends State<EditProfile> {
                           clipBehavior: Clip.none,
                           children: [
                             CircleAvatar(
-                              radius: 60,
+                              radius: 50,
                               backgroundColor: Colors.grey.shade200,
                               backgroundImage: profileImage != null
                                   ? FileImage(profileImage!)
-                                  : const AssetImage(
-                                          "assets/images/service.png",
-                                        )
-                                        as ImageProvider,
+                                  : null,
+                              child: profileImage == null
+                                  ? Container(
+                                      height: 120,
+                                      width: 120,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.blue,
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 50,
+                                      ),
+                                    )
+                                  : null,
                             ),
+
                             Positioned(
                               bottom: 0,
                               right: 0,
@@ -293,7 +337,7 @@ class _EditProfileState extends State<EditProfile> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  "Block",
+                                  "city",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -356,7 +400,7 @@ class _EditProfileState extends State<EditProfile> {
                           Expanded(
                             child: AppButton(
                               text: "Cancel",
-                              onPressed: () {},
+                              onPressed: () { context.pop();},
                               color: Color.fromRGBO(76, 149, 129, 1),
                               width: double.infinity,
                             ),

@@ -16,6 +16,7 @@ class AppPreferences {
   static const String _rememberEmailkey = "remember_email";
 static const String _pointsKey = "points";
  static const String _serviceRequestIdKey = "service_request_id";
+ static const String _userImageKey = "user_image";
 
 
   // --- Remember Flag --
@@ -130,6 +131,16 @@ static Future<int> getPoints() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userIdKey);
   }
+
+  // === UserImage ====
+  static Future<void> saveUserImage(String image) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(_userImageKey, image);
+}
+static Future<String?> getUserImage() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString(_userImageKey);
+}
   // --- Phone Number ----
 
   static Future<void> savephonenumber(String value) async {

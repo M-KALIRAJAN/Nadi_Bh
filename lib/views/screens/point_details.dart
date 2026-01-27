@@ -1,11 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/family_member_points_list.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
+import 'package:nadi_user_app/providers/fetchrequestedpoints_provider.dart';
+import 'package:nadi_user_app/providers/fetchrequestspeoplelist_provider.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
@@ -24,6 +28,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
   String accountType = "";
   String userName = "";
   int points = 0;
+  String userImage = "";
 
   @override
   void initState() {
@@ -40,6 +45,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     final type = await AppPreferences.getaccounttype();
     final name = await AppPreferences.getusername();
     final savedPoints = await AppPreferences.getPoints();
+    final image = await AppPreferences.getUserImage();
 
     if (!mounted) return;
 
@@ -47,6 +53,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
       accountType = type ?? "IA";
       userName = name ?? "";
       points = savedPoints;
+      userImage = image ?? "";
     });
   }
 
@@ -55,6 +62,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     final pointhistoryAsync = ref.watch(pointshistoryprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
     final familymemberpointlist = ref.watch(FamilymemberpointslistProvider);
+    // final requestedpoints = ref.watch(fetchrequestedpointsprovider);
+    final requestedpointspeoplelist = ref.watch(fetchrequestpeoplelistprovider);
     return Scaffold(
       backgroundColor: AppColors.background_clr,
       body: Column(
@@ -194,14 +203,55 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const CircleAvatar(
-                                  radius: 22,
-                                  backgroundColor: Colors.blue,
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                userImage.isEmpty
+                                    ? Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: const CircleAvatar(
+                                          radius: 22,
+                                          backgroundColor: Colors.blue,
+                                          child: Icon(
+                                            Icons.person,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: ClipOval(
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                "${ImageBaseUrl.baseUrl}/$userImage",
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.person),
+                                          ),
+                                        ),
+                                      ),
+
                                 const SizedBox(width: 10),
 
                                 Column(
@@ -254,7 +304,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           ),
                         ),
                       ),
-                      
+
                       Center(
                         child: Text(
                           points.toString(),
@@ -272,40 +322,137 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
             ],
           ),
           const SizedBox(height: 50),
+          requestedpointspeoplelist.when(
+            error: (_, _) => const SizedBox(),
+            loading: () => const SizedBox(),
+            data: (requestedpeopleResponse) {
+              final people = requestedpeopleResponse.data;
+
+              if (people.isEmpty) {
+                return const SizedBox();
+              }
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: people.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 0.9,
+                ),
+                itemBuilder: (context, index) {
+                  final item = people[index]; 
+
+                  return Column(
+                    children: [
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.gold_coin.withOpacity(0.2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            item.basicInfo.fullName
+                                .substring(0, 1)
+                                .toUpperCase(), 
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.basicInfo.fullName, 
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
 
           /// 🔔 Incoming Points Requests
+          // requestedpoints.when(
+          //   error: (_,_) => const SizedBox(),
+          //   loading: () => const SizedBox(),
+          //   data: (requestedpoints) {
+          //      final data = requestedpoints.;
+          //   },
+          //    )
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 15),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       const Text(
+          //         "Points Requests",
+          //         style: TextStyle(fontWeight: FontWeight.bold),
+          //       ),
+          //       const SizedBox(height: 10),
+
+          //       IncomingPointsRequestCard(
+          //         name: "Ravi",
+          //         date: "05 Jan 2026",
+          //         points: "200",
+          //         onAccept: () {
+          //           // call accept API
+          //         },
+          //         onReject: () {
+          //           // call reject API
+          //         },
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.only(
+              top: 5,
+              left: 15,
+              bottom: 0,
+              right: 15,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Incoming Point Requests",
+                  "Point History:",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 10),
-
-                IncomingPointsRequestCard(
-                  name: "Ravi",
-                  date: "05 Jan 2026",
-                  points: "200",
-                  onAccept: () {
-                    // call accept API
+                InkWell(
+                  onTap: () {
+                    context.push(RouteNames.allPointHistory);
                   },
-                  onReject: () {
-                    // call reject API
-                  },
+                  child: Row(
+                    children: const [
+                      Text(
+                        "View all",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.gold_coin,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 15,
+                        color: AppColors.gold_coin,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 5, left: 15, bottom: 0),
-            child: const Text(
-              "Point History:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
+
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -331,10 +478,11 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             if (data.isEmpty) {
                               return const Text("No History Found");
                             }
+                            final limitedList = data.take(10).toList();
                             return ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: data.length,
+                              itemCount: limitedList.length,
                               itemBuilder: (context, index) {
                                 final item = data[index];
                                 return Padding(
@@ -398,33 +546,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                         );
                       },
                     ),
-
-                  // Padding(
-                  //   padding: EdgeInsets.symmetric(horizontal: 15),
-                  //   child: Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     children: [
-                  //       Container(
-                  //         height: 38,
-                  //         width: 38,
-                  //         decoration: BoxDecoration(
-                  //           shape: BoxShape.circle,
-                  //           color: const Color.fromRGBO(217, 165, 32, 100),
-                  //         ),
-                  //         child: Image.asset("assets/icons/send.png"),
-                  //       ),
-                  //       Container(
-                  //         height: 38,
-                  //         width: 38,
-                  //         decoration: BoxDecoration(
-                  //           shape: BoxShape.circle,
-                  //           color: const Color.fromRGBO(217, 165, 32, 100),
-                  //         ),
-                  //         child: Image.asset("assets/icons/add.png"),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                 ],
               ),
             ),
