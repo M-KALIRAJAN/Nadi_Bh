@@ -8,14 +8,12 @@ import 'package:nadi_user_app/core/utils/Time_Date.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/family_member_points_list.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
-import 'package:nadi_user_app/providers/fetchrequestedpoints_provider.dart';
 import 'package:nadi_user_app/providers/fetchrequestspeoplelist_provider.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/widgets/family_points_card.dart';
 import 'package:nadi_user_app/widgets/individual_points_card.dart';
-import 'package:nadi_user_app/widgets/IncomingPointsRequestCard.dart';
 
 class PointDetails extends ConsumerStatefulWidget {
   const PointDetails({super.key});
@@ -38,6 +36,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
       ref.refresh(pointshistoryprovider);
       ref.refresh(fetchpointsnodification);
       ref.refresh(FamilymemberpointslistProvider);
+      ref.refresh(fetchrequestpeoplelistprovider);
     });
   }
 
@@ -57,13 +56,29 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     });
   }
 
+  Future<void> _peopledetails(
+    BuildContext context,
+    String peopleId,
+    String fullName,
+  ) async {
+    final result = await context.push(
+      RouteNames.requestPeopleDetails,
+      extra: {'peopleId': peopleId, 'fullName': fullName},
+    );
+
+    if (result == true && mounted) {
+      ref.refresh(pointshistoryprovider);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final pointhistoryAsync = ref.watch(pointshistoryprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
     final familymemberpointlist = ref.watch(FamilymemberpointslistProvider);
-    // final requestedpoints = ref.watch(fetchrequestedpointsprovider);
+
     final requestedpointspeoplelist = ref.watch(fetchrequestpeoplelistprovider);
+
     return Scaffold(
       backgroundColor: AppColors.background_clr,
       body: Column(
@@ -238,13 +253,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                             imageUrl:
                                                 "${ImageBaseUrl.baseUrl}/$userImage",
                                             fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                const Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                      ),
-                                                ),
+
                                             errorWidget:
                                                 (context, url, error) =>
                                                     const Icon(Icons.person),
@@ -322,104 +331,89 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
             ],
           ),
           const SizedBox(height: 50),
+
           requestedpointspeoplelist.when(
-            error: (_, _) => const SizedBox(),
             loading: () => const SizedBox(),
-            data: (requestedpeopleResponse) {
-              final people = requestedpeopleResponse.data;
+            error: (_, __) => const SizedBox(),
+            data: (res) {
+              final people = res.data;
+              final list = people.length > 7 ? people.take(7).toList() : people;
 
-              if (people.isEmpty) {
-                return const SizedBox();
-              }
-
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: people.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 0.9,
-                ),
-                itemBuilder: (context, index) {
-                  final item = people[index]; 
-
-                  return Column(
-                    children: [
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.gold_coin.withOpacity(0.2),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: const Text(
+                      "Points Requests:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: people.length > 7
+                        ? list.length + 1
+                        : list.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 0.68,
                         ),
-                        child: Center(
-                          child: Text(
-                            item.basicInfo.fullName
-                                .substring(0, 1)
-                                .toUpperCase(), 
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                    itemBuilder: (context, index) {
+                      if (people.length > 7 && index == list.length) {
+                        return Column(
+                          children: const [
+                            CircleAvatar(
+                              radius: 24,
+                              child: Icon(Icons.keyboard_arrow_down),
+                            ),
+                            SizedBox(height: 4),
+                            Text("Show More", style: TextStyle(fontSize: 11)),
+                          ],
+                        );
+                      }
+                      final item = list[index];
+                      return Column(
+                        children: [
+                          // _peopledetails(context, item.id,item.basicInfo.fullName);
+                          InkWell(
+                            onTap: () {
+                              _peopledetails(
+                                context,
+                                item.id,
+                                item.basicInfo.fullName,
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 24,
+                              child: Text(
+                                item.basicInfo.fullName.isNotEmpty
+                                    ? item.basicInfo.fullName[0].toUpperCase()
+                                    : "?",
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.basicInfo.fullName, 
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  );
-                },
+                          const SizedBox(height: 4),
+                          Text(
+                            item.basicInfo.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
               );
             },
           ),
 
-          /// 🔔 Incoming Points Requests
-          // requestedpoints.when(
-          //   error: (_,_) => const SizedBox(),
-          //   loading: () => const SizedBox(),
-          //   data: (requestedpoints) {
-          //      final data = requestedpoints.;
-          //   },
-          //    )
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 15),
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       const Text(
-          //         "Points Requests",
-          //         style: TextStyle(fontWeight: FontWeight.bold),
-          //       ),
-          //       const SizedBox(height: 10),
-
-          //       IncomingPointsRequestCard(
-          //         name: "Ravi",
-          //         date: "05 Jan 2026",
-          //         points: "200",
-          //         onAccept: () {
-          //           // call accept API
-          //         },
-          //         onReject: () {
-          //           // call reject API
-          //         },
-          //       ),
-          //     ],
-          //   ),
-          // ),
           Padding(
-            padding: const EdgeInsets.only(
-              top: 5,
-              left: 15,
-              bottom: 0,
-              right: 15,
-            ),
+            padding: const EdgeInsets.only(left: 15, bottom: 0, right: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -478,7 +472,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             if (data.isEmpty) {
                               return const Text("No History Found");
                             }
-                            final limitedList = data.take(10).toList();
+                            final limitedList = data.take(8).toList();
                             return ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),

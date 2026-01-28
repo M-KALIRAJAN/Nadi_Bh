@@ -370,9 +370,18 @@ class _AddmemberState extends State<Addmember> {
             e.response?.data.toString() ??
             "Something went wrong";
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+   ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Text(
+      errorMessage,
+      style: const TextStyle(color: Colors.white),
+    ),
+    backgroundColor: Colors.red,
+    behavior: SnackBarBehavior.floating, // optional (looks better)
+  ),
+);
+
+     
       } else {
         ScaffoldMessenger.of(
           context,

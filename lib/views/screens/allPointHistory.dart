@@ -14,7 +14,7 @@ class AllPointHistory extends ConsumerWidget {
 
     return Scaffold(
         appBar: AppBar(
-        title: const Text("About App", style: TextStyle(color: Colors.white)),
+        title: const Text("Point History", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.gold_coin,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,

@@ -29,6 +29,7 @@ class RouteNames {
  static const String aboutscreen = "/aboutscreen";
 static const String helpSupport = "/help-support";
 static const String privacyPolicy = "/privacy-policy";
-static const allPointHistory = "/all-point-history";
+static const String allPointHistory = "/all-point-history";
+static const String  requestPeopleDetails ="/requestPeopleDetails";
 
 }

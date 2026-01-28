@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 
 class FamilyPointsCard extends StatelessWidget {
-
   final String text;
   final String subtext;
   final String points;
@@ -24,17 +23,10 @@ class FamilyPointsCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          //          CircleAvatar(
-          //   radius: 20,
-          //   child: ClipOval(
-          //     child: Image.asset(
-          //       "assets/images/service.png",
-          //       fit: BoxFit.cover,
-          //       width: 40,
-          //       height: 40,
-          //     ),
-          //   ),
-          // ),
+          CircleAvatar(
+            radius: 20,
+            child: ClipOval(child: Icon(Icons.person, size: 27)),
+          ),
           SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -51,7 +43,7 @@ class FamilyPointsCard extends StatelessWidget {
                 ),
 
                 Text(
-                  "+973 $subtext" ,
+                  "+973 $subtext",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -65,14 +57,23 @@ class FamilyPointsCard extends StatelessWidget {
           ),
 
           const SizedBox(width: 10),
-
-          Text(
-            points,
-            style: TextStyle(
-              color: Color.fromRGBO(213, 155, 8, 1),
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
+          Row(
+            children: [
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: Image.asset("assets/icons/gold.png"),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                points,
+                style: TextStyle(
+                  color: Color.fromRGBO(213, 155, 8, 1),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
         ],
       ),

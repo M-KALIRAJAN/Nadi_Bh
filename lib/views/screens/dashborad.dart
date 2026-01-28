@@ -7,6 +7,7 @@ import 'package:nadi_user_app/models/Userdashboard_model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
+import 'package:nadi_user_app/providers/userDashboard_provider.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/ongoing_service.dart';
 import 'package:shimmer/shimmer.dart';
@@ -36,13 +37,13 @@ class _DashboardState extends ConsumerState<Dashboard> {
   final HomeViewService _homeViewService = HomeViewService();
   final OngoingService _ongoingService = OngoingService();
   DateTime? lastBackPressed;
-  UserdashboardModel? dashboard;
+
   Map<String, dynamic>? _ongoing;
   @override
   void initState() {
     super.initState();
     get_preferencevalue();
-    getUserData();
+
     fetchongoinproces();
     Future.microtask(() {
       ref.read(serviceListProvider.notifier).refresh();
@@ -62,16 +63,16 @@ class _DashboardState extends ConsumerState<Dashboard> {
     }
   }
 
-  Future<void> getUserData() async {
-    final response = await _homeViewService.userDashboard();
-    await AppPreferences.saveusername(response.name);
-    await AppPreferences.savePoints(response.points);
-    await AppPreferences.saveUserImage(response.image);
-    AppLogger.warn("getUserData********* ${response.name}");
-    setState(() {
-      dashboard = response;
-    });
-  }
+  // Future<void> getUserData() async {
+  //   final response = await _homeViewService.userDashboard();
+  //   await AppPreferences.saveusername(response.name);
+  //   await AppPreferences.savePoints(response.points);
+  //   await AppPreferences.saveUserImage(response.image);
+  //   AppLogger.warn("getUserData********* ${response.name}");
+  //   setState(() {
+  //     dashboard = response;
+  //   });
+  // }
 
   Future<void> get_preferencevalue() async {
     final type = await AppPreferences.getaccounttype();
@@ -134,6 +135,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
+    final dashboardAsync = ref.watch(userdashboardprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
     final data = _ongoing?['data'];
     final bool isOngoing = data != null && data['status'] == 'inProgress';
@@ -178,77 +180,79 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              dashboard == null
-                                  ? const CircleAvatar(
-                                      radius: 22,
-                                      backgroundColor: Colors.grey,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : (dashboard!.image == null ||
-                                        dashboard!.image!.isEmpty)
-                                  ? Container(
-                                      width: 44,
-                                      height: 44,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: AppColors.btn_primery,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: const CircleAvatar(
-                                        radius: 22,
-                                        backgroundColor: Colors.blue,
-                                        child: Icon(
-                                          Icons.person,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl:
-                                          "${ImageBaseUrl.baseUrl}/${dashboard!.image}",
-                                      imageBuilder: (context, imageProvider) =>
-                                          CircleAvatar(
-                                            radius: 22,
-                                            backgroundImage: imageProvider,
-                                          ),
-                                      placeholder: (context, url) =>
-                                          const CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.error),
-                                    ),
-
-                              const SizedBox(width: 12),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          dashboardAsync.when(
+                            loading: () =>
+                                const CircularProgressIndicator(strokeWidth: 2),
+                            error: (e, _) =>
+                                const Icon(Icons.error, color: Colors.white),
+                            data: (dashboard) {
+                              return Row(
                                 children: [
-                                  const Text(
-                                    "Welcome",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  Text(
-                                    dashboard?.name ?? "Loading...",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  dashboard.image == null ||
+                                          dashboard.image!.isEmpty
+                                      ? Container(
+                                          width: 44,
+                                          height: 44,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: AppColors.btn_primery,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: const CircleAvatar(
+                                            radius: 22,
+                                            backgroundColor: Colors.blue,
+                                            child: Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        )
+                                      : CachedNetworkImage(
+                                          imageUrl:
+                                              "${ImageBaseUrl.baseUrl}/${dashboard.image}",
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  CircleAvatar(
+                                                    radius: 22,
+                                                    backgroundImage:
+                                                        imageProvider,
+                                                  ),
+                                          placeholder: (context, url) =>
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                          errorWidget: (_, __, ___) =>
+                                              const Icon(Icons.person),
+                                        ),
+
+                                  const SizedBox(width: 12),
+
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Welcome",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      Text(
+                                        dashboard.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
-                            ],
+                              );
+                            },
                           ),
 
                           Container(
@@ -320,60 +324,67 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Container(
-                      height: 50,
-                      width: 315,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(
-                            dashboard?.account ?? "",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                            ),
+                    dashboardAsync.when(
+                      loading: () => const SizedBox(),
+                      error: (_, __) => const SizedBox(),
+                      data: (dashboard) {
+                        return Container(
+                          height: 50,
+                          width: 315,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Colors.white,
                           ),
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).pushNamed("/pointdetails");
-                            },
-                            child: Container(
-                              height: 38,
-                              width: 110,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: AppColors.gold_coin,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Image.asset(
-                                      "assets/icons/gold_coin.png",
-                                      height: 26,
-                                      width: 28,
-                                    ),
-                                    Text(
-                                      "${dashboard?.points ?? 0}",
-                                      style: TextStyle(
-                                        fontSize: AppFontSizes.medium,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                dashboard.account,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
                                 ),
                               ),
-                            ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(
+                                    context,
+                                  ).pushNamed("/pointdetails");
+                                },
+                                child: Container(
+                                  height: 38,
+                                  width: 110,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    color: AppColors.gold_coin,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Image.asset(
+                                          "assets/icons/gold_coin.png",
+                                          height: 22,
+                                        ),
+                                        Text(
+                                          "${dashboard.points}",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),

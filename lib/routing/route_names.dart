@@ -11,6 +11,7 @@ import 'package:nadi_user_app/views/screens/edit_profile.dart';
 import 'package:nadi_user_app/views/screens/nodifications.dart';
 import 'package:nadi_user_app/views/screens/point_details.dart';
 import 'package:nadi_user_app/views/screens/points_nodification.dart';
+import 'package:nadi_user_app/views/screens/request_People_Details.dart';
 import 'package:nadi_user_app/views/screens/send_service_request.dart';
 import 'package:nadi_user_app/views/screens/service_request_details.dart';
 import 'package:nadi_user_app/views/screens/view_all_logs.dart';
@@ -105,6 +106,21 @@ GoRoute(
   path: RouteNames.allPointHistory,
   builder: (context, state) => const AllPointHistory(),
 ),
+GoRoute(
+  path: RouteNames.requestPeopleDetails,
+  builder: (context, state) {
+    final data = state.extra as Map<String, dynamic>;
+
+    final peopleId = data['peopleId'] as String;
+    final fullName = data['fullName'] as String;
+
+    return RequestPeopleDetails(
+      peopleId: peopleId,
+      fullName: fullName,
+    );
+  },
+),
+
     GoRoute(
       path: RouteNames.accountverfy,
       builder: (context, state) => const AccountVerification(),
