@@ -10,6 +10,7 @@ import 'package:nadi_user_app/providers/family_member_points_list.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/fetchrequestspeoplelist_provider.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
+import 'package:nadi_user_app/providers/userDashboard_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/widgets/family_points_card.dart';
@@ -37,6 +38,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
       ref.refresh(fetchpointsnodification);
       ref.refresh(FamilymemberpointslistProvider);
       ref.refresh(fetchrequestpeoplelistprovider);
+      ref.refresh(userdashboardprovider);
     });
   }
 
@@ -68,6 +70,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
 
     if (result == true && mounted) {
       ref.refresh(pointshistoryprovider);
+      ref.refresh(userdashboardprovider);
     }
   }
 
@@ -78,7 +81,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     final familymemberpointlist = ref.watch(FamilymemberpointslistProvider);
 
     final requestedpointspeoplelist = ref.watch(fetchrequestpeoplelistprovider);
-
+    final dashboardAsync = ref.watch(userdashboardprovider);
     return Scaffold(
       backgroundColor: AppColors.background_clr,
       body: Column(
@@ -215,78 +218,91 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                userImage.isEmpty
-                                    ? Container(
-                                        width: 44,
-                                        height: 44,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: const CircleAvatar(
-                                          radius: 22,
-                                          backgroundColor: Colors.blue,
-                                          child: Icon(
-                                            Icons.person,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      )
-                                    : Container(
-                                        width: 44,
-                                        height: 44,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: ClipOval(
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                "${ImageBaseUrl.baseUrl}/$userImage",
-                                            fit: BoxFit.cover,
+                            dashboardAsync.when(
+                              loading: () => const SizedBox(),
+                              error: (_, __) => const SizedBox(),
 
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    const Icon(Icons.person),
-                                          ),
-                                        ),
-                                      ),
+                              data: (dashboard) {
+                                final userName = dashboard.name;
+                                final userImage = dashboard.image;
 
-                                const SizedBox(width: 10),
-
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                return Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Welcome",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      userName.isEmpty
-                                          ? "Loading..."
-                                          : userName,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    userImage.isEmpty
+                                        ? Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: const CircleAvatar(
+                                              radius: 22,
+                                              backgroundColor: Colors.blue,
+                                              child: Icon(
+                                                Icons.person,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          )
+                                        : Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: ClipOval(
+                                              child: CachedNetworkImage(
+                                                imageUrl:
+                                                    "${ImageBaseUrl.baseUrl}/$userImage",
+                                                fit: BoxFit.cover,
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(
+                                                          Icons.person,
+                                                        ),
+                                              ),
+                                            ),
+                                          ),
+
+                                    const SizedBox(width: 10),
+
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "Welcome",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        Text(
+                                          userName.isEmpty
+                                              ? "Loading..."
+                                              : userName,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                              ],
+                                );
+                              },
                             ),
 
                             Container(
@@ -314,15 +330,24 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                         ),
                       ),
 
-                      Center(
-                        child: Text(
-                          points.toString(),
-                          style: TextStyle(
-                            fontSize: 26,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      dashboardAsync.when(
+                        loading: () => const SizedBox(),
+                        error: (_, __) => const SizedBox(),
+
+                        data: (dashboard) {
+                          final points = dashboard.points;
+
+                          return Center(
+                            child: Text(
+                              points.toString(),
+                              style: const TextStyle(
+                                fontSize: 26,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -332,85 +357,114 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
           ),
           const SizedBox(height: 50),
 
-          requestedpointspeoplelist.when(
-            loading: () => const SizedBox(),
-            error: (_, __) => const SizedBox(),
-            data: (res) {
-              final people = res.data;
-              final list = people.length > 7 ? people.take(7).toList() : people;
+   requestedpointspeoplelist.when(
+  loading: () => const SizedBox(),
+  error: (_, __) => const SizedBox(),
+  data: (res) {
+    final people = res.data;
+    final list = people.length > 7 ? people.take(7).toList() : people;
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: const Text(
-                      "Points Requests:",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // "Points Requests" text
+        Padding(
+          padding: const EdgeInsets.only(left: 10, bottom: 4),
+          child: const Text(
+            "Points Requests:",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+
+        // Wrap GridView with ConstrainedBox to remove extra bottom space
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: ((48 + 2 + 11) * ((list.length / 5).ceil())) + 2, 
+            // 48 = avatar, 2 = SizedBox, 11 = text font size, +2 for small spacing
+          ),
+          child: GridView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero, // REMOVE default padding
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: people.length > 7 ? list.length + 1 : list.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              mainAxisSpacing: 2, // minimal spacing between rows
+              crossAxisSpacing: 6,
+              childAspectRatio: 0.68,
+            ),
+            itemBuilder: (context, index) {
+              if (people.length > 7 && index == list.length) {
+                return Column(
+                  children: const [
+                    CircleAvatar(
+                      radius: 24,
+                      child: Icon(Icons.keyboard_arrow_down),
                     ),
-                  ),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: people.length > 7
-                        ? list.length + 1
-                        : list.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 10,
-                          childAspectRatio: 0.68,
-                        ),
-                    itemBuilder: (context, index) {
-                      if (people.length > 7 && index == list.length) {
-                        return Column(
-                          children: const [
-                            CircleAvatar(
-                              radius: 24,
-                              child: Icon(Icons.keyboard_arrow_down),
-                            ),
-                            SizedBox(height: 4),
-                            Text("Show More", style: TextStyle(fontSize: 11)),
-                          ],
-                        );
-                      }
-                      final item = list[index];
-                      return Column(
-                        children: [
-                          // _peopledetails(context, item.id,item.basicInfo.fullName);
-                          InkWell(
-                            onTap: () {
-                              _peopledetails(
-                                context,
-                                item.id,
-                                item.basicInfo.fullName,
-                              );
-                            },
-                            child: CircleAvatar(
-                              radius: 24,
-                              child: Text(
-                                item.basicInfo.fullName.isNotEmpty
-                                    ? item.basicInfo.fullName[0].toUpperCase()
-                                    : "?",
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            item.basicInfo.fullName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 11),
-                          ),
-                        ],
+                    SizedBox(height: 2),
+                    Text("Show More", style: TextStyle(fontSize: 11)),
+                  ],
+                );
+              }
+
+              final item = list[index];
+              return Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      _peopledetails(
+                        context,
+                        item.id,
+                        item.basicInfo.fullName,
                       );
                     },
+                    child: (item.basicInfo.image.isNotEmpty)
+                        ? ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  "${ImageBaseUrl.baseUrl}/${item.basicInfo.image}",
+                              fit: BoxFit.cover,
+                              width: 48,
+                              height: 48,
+                              errorWidget: (context, url, error) {
+                                return CircleAvatar(
+                                  radius: 24,
+                                  child: Text(
+                                    item.basicInfo.fullName.isNotEmpty
+                                        ? item.basicInfo.fullName[0].toUpperCase()
+                                        : "?",
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 24,
+                            child: Text(
+                              item.basicInfo.fullName.isNotEmpty
+                                  ? item.basicInfo.fullName[0].toUpperCase()
+                                  : "?",
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.basicInfo.fullName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11),
                   ),
                 ],
               );
             },
           ),
+        ),
+      ],
+    );
+  },
+),
+
+
 
           Padding(
             padding: const EdgeInsets.only(left: 15, bottom: 0, right: 15),
@@ -460,7 +514,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                         pointhistoryAsync.when(
                           loading: () =>
                               const Center(child: CircularProgressIndicator()),
-
                           error: (error, _) => Center(
                             child: Text(
                               error.toString(),

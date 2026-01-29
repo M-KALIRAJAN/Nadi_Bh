@@ -38,31 +38,7 @@ class _UploadIdViewState extends State<UploadIdView> {
     });
   }
 
-  // Future<void> UploadIDproof(BuildContext context) async {
-  //    setState(() => _isLoading = true);
-  //    try{
-  //  if (frontImage == null || backImage == null) {
-  //     AppLogger.error("Front&Back images required");
-  //   }
 
-  //    final userId = await AppPreferences.getUserId();
-   
-  //   final response = await _authService.uploadIdProof(
-  //     frontImage: frontImage!,
-  //     backImage: backImage!,
-  //     userId: userId!,
-  //   );
-  // AppLogger.debug(response.toString());
-  //   if (response != null) {
-  //      context.push(RouteNames.Terms);
-  //   }
-  //    }catch(e){
-  //        AppLogger.error("CompleteRegistration error: $e");
-  //    }finally {
-  //   setState(() => _isLoading = false);
-  // }
- 
-  // }
 Future<void> UploadIDproof(BuildContext context) async {
   if (frontImage == null || backImage == null) {
     ScaffoldMessenger.of(context).showSnackBar(

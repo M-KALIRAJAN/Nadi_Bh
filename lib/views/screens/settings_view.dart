@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
+import 'package:nadi_user_app/providers/profile_provider.dart';
+import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/providers/theme_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/lockout_service.dart';
@@ -90,6 +93,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   }
 
   String selectedLanguage = "ENG";
+
   Widget languageOption(String value) {
     bool isActive = selectedLanguage == value;
 
@@ -119,7 +123,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
       ),
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     Future<void> _logout(BuildContext context) async {
@@ -129,7 +133,10 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
         // Clear local storage
         await AppPreferences.clearAll();
         await AppPreferences.setLoggedIn(false);
-
+        // invalidate providers
+        ref.invalidate(profileprovider);
+        ref.invalidate(serviceListProvider);
+        ref.invalidate(fetchpointsnodification);
         // Navigate to splash
         context.go(RouteNames.splash);
       } catch (e) {

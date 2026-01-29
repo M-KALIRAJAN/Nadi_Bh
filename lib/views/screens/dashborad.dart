@@ -48,6 +48,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
     Future.microtask(() {
       ref.read(serviceListProvider.notifier).refresh();
       ref.refresh(fetchpointsnodification);
+      
+      ref.refresh(userdashboardprovider);
     });
   }
 
@@ -180,80 +182,107 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          dashboardAsync.when(
-                            loading: () =>
-                                const CircularProgressIndicator(strokeWidth: 2),
-                            error: (e, _) =>
-                                const Icon(Icons.error, color: Colors.white),
-                            data: (dashboard) {
-                              return Row(
-                                children: [
-                                  dashboard.image == null ||
-                                          dashboard.image!.isEmpty
-                                      ? Container(
-                                          width: 44,
-                                          height: 44,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: AppColors.btn_primery,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: const CircleAvatar(
-                                            radius: 22,
-                                            backgroundColor: Colors.blue,
-                                            child: Icon(
-                                              Icons.person,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                      : CachedNetworkImage(
-                                          imageUrl:
-                                              "${ImageBaseUrl.baseUrl}/${dashboard.image}",
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  CircleAvatar(
-                                                    radius: 22,
-                                                    backgroundImage:
-                                                        imageProvider,
-                                                  ),
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                          errorWidget: (_, __, ___) =>
-                                              const Icon(Icons.person),
-                                        ),
+                         dashboardAsync.when(
+  loading: () => Shimmer.fromColors(
+    baseColor: Colors.grey.shade300,
+    highlightColor: Colors.grey.shade100,
+    child: Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+        ),
 
-                                  const SizedBox(width: 12),
+        const SizedBox(width: 12),
 
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Welcome",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      Text(
-                                        dashboard.name,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 70,
+              height: 12,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 6),
+            Container(
+              width: 120,
+              height: 16,
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+
+  error: (e, _) =>
+      const Icon(Icons.error, color: Colors.white),
+
+  data: (dashboard) {
+    return Row(
+      children: [
+        dashboard.image == null || dashboard.image!.isEmpty
+            ? Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.btn_primery,
+                    width: 2,
+                  ),
+                ),
+                child: const CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Colors.blue,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
+              )
+            : CachedNetworkImage(
+                imageUrl:
+                    "${ImageBaseUrl.baseUrl}/${dashboard.image}",
+                imageBuilder: (context, imageProvider) =>
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundImage: imageProvider,
+                    ),
+                placeholder: (_, __) =>
+                    const CircularProgressIndicator(strokeWidth: 2),
+                errorWidget: (_, __, ___) =>
+                    const Icon(Icons.person),
+              ),
+
+        const SizedBox(width: 12),
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Welcome",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+              ),
+            ),
+            Text(
+              dashboard.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  },
+),
+
 
                           Container(
                             height: 40,

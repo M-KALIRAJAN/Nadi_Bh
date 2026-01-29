@@ -16,7 +16,7 @@ class PointsRequestDetails extends ConsumerStatefulWidget {
   final String? currentUserId;
   final String peopleId;
   final String id;
-
+  final String receivername;
   const PointsRequestDetails({
     super.key,
     required this.isSender,
@@ -29,10 +29,12 @@ class PointsRequestDetails extends ConsumerStatefulWidget {
     this.currentUserId,
     required this.id,
     required this.peopleId,
+    required this.receivername,
   });
 
   @override
-  ConsumerState<PointsRequestDetails> createState() => _PointsRequestDetailsState();
+  ConsumerState<PointsRequestDetails> createState() =>
+      _PointsRequestDetailsState();
 }
 
 class _PointsRequestDetailsState extends ConsumerState<PointsRequestDetails> {
@@ -43,7 +45,7 @@ class _PointsRequestDetailsState extends ConsumerState<PointsRequestDetails> {
       requestId: widget.id,
       action: action,
     );
-     ref.refresh(fetchrequestpeopledetailsprovider(widget.peopleId));
+    ref.refresh(fetchrequestpeopledetailsprovider(widget.peopleId));
   }
 
   Future<void> _sendPoint(String action) async {
@@ -51,7 +53,7 @@ class _PointsRequestDetailsState extends ConsumerState<PointsRequestDetails> {
       requestId: widget.id,
       action: action,
     );
-     ref.refresh(fetchrequestpeopledetailsprovider(widget.peopleId));
+    ref.refresh(fetchrequestpeopledetailsprovider(widget.peopleId));
   }
 
   @override
@@ -82,20 +84,28 @@ class _PointsRequestDetailsState extends ConsumerState<PointsRequestDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Points to You",
-              style: TextStyle(fontWeight: FontWeight.w600),
+            Text(
+              widget.isSender
+                  ? "Points to you "
+                  : "Points from ${widget.receivername}",
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
+
             const SizedBox(height: 6),
-            Row(children: [
-               Image.asset("assets/icons/gold.png"),
-               const SizedBox(width: 5,),
+            Row(
+              children: [
+                Image.asset("assets/icons/gold.png"),
+                const SizedBox(width: 5),
                 Text(
-              widget.points,
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold,color: AppColors.gold_coin),
+                  widget.points,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.gold_coin,
+                  ),
+                ),
+              ],
             ),
-            ],),
-           
 
             const SizedBox(height: 10),
 
@@ -111,7 +121,10 @@ class _PointsRequestDetailsState extends ConsumerState<PointsRequestDetails> {
                       ),
                     ),
                     onPressed: () => _sendPoint("reject"),
-                    child: const Text("Reject",style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      "Reject",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
@@ -123,7 +136,10 @@ class _PointsRequestDetailsState extends ConsumerState<PointsRequestDetails> {
                       ),
                     ),
                     onPressed: () => _sendacceptedPoint("accept"),
-                    child: const Text("Accept",style: TextStyle(color: Colors.white),),
+                    child: const Text(
+                      "Accept",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               )

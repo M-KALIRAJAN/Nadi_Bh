@@ -4,6 +4,7 @@ import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/fetchrequestpeopledetails_provider.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
+import 'package:nadi_user_app/providers/userDashboard_provider.dart';
 import 'package:nadi_user_app/services/point_request_with_id.dart';
 import 'package:nadi_user_app/widgets/Points_request_Details.dart';
 
@@ -35,18 +36,19 @@ class _RequestPeopleDetailsState extends ConsumerState<RequestPeopleDetails> {
   Future<void> _sendpointrequest() async {
     final enteredPoints = _pointsController.text.trim();
 
-    final points = int.tryParse(enteredPoints);
-
-    debugPrint("Entered points: $points");
-    debugPrint("Receiver ID: ${widget.peopleId}");
+    // Only call API if input has value
+    if (enteredPoints.isEmpty) return;
 
     await _pointRequestWithId.fetchrequestwithid(
       receiverId: widget.peopleId,
-      points: points.toString(),
+      points: enteredPoints,
     );
+
     _pointsController.clear();
-    // refresh list after send
+
     ref.refresh(fetchrequestpeopledetailsprovider(widget.peopleId));
+    ref.refresh(userdashboardprovider);
+    ref.refresh(pointshistoryprovider);
   }
 
   @override
@@ -126,6 +128,7 @@ class _RequestPeopleDetailsState extends ConsumerState<RequestPeopleDetails> {
                       currentUserId: currentUserId,
                       id: item.id,
                       peopleId: widget.peopleId,
+                      receivername:widget.fullName
                     );
                   },
                 );

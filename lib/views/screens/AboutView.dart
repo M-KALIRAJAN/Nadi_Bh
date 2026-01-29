@@ -5,7 +5,6 @@ import 'package:nadi_user_app/providers/aboutProvider.dart';
 
 class AboutsView extends ConsumerWidget {
   const AboutsView({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final aboutAsync = ref.watch(aboutProvider);
@@ -22,17 +21,23 @@ class AboutsView extends ConsumerWidget {
         error: (e, _) => Center(child: Text(e.toString())),
         data: (about) {
           final item = about.data.first;
-
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                ...item.content.map(
-                  (text) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Text(text, textAlign: TextAlign.center),
+                SingleChildScrollView(
+                  child: Column(
+                    children: item.content
+                        .map(
+                          (text) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(text, textAlign: TextAlign.center),
+                          ),
+                        )
+                        .toList(),
                   ),
                 ),
+
                 const SizedBox(height: 20),
                 Text(
                   "Version ${item.version}",

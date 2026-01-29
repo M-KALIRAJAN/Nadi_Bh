@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
+import 'package:nadi_user_app/services/NotificationApiService.dart';
 
 class PointsNodification extends ConsumerStatefulWidget {
   const PointsNodification({super.key});
@@ -11,12 +12,44 @@ class PointsNodification extends ConsumerStatefulWidget {
 }
 
 class _PointsNodificationState extends ConsumerState<PointsNodification> {
+  final Notificationapiservice _notificationapiservice =
+      Notificationapiservice();
+  void _deletesingle(BuildContext context, String id) async {
+    await _notificationapiservice.deleteonenotification(id: id);
+  }
+ void _clearallnotification() async{
+  await _notificationapiservice.deleteallnotification();
+ }
   @override
   Widget build(BuildContext context) {
     final asyncNotifications = ref.watch(fetchpointsnodification);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Notifications"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("Notifications"),
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: TextButton(
+              onPressed: () {
+                _clearallnotification();
+                      ref.refresh(fetchpointsnodification);
+              },
+              child: const Text(
+                "Clear All",
+                style: TextStyle(
+                  color: Color.fromARGB(255, 229, 30, 30),
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: asyncNotifications.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text("Error: $err")),
@@ -24,7 +57,7 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
           final notifications = response.data;
 
           if (notifications.isEmpty) {
-            return const Center(child: Text("No notifications"));
+            return const Center(child: Text("No Notifications",style: TextStyle(fontWeight: FontWeight.bold),));
           }
 
           return RefreshIndicator(
@@ -37,65 +70,88 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final n = notifications[index];
-                return Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
+
+                return Dismissible(
+                  key: Key(n.id), // unique key for each notification
+                  direction: DismissDirection.endToStart, // swipe right to left
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.delete, color: Colors.white),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.amber.withOpacity(0.15),
-                          shape: BoxShape.circle,
+                  onDismissed: (direction) async {
+                    // Remove the item locally first
+                    notifications.removeAt(index);
+                    _deletesingle(context, n.id);
+                    ref.refresh(fetchpointsnodification);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          spreadRadius: 1,
+                          offset: const Offset(0, 6),
                         ),
-                        child: const Icon(
-                          Icons.notifications_active_outlined,
-                          color: Colors.amber,
-                          size: 22,
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.notifications_active_outlined,
+                            color: Colors.amber,
+                            size: 22,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              n.type,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                n.type,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              n.message,
-                              style: const TextStyle(fontSize: 13, height: 1.4),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              formatIsoDateForUI(n.time),
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey,
+                              const SizedBox(height: 6),
+                              Text(
+                                n.message,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                formatIsoDateForUI(n.time),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -106,7 +162,6 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
     );
   }
 
-  /// ✅ Date Formatter (DateTime safe)
   String formatIsoDateForUI(DateTime dateTime) {
     try {
       final localDateTime = dateTime.toLocal();

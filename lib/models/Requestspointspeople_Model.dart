@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 Requestspointspeople requestspointspeopleFromJson(String str) =>
     Requestspointspeople.fromJson(json.decode(str));
 
@@ -10,26 +12,21 @@ class Requestspointspeople {
   final bool success;
   final List<Datum> data;
 
-  Requestspointspeople({
-    required this.success,
-    required this.data,
-  });
+  Requestspointspeople({required this.success, required this.data});
 
   factory Requestspointspeople.fromJson(Map<String, dynamic> json) {
     return Requestspointspeople(
       success: json['success'] ?? false,
       data: json['data'] != null
-          ? List<Datum>.from(
-              json['data'].map((x) => Datum.fromJson(x)),
-            )
+          ? List<Datum>.from(json['data'].map((x) => Datum.fromJson(x)))
           : [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'success': success,
-        'data': data.map((x) => x.toJson()).toList(),
-      };
+    'success': success,
+    'data': data.map((x) => x.toJson()).toList(),
+  };
 }
 
 class Datum {
@@ -37,11 +34,7 @@ class Datum {
   final BasicInfo basicInfo;
   final int? points;
 
-  Datum({
-    required this.id,
-    required this.basicInfo,
-    this.points,
-  });
+  Datum({required this.id, required this.basicInfo, this.points});
 
   factory Datum.fromJson(Map<String, dynamic> json) {
     return Datum(
@@ -52,23 +45,24 @@ class Datum {
   }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'basicInfo': basicInfo.toJson(),
-        'points': points,
-      };
+    '_id': id,
+    'basicInfo': basicInfo.toJson(),
+    'points': points,
+  };
 }
 
 class BasicInfo {
   final String fullName;
   final int mobileNumber;
   final String email;
+  final String image;
 
   BasicInfo({
     required this.fullName,
     required this.mobileNumber,
     required this.email,
+    required this.image,
   });
-
   factory BasicInfo.fromJson(Map<String, dynamic> json) {
     return BasicInfo(
       fullName: json['fullName'] ?? '',
@@ -76,12 +70,13 @@ class BasicInfo {
           ? json['mobileNumber']
           : int.tryParse(json['mobileNumber']?.toString() ?? '0') ?? 0,
       email: json['email'] ?? '',
+      image: json['image'] ?? '',
     );
   }
-
   Map<String, dynamic> toJson() => {
-        'fullName': fullName,
-        'mobileNumber': mobileNumber,
-        'email': email,
-      };
+    'fullName': fullName,
+    'mobileNumber': mobileNumber,
+    'email': email,
+    'image': image,
+  };
 }

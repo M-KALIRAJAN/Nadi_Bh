@@ -322,7 +322,7 @@ class _LoginViewState extends State<LoginView> {
         password: loginData.password,
         fcmToken:fcmToken
       );
-      print(" loginData: $response");
+     debugPrint("loginData: ${response?['data']}");
       if (response != null && response['token'] != null) {
         await AppPreferences.saveToken(response['token']);
         await AppPreferences.setLoggedIn(true);

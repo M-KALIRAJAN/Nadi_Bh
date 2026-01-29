@@ -14,5 +14,24 @@ class Notificationapiservice {
       throw errmsg;
     } 
    }
-  
+    Future<void> deleteonenotification ({
+  required String id
+}) async {
+  try {
+    final response = await _dio.post("userNotifications/clear-notification/$id");
+    print("deleteonenotification ${response.data}");
+  } on DioException catch(e){
+    throw e;
+  }
+}
+
+Future<void>  deleteallnotification()async{
+   try {
+    final response = await _dio.post("userNotifications/clear");
+    print("deleteonenotification ${response.data}");
+  } on DioException catch(e){
+    throw e;
+  }
+}
+
 }
