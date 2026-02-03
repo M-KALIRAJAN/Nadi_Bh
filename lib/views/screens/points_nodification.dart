@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/services/NotificationApiService.dart';
 
@@ -26,7 +27,9 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Notifications"),
+        backgroundColor: AppColors.btn_primery,
+        title: const Text("Notifications",style: TextStyle(color: Colors.white),),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         actions: [
           Padding(
@@ -56,9 +59,36 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
         data: (response) {
           final notifications = response.data;
 
-          if (notifications.isEmpty) {
-            return const Center(child: Text("No Notifications",style: TextStyle(fontWeight: FontWeight.bold),));
-          }
+        if (notifications.isEmpty) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          "assets/images/New.png", 
+          height: 160,
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          "No Notifications",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          "You're all caught up!",
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -92,7 +122,7 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -126,9 +156,10 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
                             children: [
                               Text(
                                 n.type,
-                                style: const TextStyle(
+                                style:  TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
+                                   
                                 ),
                               ),
                               const SizedBox(height: 6),

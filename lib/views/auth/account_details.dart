@@ -206,8 +206,8 @@ class _AccountDetailsState extends State<AccountDetails>
               height: MediaQuery.of(context).size.height * 0.50,
               width: double.infinity,
               padding: const EdgeInsets.all(30),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration:  BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),

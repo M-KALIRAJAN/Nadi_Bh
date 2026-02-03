@@ -38,26 +38,25 @@ class _AddPointBottomSheetContentState
     AppLogger.warn("Submitting points=$points, mobile=$mobile");
 
     if (_selectedType == RecipientType.admin) {
-        setState(() => isLoading = true);
-        try{
-         final result = await _pointsRequest.sendtoadmin(points: points);
-                 setState(() => isLoading = false);
+      setState(() => isLoading = true);
+      try {
+        final result = await _pointsRequest.sendtoadmin(points: points);
+        setState(() => isLoading = false);
         AppLogger.warn("API SUCCESS: $result");
         SnackbarHelper.ShowSuccess(context, "Points request sent successfully");
-          Navigator.pop(context);
-        }catch(e){
+        Navigator.pop(context);
+      } catch (e) {
         AppLogger.error("API ERROR: $e");
         setState(() => isLoading = false);
         SnackbarHelper.showError(context, e.toString());
-        }
-
+      }
     } else {
       try {
         setState(() => isLoading = true);
         final result = await _pointsRequest.sendtofriend(
           mobileNumber: mobile,
           points: points,
-          reason:reason,
+          reason: reason,
         );
         setState(() => isLoading = false);
         AppLogger.warn("API SUCCESS: $result");
@@ -89,8 +88,8 @@ class _AddPointBottomSheetContentState
       builder: (context, scrollController) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
@@ -111,6 +110,7 @@ class _AddPointBottomSheetContentState
                 ),
               ),
               const SizedBox(height: 20),
+
               /// Title
               const Text(
                 "Request To Points",
@@ -128,7 +128,14 @@ class _AddPointBottomSheetContentState
                       child: RadioListTile<RecipientType>(
                         contentPadding: EdgeInsets.zero,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        title: const Text("Admin"),
+                        title: Text(
+                          "Admin",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.color,
+                          ),
+                        ),
                         value: RecipientType.admin,
                         activeColor: AppColors.btn_primery,
                         groupValue: _selectedType,
@@ -148,7 +155,14 @@ class _AddPointBottomSheetContentState
                       child: RadioListTile<RecipientType>(
                         contentPadding: EdgeInsets.zero,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        title: const Text("Friend"),
+                        title: Text(
+                          "Friend",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.color,
+                          ),
+                        ),
                         value: RecipientType.friend,
                         activeColor: AppColors.btn_primery,
                         groupValue: _selectedType,
@@ -214,11 +228,12 @@ class _AddPointBottomSheetContentState
                     const SizedBox(height: 25),
 
                     /// Notes
-                    const Text(
+                    Text(
                       "Notes (Optional)",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                     ),
                     const SizedBox(height: 10),

@@ -23,7 +23,7 @@ class _AllserviceState extends ConsumerState<Allservice> {
     final services = ref.watch(serviceListProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -92,7 +92,7 @@ class _AllserviceState extends ConsumerState<Allservice> {
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color:Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(

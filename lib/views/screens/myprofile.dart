@@ -292,7 +292,7 @@ class Myprofile extends ConsumerWidget {
     final profileAsyncValue = ref.watch(profileprovider);
 
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
+      backgroundColor:Theme.of(context).scaffoldBackgroundColor,
       body: profileAsyncValue.when(
         data: (profileResponse) {
           if (profileResponse == null) {

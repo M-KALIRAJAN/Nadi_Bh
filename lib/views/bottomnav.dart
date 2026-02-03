@@ -85,6 +85,7 @@ class _BottomNavState extends State<BottomNav> {
   }
 
   Widget _buildBottomNav() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 85,
       decoration: BoxDecoration(
@@ -92,11 +93,13 @@ class _BottomNavState extends State<BottomNav> {
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
         ),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, -2),
+            color: isDark
+                ? const Color.fromARGB(255, 223, 219, 219).withOpacity(0.6)
+                : Colors.black12,
+            blurRadius: isDark ? 12 : 8,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -109,7 +112,7 @@ class _BottomNavState extends State<BottomNav> {
           currentIndex: _selectedIndex,
           onTap: (index) => setState(() => _selectedIndex = index),
           type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           selectedItemColor: const Color(0xFF0F7757),
           unselectedItemColor: Colors.grey,
           selectedLabelStyle: const TextStyle(fontSize: 12),

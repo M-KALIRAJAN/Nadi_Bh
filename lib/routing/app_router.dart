@@ -16,20 +16,20 @@ class RouteNames {
   static const String allservice = '/allservice';
   static const String creterequest = '/creterequest';
   static const String servicerequestsubmitted = '/servicerequestsubmitted';
-    static const String  pointdetails = '/pointdetails';
-    static const String serviceRequestDetails = '/serviceRequestDetails';
-    static const String editprfoile = '/editprfoile';
-    static const String requestcreatesucess = '/requestcreatesucess';
-    static const String sendservicerequest = '/sendservicerequest';
- static const String forgotpassword = '/forgotpassword';
- static const String viewalllogs = '/viewalllogs';
- static const String nodifications ='/nodifications';
- static const String phonewithotp ='/phonewithotp';
- static const String pointnodification ="/pointnodification";
- static const String aboutscreen = "/aboutscreen";
-static const String helpSupport = "/help-support";
-static const String privacyPolicy = "/privacy-policy";
-static const String allPointHistory = "/all-point-history";
-static const String  requestPeopleDetails ="/requestPeopleDetails";
-
+  static const String pointdetails = '/pointdetails';
+  static const String serviceRequestDetails = '/serviceRequestDetails';
+  static const String editprfoile = '/editprfoile';
+  static const String requestcreatesucess = '/requestcreatesucess';
+  static const String sendservicerequest = '/sendservicerequest';
+  static const String forgotpassword = '/forgotpassword';
+  static const String viewalllogs = '/viewalllogs';
+  static const String nodifications = '/nodifications';
+  static const String phonewithotp = '/phonewithotp';
+  static const String pointnodification = "/pointnodification";
+  static const String aboutscreen = "/aboutscreen";
+  static const String helpSupport = "/help-support";
+  static const String privacyPolicy = "/privacy-policy";
+  static const String allPointHistory = "/all-point-history";
+  static const String requestPeopleDetails = "/requestPeopleDetails";
+  static const String adminrequestquestion = "/adminrequestquestion";
 }

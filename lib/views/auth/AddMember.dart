@@ -370,18 +370,16 @@ class _AddmemberState extends State<Addmember> {
             e.response?.data.toString() ??
             "Something went wrong";
 
-   ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(
-    content: Text(
-      errorMessage,
-      style: const TextStyle(color: Colors.white),
-    ),
-    backgroundColor: Colors.red,
-    behavior: SnackBarBehavior.floating, // optional (looks better)
-  ),
-);
-
-     
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              errorMessage,
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       } else {
         ScaffoldMessenger.of(
           context,
@@ -397,7 +395,7 @@ class _AddmemberState extends State<Addmember> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -417,36 +415,59 @@ class _AddmemberState extends State<Addmember> {
                     ),
                   ),
                 const SizedBox(height: 15),
-
-                TextFormField(
-                  controller: controller.familyCount,
-                  keyboardType: TextInputType.number,
-                  enabled: !_isFamilyCountLocked,
-                  decoration: InputDecoration(
-                    labelText: "Enter Family Count*",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 160,
+                      height: 45,
+                      child: TextFormField(
+                        controller: controller.familyCount,
+                        keyboardType: TextInputType.number,
+                        enabled: !_isFamilyCountLocked,
+                        decoration: InputDecoration(
+                          labelText: "Enter Family Count*",
+                          labelStyle: TextStyle(fontSize: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.black26),
+                          ),
+                        ),
+                        validator: controller.validatefamilycount,
+                        onChanged: (val) {
+                          final count = int.tryParse(val);
+                          if (count != null && count > 0) {
+                            setState(() {
+                              _totalMembers = count;
+                              _currentMemberIndex = 1;
+                              _isFamilyCountLocked = true;
+                            });
+                          }
+                        },
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                    const SizedBox(width: 1),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isFamilyCountLocked = false;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.person_add, size: 18,color: AppColors.btn_primery,),
+                          const SizedBox(width: 4),
+                          const Text("Add Member",style: TextStyle(color: AppColors.btn_primery),),
+                        ],
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.black26),
-                    ),
-                  ),
-                  validator: controller.validatefamilycount,
-                  onChanged: (val) {
-                    final count = int.tryParse(val);
-                    if (count != null && count > 0) {
-                      setState(() {
-                        _totalMembers = count;
-                        _currentMemberIndex = 1;
-                        _isFamilyCountLocked = true;
-                      });
-                    }
-                  },
+                  ],
                 ),
 
                 const SizedBox(height: 10),
@@ -482,7 +503,7 @@ class _AddmemberState extends State<Addmember> {
                   controller: controller.mobile,
                   keyboardType: TextInputType.phone,
                   label: "Mobile Number*",
-                   prefixText: "+973 ",
+                  prefixText: "+973 ",
                   validator: (value) => controller.validatemobilenumber(value),
                 ),
 
@@ -553,7 +574,7 @@ class _AddmemberState extends State<Addmember> {
             ),
           ),
 
-          const SizedBox(height: 25),
+        
           if (!_hideBottomButton)
             AppButton(
               text: _currentMemberIndex < _totalMembers
@@ -565,6 +586,7 @@ class _AddmemberState extends State<Addmember> {
               width: double.infinity,
               height: 47,
             ),
+            const SizedBox(height: 10,)
         ],
       ),
     );

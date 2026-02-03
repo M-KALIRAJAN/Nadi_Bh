@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/fetchrequestpeopledetails_provider.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
@@ -11,10 +13,12 @@ import 'package:nadi_user_app/widgets/Points_request_Details.dart';
 class RequestPeopleDetails extends ConsumerStatefulWidget {
   final String peopleId;
   final String fullName;
+  final String? image;
   const RequestPeopleDetails({
     super.key,
     required this.peopleId,
     required this.fullName,
+    this.image,
   });
 
   @override
@@ -86,17 +90,41 @@ class _RequestPeopleDetailsState extends ConsumerState<RequestPeopleDetails> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: CircleAvatar(
-              radius: 22,
-              child: Text(
-                widget.fullName.isNotEmpty
-                    ? widget.fullName[0].toUpperCase()
-                    : "?",
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey, // 👈 BACKGROUND COLOR
+              ),
+              child: ClipOval(
+                child: widget.image != null && widget.image!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: "${ImageBaseUrl.baseUrl}/${widget.image}",
+                        fit: BoxFit.cover,
+                        errorWidget: (_, __, ___) => Center(
+                          child: Text(
+                            widget.fullName.isNotEmpty
+                                ? widget.fullName[0].toUpperCase()
+                                : "?",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          widget.fullName.isNotEmpty
+                              ? widget.fullName[0].toUpperCase()
+                              : "?",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
               ),
             ),
           ),
         ],
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -128,7 +156,7 @@ class _RequestPeopleDetailsState extends ConsumerState<RequestPeopleDetails> {
                       currentUserId: currentUserId,
                       id: item.id,
                       peopleId: widget.peopleId,
-                      receivername:widget.fullName
+                      receivername: widget.fullName,
                     );
                   },
                 );

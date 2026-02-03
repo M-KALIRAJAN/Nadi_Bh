@@ -35,7 +35,7 @@ class ServiceRequestCard extends StatelessWidget {
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15)
                ),
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(12), 

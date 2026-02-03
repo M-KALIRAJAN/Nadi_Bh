@@ -383,8 +383,8 @@ class _LoginViewState extends State<LoginView> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration:  BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30),
                         topRight: Radius.circular(30),
@@ -413,6 +413,8 @@ class _LoginViewState extends State<LoginView> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: "Email Address",
+                              filled: true,
+                              fillColor:Colors.white,
                               floatingLabelStyle: TextStyle(color: AppColors.btn_primery),
                               errorText: emailError,
                               border: OutlineInputBorder(
@@ -434,6 +436,8 @@ class _LoginViewState extends State<LoginView> {
                             obscureText: _obscure,
                             decoration: InputDecoration(
                               labelText: "Password",
+                                         filled: true,
+                              fillColor:Colors.white,
                               floatingLabelStyle: const TextStyle(color: AppColors.btn_primery),
                               errorText: passwordError,
                               border: OutlineInputBorder(

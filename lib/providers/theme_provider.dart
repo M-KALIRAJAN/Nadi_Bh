@@ -1,45 +1,42 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final themeProvider = StateNotifierProvider<ThemeNotifier,ThemeMode>((ref)=> ThemeNotifier());
+final themeProvider =
+    NotifierProvider<ThemeNotifier, ThemeMode>(ThemeNotifier.new);
 
-class ThemeNotifier extends StateNotifier<ThemeMode>{
-  ThemeNotifier():super(ThemeMode.light){
+class ThemeNotifier extends Notifier<ThemeMode> {
+
+  @override
+  ThemeMode build() {
     _loadTheme();
+    return ThemeMode.light; 
   }
 
-  //Load Saved theme when app starts
-
-  void _loadTheme() async{
+  // Load saved theme
+  void _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final theme = prefs.getString('theme') ?? 'light';
+    final saved = prefs.getString('theme') ?? 'light';
 
-    if(theme == "dark"){
-      state = ThemeMode.dark;
-    }else if(theme == "system"){
-       state = ThemeMode.system;
-    }else{
-      state = ThemeMode.light;
-    }
+    state = saved == "dark"
+        ? ThemeMode.dark
+        : saved == "system"
+            ? ThemeMode.system
+            : ThemeMode.light;
   }
 
-  //change + save Theme
-
-  void changeTheme(ThemeMode mode) async{
-    state = mode;  // ui change immediately
+  // Change + Save theme
+  void changeTheme(ThemeMode mode) async {
+    state = mode;
 
     final prefs = await SharedPreferences.getInstance();
 
-    if(mode == ThemeMode.dark){
-      prefs.setString('theme', 'dark');
-    }else if(mode == ThemeMode.system){
-      prefs.setString("theme", 'system');
-    }else{
-      prefs.setString('theme', 'light');
-    }
+    final value = mode == ThemeMode.dark
+        ? "dark"
+        : mode == ThemeMode.system
+            ? "system"
+            : "light";
+
+    await prefs.setString('theme', value);
   }
 }
-

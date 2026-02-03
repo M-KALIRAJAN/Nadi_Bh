@@ -135,7 +135,15 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
   Future<void> SendRequest() async {
     if (selectcategoryId == null || selectedIssueId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select service & issue")),
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            "Please select service & issue",
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+          ),
+        ),
       );
       return;
     }
@@ -200,7 +208,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -476,16 +484,16 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Camera"),
+                leading:  Icon(Icons.camera_alt,color: Theme.of(context).textTheme.bodyMedium?.color,),
+                title:  Text("Camera",style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),),
                 onTap: () {
                   Navigator.pop(context);
                   pickImage(ImageSource.camera);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text("Gallery"),
+                leading:  Icon(Icons.photo_library, color: Theme.of(context).textTheme.bodyMedium?.color),
+                title:  Text("Gallery",style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),),
                 onTap: () {
                   Navigator.pop(context);
                   pickImage(ImageSource.gallery);

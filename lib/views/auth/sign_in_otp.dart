@@ -373,8 +373,8 @@ class _SignInOtpState extends State<SignInOtp> {
                         Expanded(
                           child: Container(
                             width: double.infinity,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
+                            decoration:  BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(30),
                                 topRight: Radius.circular(30),
@@ -395,7 +395,6 @@ class _SignInOtpState extends State<SignInOtp> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-
                                   /// Phone Input
                                   AppTextField(
                                     label: "Enter Phone Number",
@@ -441,6 +440,7 @@ class _SignInOtpState extends State<SignInOtp> {
                                       child: Pinput(
                                         controller: _otpController,
                                         length: 4,
+                                        
                                         defaultPinTheme: defaultPinTheme,
                                         focusedPinTheme:
                                             defaultPinTheme.copyWith(

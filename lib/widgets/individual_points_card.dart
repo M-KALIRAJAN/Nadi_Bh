@@ -39,7 +39,7 @@ class IndividualPointsCard extends StatelessWidget {
                   Text(
                     date,
                     style: TextStyle(
-                      color: AppColors.borderGrey,
+                      color: const Color.fromARGB(255, 145, 144, 146),
                       fontSize: AppFontSizes.small,
                     ),
                   ),
@@ -47,8 +47,8 @@ class IndividualPointsCard extends StatelessWidget {
                     text,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color.fromRGBO(80, 80, 80, 1),
+                    style:  TextStyle(
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -80,7 +80,7 @@ class IndividualPointsCard extends StatelessWidget {
                         ),
                       )
                     : Text(
-                         " +${points}",
+                        " +${points}",
                         style: TextStyle(
                           color: AppColors.btn_primery,
                           fontWeight: FontWeight.w600,

@@ -4,6 +4,7 @@ import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/views/auth/forgotpassword.dart';
 import 'package:nadi_user_app/views/auth/sign_in_otp.dart';
 import 'package:nadi_user_app/views/screens/AboutView.dart';
+import 'package:nadi_user_app/views/screens/Admin_QuestionerView.dart';
 import 'package:nadi_user_app/views/screens/HelpSupportView.dart';
 import 'package:nadi_user_app/views/screens/PrivacyPolicyView.dart';
 import 'package:nadi_user_app/views/screens/allPointHistory.dart';
@@ -113,10 +114,12 @@ GoRoute(
 
     final peopleId = data['peopleId'] as String;
     final fullName = data['fullName'] as String;
+    final image = data['image'] as String;
 
     return RequestPeopleDetails(
       peopleId: peopleId,
-      fullName: fullName,
+      fullName: fullName, 
+      image: image,
     );
   },
 ),
@@ -203,7 +206,10 @@ GoRoute(
         );
       },
     ),
-
+GoRoute(
+  path: RouteNames.adminrequestquestion,
+  builder: (context, state) => const AdminQuestionerview(),
+  ),
     GoRoute(
       path: RouteNames.bottomnav,
       builder: (context, state) => const BottomNav(),

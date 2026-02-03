@@ -154,20 +154,22 @@ sendOtp(context);
     });
   }
 
-  @override
+
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+      @override
   final defaultPinTheme = PinTheme(
     width: 50,
     height: 50,
     textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
     decoration: BoxDecoration(
-      color: Colors.white,
+       color: isDark ? Colors.black : Colors.black,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: Colors.grey),
     ),
   );
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: Column(

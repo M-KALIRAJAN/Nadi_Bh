@@ -25,7 +25,7 @@ class IdCardSection extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black),
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
@@ -112,9 +112,9 @@ class IdCardSection extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: const Text(
+              child:  Text(
                 "Take Photo",
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
               ),
             ),
           ),

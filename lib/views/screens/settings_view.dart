@@ -80,9 +80,10 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
               const SizedBox(width: 15),
               Text(
                 text,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
             ],
@@ -123,7 +124,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
       ),
     );
   }
- 
+
   @override
   Widget build(BuildContext context) {
     Future<void> _logout(BuildContext context) async {
@@ -149,7 +150,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
+      backgroundColor:Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -180,7 +181,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                 ),
                 child: Column(
                   children: [
@@ -359,25 +360,25 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  // ref
-                                  //     .read(themeProvider.notifier)
-                                  //     .changeTheme(ThemeMode.light);
+                                  ref
+                                      .read(themeProvider.notifier)
+                                      .changeTheme(ThemeMode.light);
                                 },
                                 child: themeOption("Light"),
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  // ref
-                                  //     .read(themeProvider.notifier)
-                                  //     .changeTheme(ThemeMode.dark);
+                                  ref
+                                      .read(themeProvider.notifier)
+                                      .changeTheme(ThemeMode.dark);
                                 },
                                 child: themeOption("Dark"),
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  // ref
-                                  //     .read(themeProvider.notifier)
-                                  //     .changeTheme(ThemeMode.system);
+                                  ref
+                                      .read(themeProvider.notifier)
+                                      .changeTheme(ThemeMode.system);
                                 },
                                 child: themeOption("System"),
                               ),
@@ -399,7 +400,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                 ),
                 child: settingItem(
                   text: "Log Out",

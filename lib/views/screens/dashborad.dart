@@ -3,13 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/utils/BlinkingDot.dart';
 import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/models/Questioner_Model.dart';
 import 'package:nadi_user_app/models/Userdashboard_model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:nadi_user_app/providers/Advertisement_Provider.dart';
+import 'package:nadi_user_app/providers/Questioner_Provider.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/providers/userDashboard_provider.dart';
+import 'package:nadi_user_app/services/Questioner_Service.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/ongoing_service.dart';
+import 'package:nadi_user_app/views/screens/Advertisement_View.dart';
+import 'package:nadi_user_app/views/screens/Questioner_View.dart';
+import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -37,8 +45,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
   final HomeViewService _homeViewService = HomeViewService();
   final OngoingService _ongoingService = OngoingService();
   DateTime? lastBackPressed;
-
+  bool _questionPopupShown = false;
   Map<String, dynamic>? _ongoing;
+  String? _lastShownQuestionnaireId;
   @override
   void initState() {
     super.initState();
@@ -48,8 +57,10 @@ class _DashboardState extends ConsumerState<Dashboard> {
     Future.microtask(() {
       ref.read(serviceListProvider.notifier).refresh();
       ref.refresh(fetchpointsnodification);
-      
+      ref.refresh(fetchadvertisementprovider);
       ref.refresh(userdashboardprovider);
+
+      ref.refresh(fetchquestionsdataprovider);
     });
   }
 
@@ -64,17 +75,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
       debugPrint("ERROR: $e");
     }
   }
-
-  // Future<void> getUserData() async {
-  //   final response = await _homeViewService.userDashboard();
-  //   await AppPreferences.saveusername(response.name);
-  //   await AppPreferences.savePoints(response.points);
-  //   await AppPreferences.saveUserImage(response.image);
-  //   AppLogger.warn("getUserData********* ${response.name}");
-  //   setState(() {
-  //     dashboard = response;
-  //   });
-  // }
 
   Future<void> get_preferencevalue() async {
     final type = await AppPreferences.getaccounttype();
@@ -135,10 +135,151 @@ class _DashboardState extends ConsumerState<Dashboard> {
     );
   }
 
+  void showQuestionPopup(
+    BuildContext context,
+    QuestionerDatum questionerDatum,
+  ) {
+    final ScrollController scrollController = ScrollController();
+    Map<int, int> selectedAnswersMap = {};
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (dialogContext) {
+        bool isSubmitting = false; // ✅ LOCAL STATE
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 24,
+              ),
+              backgroundColor: Colors.transparent,
+              child: Container(
+                constraints: const BoxConstraints(maxHeight: 560),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // 🔹 HEADER
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20, 16, 12, 8),
+                      child: Text(
+                        "Questionnaire",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+
+                    const Divider(height: 1),
+
+                    // 🔹 QUESTIONS
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: QuestionerView(
+                          scrollController: scrollController,
+                          questionerDatum: questionerDatum,
+                          onSubmit: (answers) {
+                            selectedAnswersMap = Map<int, int>.from(answers);
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // 🔹 SUBMIT BUTTON
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: AppButton(
+                          text: isSubmitting ? "Submitting..." : "Submit",
+                          color: AppColors.btn_primery,
+                          width: double.infinity,
+                          onPressed: isSubmitting
+                              ? null
+                              : () async {
+                                  if (selectedAnswersMap.isEmpty) {
+                                    SnackbarHelper.showError(
+                                      context,
+                                      "Please answer all questions",
+                                    );
+                                    return;
+                                  }
+
+                                  setDialogState(() {
+                                    isSubmitting = true;
+                                  });
+
+                                  final payload = {
+                                    "questionnaireId": questionerDatum.id,
+                                    "answers": selectedAnswersMap.entries
+                                        .map(
+                                          (e) => {
+                                            "questionIndex": e.key,
+                                            "selectedOption": e.value,
+                                          },
+                                        )
+                                        .toList(),
+                                  };
+
+                                  try {
+                                    await QuestionerService()
+                                        .submitQuestionsData(payload: payload);
+
+                                    // ✅ RESET FLAG
+                                    _questionPopupShown = false;
+
+                                    // FORCE FRESH DATA
+                                    ref.invalidate(fetchquestionsdataprovider);
+                                    ref.refresh(userdashboardprovider);
+
+                                    if (context.mounted) {
+                                      Navigator.of(
+                                        dialogContext,
+                                        rootNavigator: true,
+                                      ).pop();
+                                    }
+                                  } catch (e) {
+                                    setDialogState(() {
+                                      isSubmitting = false;
+                                    });
+                                    SnackbarHelper.showError(context, "$e");
+                                  }
+                                },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
     final dashboardAsync = ref.watch(userdashboardprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
+    final adAsync = ref.watch(fetchadvertisementprovider);
+    final quesAsync = ref.watch(fetchquestionsdataprovider);
     final data = _ongoing?['data'];
     final bool isOngoing = data != null && data['status'] == 'inProgress';
     return Scaffold(
@@ -164,7 +305,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     begin: AlignmentGeometry.topCenter,
                     end: AlignmentGeometry.bottomCenter,
                     colors: [
-                      Color(0xFF0D5F48), // Top color
+                      Color(0xFF0D5F48),
                       Color(0xFF75C0AC), // Bottom color
                     ],
                   ),
@@ -182,107 +323,116 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                         dashboardAsync.when(
-  loading: () => Shimmer.fromColors(
-    baseColor: Colors.grey.shade300,
-    highlightColor: Colors.grey.shade100,
-    child: Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-          ),
-        ),
+                          dashboardAsync.when(
+                            loading: () => Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                    ),
+                                  ),
 
-        const SizedBox(width: 12),
+                                  const SizedBox(width: 12),
 
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 70,
-              height: 12,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 6),
-            Container(
-              width: 120,
-              height: 16,
-              color: Colors.white,
-            ),
-          ],
-        ),
-      ],
-    ),
-  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 70,
+                                        height: 12,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Container(
+                                        width: 120,
+                                        height: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
 
-  error: (e, _) =>
-      const Icon(Icons.error, color: Colors.white),
+                            error: (e, _) =>
+                                const Icon(Icons.error, color: Colors.white),
 
-  data: (dashboard) {
-    return Row(
-      children: [
-        dashboard.image == null || dashboard.image!.isEmpty
-            ? Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.btn_primery,
-                    width: 2,
-                  ),
-                ),
-                child: const CircleAvatar(
-                  radius: 22,
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
-              )
-            : CachedNetworkImage(
-                imageUrl:
-                    "${ImageBaseUrl.baseUrl}/${dashboard.image}",
-                imageBuilder: (context, imageProvider) =>
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundImage: imageProvider,
-                    ),
-                placeholder: (_, __) =>
-                    const CircularProgressIndicator(strokeWidth: 2),
-                errorWidget: (_, __, ___) =>
-                    const Icon(Icons.person),
-              ),
+                            data: (dashboard) {
+                              return Row(
+                                children: [
+                                  dashboard.image == null ||
+                                          dashboard.image!.isEmpty
+                                      ? Container(
+                                          width: 44,
+                                          height: 44,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: AppColors.btn_primery,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: const CircleAvatar(
+                                            radius: 22,
+                                            backgroundColor: Colors.blue,
+                                            child: Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        )
+                                      : CachedNetworkImage(
+                                          imageUrl:
+                                              "${ImageBaseUrl.baseUrl}/${dashboard.image}",
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  CircleAvatar(
+                                                    radius: 22,
+                                                    backgroundImage:
+                                                        imageProvider,
+                                                  ),
+                                          placeholder: (_, __) =>
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                          errorWidget: (_, __, ___) =>
+                                              const Icon(Icons.person),
+                                        ),
 
-        const SizedBox(width: 12),
+                                  const SizedBox(width: 12),
 
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Welcome",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-              ),
-            ),
-            Text(
-              dashboard.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  },
-),
-
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Welcome",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      Text(
+                                        dashboard.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
 
                           Container(
                             height: 40,
@@ -362,23 +512,24 @@ class _DashboardState extends ConsumerState<Dashboard> {
                           width: 315,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(
                                 dashboard.account,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16,
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.color,
                                 ),
                               ),
                               InkWell(
                                 onTap: () {
-                                  Navigator.of(
-                                    context,
-                                  ).pushNamed("/pointdetails");
+                                  context.push(RouteNames.pointdetails);
                                 },
                                 child: Container(
                                   height: 38,
@@ -446,7 +597,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                             height: 42,
                             width: 42,
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50,
+                              color: Theme.of(context).colorScheme.surface,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -524,6 +675,34 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       ),
                     )
                   : const SizedBox(),
+              adAsync.when(
+                loading: () => const SizedBox(),
+                error: (_, __) => const SizedBox(),
+                data: (model) {
+                  if (model.data.isEmpty) return const SizedBox();
+                  return const AdvertisementCarousel();
+                },
+              ),
+         
+              quesAsync.when(
+                data: (model) {
+                  if (model.data.isEmpty) return const SizedBox();
+
+                  final question = model.data.first;
+
+                  if (_lastShownQuestionnaireId != question.id) {
+                    _lastShownQuestionnaireId = question.id;
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      showQuestionPopup(context, question);
+                    });
+                  }
+
+                  return const SizedBox();
+                },
+                loading: () => const SizedBox(),
+                error: (_, __) => const SizedBox(),
+              ),
 
               SizedBox(height: 10),
               Column(
@@ -533,10 +712,12 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(left: 22),
-                        child: const Text(
+                        child: Text(
                           "Quick Action",
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.color,
                             fontSize: AppFontSizes.medium,
                             fontWeight: FontWeight.bold,
                           ),
@@ -569,7 +750,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     ],
                   ),
                   SizedBox(height: 5),
-
                   SizedBox(
                     height: 105,
                     child: services.isEmpty
@@ -586,7 +766,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
                               final String name = service['name'] ?? '';
                               final String serviceId = service['_id'] ?? "";
                               final String? logo = service['serviceLogo'];
-
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -652,14 +831,16 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       children: [
                         RequestCart(
                           title: "Create Request ",
-
                           color: AppColors.btn_primery,
                           image: Image.asset("assets/icons/add.png"),
                           onTap: () {
-                            context.push(RouteNames.creterequest);
+                            // context.push(RouteNames.creterequest);
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (!mounted) return;
+                              context.push(RouteNames.creterequest);
+                            });
                           },
                         ),
-
                         RequestCart(
                           title: "Add point",
                           image: Image.asset("assets/icons/gold_coin.png"),
@@ -686,7 +867,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       height: 172,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Column(
@@ -699,12 +880,14 @@ class _DashboardState extends ConsumerState<Dashboard> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   "Service Overview",
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.color,
                                   ),
                                 ),
                                 SizedBox(
@@ -752,7 +935,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                       ),
 
                       child: Row(

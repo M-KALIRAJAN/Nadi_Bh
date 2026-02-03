@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +8,7 @@ import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:nadi_user_app/providers/AdminQuestioner_Provider.dart';
 import 'package:nadi_user_app/providers/family_member_points_list.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/fetchrequestspeoplelist_provider.dart';
@@ -28,6 +31,9 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
   String userName = "";
   int points = 0;
   String userImage = "";
+  // 🔥 ADD THESE TWO LINES
+  bool isExpanded = false;
+  final int initialCount = 7;
 
   @override
   void initState() {
@@ -39,6 +45,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
       ref.refresh(FamilymemberpointslistProvider);
       ref.refresh(fetchrequestpeoplelistprovider);
       ref.refresh(userdashboardprovider);
+      ref.refresh(fetchadminquestionerprovider);
     });
   }
 
@@ -62,10 +69,11 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     BuildContext context,
     String peopleId,
     String fullName,
+    String image
   ) async {
     final result = await context.push(
       RouteNames.requestPeopleDetails,
-      extra: {'peopleId': peopleId, 'fullName': fullName},
+      extra: {'peopleId': peopleId, 'fullName': fullName, "image":image},
     );
 
     if (result == true && mounted) {
@@ -82,427 +90,485 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
 
     final requestedpointspeoplelist = ref.watch(fetchrequestpeoplelistprovider);
     final dashboardAsync = ref.watch(userdashboardprovider);
+    final adminquestionlist = ref.watch(fetchadminquestionerprovider);
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Background Header
-              Container(
-                height: 195,
-                width: double.infinity,
-                padding: EdgeInsets.only(top: 48, left: 20, right: 20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.fromRGBO(213, 155, 8, 1),
-                      Color.fromRGBO(246, 201, 86, 1),
-                    ],
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(51),
-                    bottomRight: Radius.circular(51),
-                  ),
-                ),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppCircleIconButton(
-                      icon: Icons.arrow_back,
-                      color: const Color(0xFFF6C956),
-                      onPressed: () => Navigator.pop(context),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Background Header
+                Container(
+                  height: 195,
+                  width: double.infinity,
+                  padding: EdgeInsets.only(top: 48, left: 20, right: 20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromRGBO(213, 155, 8, 1),
+                        Color.fromRGBO(246, 201, 86, 1),
+                      ],
                     ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(51),
+                      bottomRight: Radius.circular(51),
+                    ),
+                  ),
 
-                    const Text(
-                      "Profile Details",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppCircleIconButton(
+                        icon: Icons.arrow_back,
+                        color: const Color(0xFFF6C956),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                    ),
 
-                    InkWell(
-                      onTap: () => context.push(RouteNames.pointnodification),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.3),
+                      const Text(
+                        "Profile Details",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      InkWell(
+                        onTap: () => context.push(RouteNames.pointnodification),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                              child: const Icon(
+                                Icons.notifications,
+                                color: Colors.white,
+                                size: 30,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.notifications,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                          notificationCount.when(
-                            data: (response) {
-                              final count = response.data.length;
-                              final countText = count > 99 ? "99+" : "$count";
-                              return Positioned(
-                                top: 0,
-                                right: 5,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  height: 16,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 16,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      countText,
-                                      style: TextStyle(
-                                        color: AppColors.gold_coin,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
+                            notificationCount.when(
+                              data: (response) {
+                                final count = response.data.length;
+                                final countText = count > 99 ? "99+" : "$count";
+                                return Positioned(
+                                  top: 0,
+                                  right: 5,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    height: 16,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 16,
+                                    ),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        countText,
+                                        style: TextStyle(
+                                          color: AppColors.gold_coin,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
-                            error: (_, _) => const SizedBox(),
-                            loading: () => const SizedBox(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Positioned Profile Card
-              Positioned(
-                bottom: -40,
-                left: 20,
-                right: 20,
-                child: Container(
-                  height: 140,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: const Color.fromRGBO(217, 165, 32, 100),
-                  ),
-
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 63,
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
-                          color: Color(0xFFD59B08),
-                        ),
-
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            dashboardAsync.when(
-                              loading: () => const SizedBox(),
-                              error: (_, __) => const SizedBox(),
-
-                              data: (dashboard) {
-                                final userName = dashboard.name;
-                                final userImage = dashboard.image;
-
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    userImage.isEmpty
-                                        ? Container(
-                                            width: 44,
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: const CircleAvatar(
-                                              radius: 22,
-                                              backgroundColor: Colors.blue,
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          )
-                                        : Container(
-                                            width: 44,
-                                            height: 44,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: ClipOval(
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    "${ImageBaseUrl.baseUrl}/$userImage",
-                                                fit: BoxFit.cover,
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        const Icon(
-                                                          Icons.person,
-                                                        ),
-                                              ),
-                                            ),
-                                          ),
-
-                                    const SizedBox(width: 10),
-
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "Welcome",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                        Text(
-                                          userName.isEmpty
-                                              ? "Loading..."
-                                              : userName,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
                                 );
                               },
-                            ),
-
-                            Container(
-                              height: 38,
-                              width: 38,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                              child: Image.asset("assets/icons/gold.png"),
+                              error: (_, _) => const SizedBox(),
+                              loading: () => const SizedBox(),
                             ),
                           ],
                         ),
                       ),
-
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          "Your Current Points Balance",
-                          style: TextStyle(
-                            fontSize: AppFontSizes.small,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-
-                      dashboardAsync.when(
-                        loading: () => const SizedBox(),
-                        error: (_, __) => const SizedBox(),
-
-                        data: (dashboard) {
-                          final points = dashboard.points;
-
-                          return Center(
-                            child: Text(
-                              points.toString(),
-                              style: const TextStyle(
-                                fontSize: 26,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 50),
 
-   requestedpointspeoplelist.when(
-  loading: () => const SizedBox(),
-  error: (_, __) => const SizedBox(),
-  data: (res) {
-    final people = res.data;
-    final list = people.length > 7 ? people.take(7).toList() : people;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // "Points Requests" text
-        Padding(
-          padding: const EdgeInsets.only(left: 10, bottom: 4),
-          child: const Text(
-            "Points Requests:",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-
-        // Wrap GridView with ConstrainedBox to remove extra bottom space
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: ((48 + 2 + 11) * ((list.length / 5).ceil())) + 2, 
-            // 48 = avatar, 2 = SizedBox, 11 = text font size, +2 for small spacing
-          ),
-          child: GridView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero, // REMOVE default padding
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: people.length > 7 ? list.length + 1 : list.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              mainAxisSpacing: 2, // minimal spacing between rows
-              crossAxisSpacing: 6,
-              childAspectRatio: 0.68,
-            ),
-            itemBuilder: (context, index) {
-              if (people.length > 7 && index == list.length) {
-                return Column(
-                  children: const [
-                    CircleAvatar(
-                      radius: 24,
-                      child: Icon(Icons.keyboard_arrow_down),
+                // Positioned Profile Card
+                Positioned(
+                  bottom: -40,
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    height: 140,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: const Color.fromRGBO(217, 165, 32, 100),
                     ),
-                    SizedBox(height: 2),
-                    Text("Show More", style: TextStyle(fontSize: 11)),
-                  ],
-                );
-              }
 
-              final item = list[index];
-              return Column(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      _peopledetails(
-                        context,
-                        item.id,
-                        item.basicInfo.fullName,
-                      );
-                    },
-                    child: (item.basicInfo.image.isNotEmpty)
-                        ? ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl:
-                                  "${ImageBaseUrl.baseUrl}/${item.basicInfo.image}",
-                              fit: BoxFit.cover,
-                              width: 48,
-                              height: 48,
-                              errorWidget: (context, url, error) {
-                                return CircleAvatar(
-                                  radius: 24,
-                                  child: Text(
-                                    item.basicInfo.fullName.isNotEmpty
-                                        ? item.basicInfo.fullName[0].toUpperCase()
-                                        : "?",
-                                  ),
-                                );
-                              },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 63,
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
                             ),
-                          )
-                        : CircleAvatar(
-                            radius: 24,
-                            child: Text(
-                              item.basicInfo.fullName.isNotEmpty
-                                  ? item.basicInfo.fullName[0].toUpperCase()
-                                  : "?",
+                            color: Color(0xFFD59B08),
+                          ),
+
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              dashboardAsync.when(
+                                loading: () => const SizedBox(),
+                                error: (_, __) => const SizedBox(),
+
+                                data: (dashboard) {
+                                  final userName = dashboard.name;
+                                  final userImage = dashboard.image;
+
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      userImage.isEmpty
+                                          ? Container(
+                                              width: 44,
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: const CircleAvatar(
+                                                radius: 22,
+                                                backgroundColor: Colors.blue,
+                                                child: Icon(
+                                                  Icons.person,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            )
+                                          : Container(
+                                              width: 44,
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: ClipOval(
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                      "${ImageBaseUrl.baseUrl}/$userImage",
+                                                  fit: BoxFit.cover,
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          const Icon(
+                                                            Icons.person,
+                                                          ),
+                                                ),
+                                              ),
+                                            ),
+
+                                      const SizedBox(width: 10),
+
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Welcome",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          Text(
+                                            userName.isEmpty
+                                                ? "Loading..."
+                                                : userName,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+
+                              Container(
+                                height: 38,
+                                width: 38,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: Image.asset("assets/icons/gold.png"),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "Your Current Points Balance",
+                            style: TextStyle(
+                              fontSize: AppFontSizes.small,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.basicInfo.fullName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  },
-),
-
-
-
-          Padding(
-            padding: const EdgeInsets.only(left: 15, bottom: 0, right: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Point History:",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                InkWell(
-                  onTap: () {
-                    context.push(RouteNames.allPointHistory);
-                  },
-                  child: Row(
-                    children: const [
-                      Text(
-                        "View all",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.gold_coin,
                         ),
-                      ),
-                      SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        size: 15,
-                        color: AppColors.gold_coin,
-                      ),
-                    ],
+
+                        dashboardAsync.when(
+                          loading: () => const SizedBox(),
+                          error: (_, __) => const SizedBox(),
+
+                          data: (dashboard) {
+                            final points = dashboard.points;
+
+                            return Center(
+                              child: Text(
+                                points.toString(),
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 50),
 
-          Expanded(
-            child: SingleChildScrollView(
+            requestedpointspeoplelist.when(
+              loading: () => const SizedBox(),
+              error: (_, __) => const SizedBox(),
+              data: (res) {
+                final people = res.data;
+                final list = people.length > 7
+                    ? people.take(7).toList()
+                    : people;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10, bottom: 4),
+                      child: const Text(
+                        "Points Requests:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+
+                 
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+
+                      itemCount: isExpanded
+                          ? people.length
+                          : (people.length > initialCount
+                                ? initialCount +
+                                      1 // +1 for Show More
+                                : people.length),
+
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 7,
+                            childAspectRatio: 0.75,
+                          ),
+
+                      itemBuilder: (context, index) {
+                        /// SHOW MORE TILE
+                        if (!isExpanded &&
+                            people.length > initialCount &&
+                            index == initialCount) {
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                isExpanded = true;
+                              });
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                CircleAvatar(
+                                  radius: 24,
+                                  child: Icon(Icons.keyboard_arrow_down),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Show More",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+          
+                        final item = people[index];
+
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                _peopledetails(
+                                  context,
+                                  item.id,
+                                  item.basicInfo.fullName,
+                                  item.basicInfo.image,
+                                );
+                              },
+                              child: ClipOval(
+                          
+                                child: CachedNetworkImage(
+                                  imageUrl:
+                                      "${ImageBaseUrl.baseUrl}/${item.basicInfo.image}",
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, __, ___) => CircleAvatar(
+                                    radius: 24,
+                                        backgroundColor: Colors.grey, 
+                                    child: Text(
+                                      item.basicInfo.fullName.isNotEmpty
+                                          ? item.basicInfo.fullName[0]
+                                                .toUpperCase()
+                                          : "?",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              item.basicInfo.fullName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+
+            adminquestionlist.when(
+              data: (adminlist) {
+                final data = adminlist;
+                return Padding(
+                  padding: const EdgeInsets.only(left: 10, bottom: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      Text(
+                        "Admin Requests:",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      Column(
+                        children: [
+                          InkWell(
+                            onTap: () =>
+                                context.push(RouteNames.adminrequestquestion),
+                            child: CircleAvatar(
+                              radius: 25,
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    "${ImageAssetUrl.baseUrl}${data['image']}",
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(data['name'], style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+              error: (e, _) => Center(child: Text(e.toString())),
+              loading: () => const SizedBox(),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 15,
+                bottom: 0,
+                right: 15,
+                top: 10,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Point History:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      context.push(RouteNames.allPointHistory);
+                    },
+                    child: Row(
+                      children: const [
+                        Text(
+                          "View all",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.gold_coin,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 15,
+                          color: AppColors.gold_coin,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   /// POINT HISTORY
@@ -525,9 +591,11 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             if (data.isEmpty) {
                               return const Text("No History Found");
                             }
-                            final limitedList = data.take(8).toList();
+                            final limitedList = data.take(5).toList();
                             return ListView.builder(
                               shrinkWrap: true,
+
+                              padding: EdgeInsets.only(top: 10),
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: limitedList.length,
                               itemBuilder: (context, index) {
@@ -575,6 +643,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: data.length,
+                                padding: EdgeInsets.only(top: 10),
                                 itemBuilder: (context, index) {
                                   final n = data[index];
                                   return Padding(
@@ -596,8 +665,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

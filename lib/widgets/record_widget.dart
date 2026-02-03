@@ -142,7 +142,7 @@ class _RecordWidgetState extends State<RecordWidget> {
             height: 52,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.15),
@@ -157,7 +157,7 @@ class _RecordWidgetState extends State<RecordWidget> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                    icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow ,color: Theme.of(context).textTheme.bodyMedium?.color ,),
                     onPressed: playPauseVoice,
                   ),
                   const Text("Recorded Voice"),

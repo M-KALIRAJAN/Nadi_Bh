@@ -173,8 +173,8 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration:  BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -431,8 +431,8 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Camera"),
+                leading:  Icon(Icons.camera_alt,color: Theme.of(context).textTheme.bodyMedium?.color,),
+                title:  Text("Camera",style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color,),),
                 onTap: () {
                   Navigator.pop(context);
                   pickImage(ImageSource.camera);

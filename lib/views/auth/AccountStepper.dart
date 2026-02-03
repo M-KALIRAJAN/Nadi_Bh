@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nadi_user_app/controllers/address_controller.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/views/auth/AccountFormView.dart';
 import 'package:nadi_user_app/views/auth/AddMember.dart';
 import 'package:nadi_user_app/views/auth/Address.dart';
@@ -83,13 +84,17 @@ class _AccountStepperState extends State<AccountStepper> {
         : ["Account", "Address"];
 
     return Scaffold(
-      appBar: AppBar(title: Text("${widget.accountType} Account")),
+      appBar: AppBar(
+        title: Text("${widget.accountType} Account",style: TextStyle(color: Colors.white),),      
+          backgroundColor: AppColors.btn_primery,
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,),
 
       body: Column(
         children: [
           // CUSTOM STEPPER
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.only(top: 15,bottom: 5,left: 20,right: 20),
             child: CustomStepper(currentStep: _currentStep, titles: stepTitles),
           ),
 
@@ -98,60 +103,9 @@ class _AccountStepperState extends State<AccountStepper> {
           // SCROLLABLE CONTENT
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
 
-              // child: IndexedStack(
-              //   index: _currentStep,
-              //   children: [
-              //     // Step 1: Account
-              //     AccountFormView(
-              //       accountType: widget.accountType,
-              //       formKey: _formKeyIndividual,
-              //       onNext: () {
-              //         if (_formKeyIndividual.currentState!.validate()) {
-              //           setState(() => _currentStep = 1);
-              //         }
-              //       },
-              //     ),
-
-              //     Address(
-              //       accountType: widget.accountType,
-              //       formKey: _formKeyAddress,
-              //       controller: addressController,
-              //       onNext: () {
-              //         if (_formKeyAddress.currentState!.validate()) {
-              //           setState(() {
-              //             if (widget.accountType == "Family") {
-              //               _currentStep = 2; // go to Add Member
-              //             } else {
-              //               // Individual account → finish flow here
-              //               ScaffoldMessenger.of(context).showSnackBar(
-              //                 const SnackBar(
-              //                   content: Text("Account created successfully"),
-              //                 ),
-              //               );
-              //             }
-              //           });
-              //         }
-              //       },
-              //     ),
-
-              //     // Step 3: Add Member (Family Only)
-              //     if (widget.accountType == "Family")
-              //       Addmember(
-              //         accountType: widget.accountType,
-              //         formKey: _formKeyAddMember,
-              //         onNext: () {
-              //           if (_formKeyAddMember.currentState!.validate()) {
-              //             // LAST STEP
-              //             ScaffoldMessenger.of(context).showSnackBar(
-              //               const SnackBar(content: Text("Completed!")),
-              //             );
-              //           }
-              //         },
-              //       ),
-              //   ],
-              // ),
+        
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 280),
                 transitionBuilder: (child, animation) {

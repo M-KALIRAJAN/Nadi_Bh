@@ -8,7 +8,7 @@ class SnackbarHelper {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
+        SnackBar(content: Text(message,style: TextStyle(color: Colors.white),), backgroundColor: Colors.red),
       );
   }
 
