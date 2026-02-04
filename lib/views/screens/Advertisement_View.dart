@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/providers/Advertisement_Provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 class AdvertisementCarousel extends ConsumerStatefulWidget {
@@ -97,9 +98,7 @@ class _AdvertisementCarouselState extends ConsumerState<AdvertisementCarousel> {
             ),
           );
         }
-
         if (datum.ads.isEmpty) return const SizedBox();
-
         return CarouselSlider(
           options: CarouselOptions(
             height: 180,
@@ -108,24 +107,21 @@ class _AdvertisementCarouselState extends ConsumerState<AdvertisementCarousel> {
             enlargeCenterPage: true,
           ),
           items: datum.ads.map((ad) {
-            return Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    "${ImageBaseUrl.baseUrl}/${ad.image}",
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.broken_image),
-                  ),
+            return InkWell(
+              onTap: () async {
+                await launchUrl(
+                  Uri.parse(ad.link),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  "${ImageBaseUrl.baseUrl}/${ad.image}",
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
                 ),
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  right: 10,
-                  child: Text("Advertation"),
-                ),
-              ],
+              ),
             );
           }).toList(),
         );
