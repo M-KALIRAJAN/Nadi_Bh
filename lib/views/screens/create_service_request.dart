@@ -229,7 +229,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                     },
                   ),
                   const Text(
-                    "Create Servie Request",
+                    "Create Service Request",
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                   ),
                   const Text(""),
@@ -248,7 +248,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
 
                     children: [
                       const Text(
-                        "Servie category",
+                        "Service category",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

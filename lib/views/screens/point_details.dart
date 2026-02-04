@@ -69,11 +69,11 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     BuildContext context,
     String peopleId,
     String fullName,
-    String image
+    String image,
   ) async {
     final result = await context.push(
       RouteNames.requestPeopleDetails,
-      extra: {'peopleId': peopleId, 'fullName': fullName, "image":image},
+      extra: {'peopleId': peopleId, 'fullName': fullName, "image": image},
     );
 
     if (result == true && mounted) {
@@ -131,7 +131,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                       ),
 
                       const Text(
-                        "Profile Details",
+                        "Points Details",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -283,9 +283,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                                 ),
                                               ),
                                             ),
-
                                       const SizedBox(width: 10),
-
                                       Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
@@ -315,7 +313,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                   );
                                 },
                               ),
-
                               Container(
                                 height: 38,
                                 width: 38,
@@ -328,7 +325,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             ],
                           ),
                         ),
-
                         Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Text(
@@ -367,7 +363,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               ],
             ),
             const SizedBox(height: 50),
-
             requestedpointspeoplelist.when(
               loading: () => const SizedBox(),
               error: (_, __) => const SizedBox(),
@@ -388,7 +383,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                       ),
                     ),
 
-                 
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -425,6 +419,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                               children: const [
                                 CircleAvatar(
                                   radius: 24,
+                                  backgroundColor: Colors.grey,
                                   child: Icon(Icons.keyboard_arrow_down),
                                 ),
                                 SizedBox(height: 4),
@@ -436,10 +431,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             ),
                           );
                         }
-
-          
                         final item = people[index];
-
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -453,7 +445,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                 );
                               },
                               child: ClipOval(
-                          
                                 child: CachedNetworkImage(
                                   imageUrl:
                                       "${ImageBaseUrl.baseUrl}/${item.basicInfo.image}",
@@ -462,7 +453,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                   fit: BoxFit.cover,
                                   errorWidget: (_, __, ___) => CircleAvatar(
                                     radius: 24,
-                                        backgroundColor: Colors.grey, 
+                                    backgroundColor: Colors.grey,
                                     child: Text(
                                       item.basicInfo.fullName.isNotEmpty
                                           ? item.basicInfo.fullName[0]
@@ -489,16 +480,76 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               },
             ),
 
+            //  adminquestionlist.when(
+            //     data: (adminlist) {
+            //       final data = adminlist;
+            //       if(data.isEmpty){
+            //         return const SizedBox();
+            //       }
+            //       final image = data['image'] ?? "";
+            //       final name = data['name'] ?? "Admin";
+            //       return Padding(
+            //         padding: const EdgeInsets.only(left: 10, bottom: 4),
+            //         child: Column(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             const SizedBox(height: 10),
+            //             const Text(
+            //               "Admin Requests:",
+            //               style: TextStyle(fontWeight: FontWeight.bold),
+            //             ),
+            //             const SizedBox(height: 5),
+            //             Column(
+            //               children: [
+            //                 InkWell(
+            //                   onTap: () =>
+            //                       context.push(RouteNames.adminrequestquestion),
+            //                   child: CircleAvatar(
+            //                     radius: 25,
+            //                     child: image.isEmpty
+            //                         ? const Icon(Icons.person)
+            //                         : CachedNetworkImage(
+            //                             imageUrl:
+            //                                 "${ImageAssetUrl.baseUrl}$image",
+            //                             errorWidget: (_, __, ___) =>
+            //                                 const Icon(Icons.person),
+            //                           ),
+            //                   ),
+            //                 ),
+            //                 const SizedBox(height: 3),
+            //                 Text(name, style: const TextStyle(fontSize: 12)),
+            //               ],
+            //             ),
+            //           ],
+            //         ),
+            //       );
+            //     },
+            //     error: (e, _) => Center(child: Text(e.toString())),
+            //     loading: () => const SizedBox(),
+            //   ),
             adminquestionlist.when(
               data: (adminlist) {
-                final data = adminlist;
+                // adminlist is Map
+                final List adminData = adminlist['data'] ?? [];
+
+                // 🔥 If API returns data: []
+                if (adminData.isEmpty) {
+                  return const SizedBox.shrink(); // show NOTHING
+                }
+
+                // If data exists, take first item
+                final admin = adminData.first;
+
+                final String image = admin['image'] ?? '';
+                final String name = admin['name'] ?? 'Admin';
+
                 return Padding(
                   padding: const EdgeInsets.only(left: 10, bottom: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      Text(
+                      const Text(
                         "Admin Requests:",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
@@ -508,16 +559,23 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           InkWell(
                             onTap: () =>
                                 context.push(RouteNames.adminrequestquestion),
-                            child: CircleAvatar(
-                              radius: 25,
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    "${ImageAssetUrl.baseUrl}${data['image']}",
-                              ),
-                            ),
+                            child: image.isEmpty
+                                ? const SizedBox.shrink()
+                                : CircleAvatar(
+                                    radius: 25,
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          "${ImageAssetUrl.baseUrl}$image",
+                                      fit: BoxFit.cover,
+                                      errorWidget: (_, __, ___) =>
+                                          const SizedBox.shrink(),
+                                    ),
+                                  ),
                           ),
-                          const SizedBox(height: 3),
-                          Text(data['name'], style: TextStyle(fontSize: 12)),
+                          if (name.isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(name, style: const TextStyle(fontSize: 12)),
+                          ],
                         ],
                       ),
                     ],
@@ -525,8 +583,9 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                 );
               },
               error: (e, _) => Center(child: Text(e.toString())),
-              loading: () => const SizedBox(),
+              loading: () => const SizedBox.shrink(),
             ),
+
             Padding(
               padding: const EdgeInsets.only(
                 left: 15,

@@ -142,7 +142,7 @@
 //                             ),
 //                           ),
 //                           const SizedBox(height: 20),
-                  
+
 //                           // PHONE INPUT
 //                           AppTextField(
 //                             label: "Enter Phone Number",
@@ -159,7 +159,7 @@
 //                               return null;
 //                             },
 //                           ),
-                  
+
 //                           const SizedBox(height: 20),
 //                           if (!_showOtp) ...[
 //                             AppButton(
@@ -174,7 +174,7 @@
 //                               },
 //                             ),
 //                           ],
-                  
+
 //                           // OTP INPUT
 //                           if (_showOtp) ...[
 //                             const Text(
@@ -230,7 +230,7 @@
 //                               },
 //                             ),
 //                           ],
-                  
+
 //                           const SizedBox(height: 20),
 //                         ],
 //                       ),
@@ -245,7 +245,6 @@
 //     );
 //   }
 // }
-
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -274,34 +273,14 @@ class _SignInOtpState extends State<SignInOtp> {
   bool _showOtp = false;
   bool _isOtpError = false;
 
-  final defaultPinTheme = PinTheme(
-    width: 50,
-    height: 50,
-    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: AppColors.btn_primery),
-    ),
-  );
-
-  final errorPinTheme = PinTheme(
-    width: 50,
-    height: 50,
-    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.red),
-    ),
-  );
-
   Future<void> sendOtp() async {
     try {
       final mobileNumber = _phoneController.text;
       final fcmToken = await AppPreferences.getfcmToken();
-      final response =
-          await _authService.OTPwithphone(mobileNumber: mobileNumber,fcmToken:fcmToken);
+      final response = await _authService.OTPwithphone(
+        mobileNumber: mobileNumber,
+        fcmToken: fcmToken,
+      );
       AppLogger.warn("phone with otp $response");
 
       if (response != null) {
@@ -318,8 +297,10 @@ class _SignInOtpState extends State<SignInOtp> {
     final otp = _otpController.text.trim();
     final mobileNumber = _phoneController.text;
     try {
-      final response =
-          await _authService.OTPphoneverify(otp: otp, mobileNumber: mobileNumber);
+      final response = await _authService.OTPphoneverify(
+        otp: otp,
+        mobileNumber: mobileNumber,
+      );
       AppLogger.warn("OTPphoneverify $response");
       if (response != null) {
         await AppPreferences.saveToken(response['token']);
@@ -335,7 +316,31 @@ class _SignInOtpState extends State<SignInOtp> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final defaultPinTheme = PinTheme(
+      width: 50,
+      height: 50,
+      textStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).textTheme.bodyMedium?.color,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.btn_primery),
+      ),
+    );
 
+    final errorPinTheme = PinTheme(
+      width: 50,
+      height: 50,
+      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red),
+      ),
+    );
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -352,9 +357,7 @@ class _SignInOtpState extends State<SignInOtp> {
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -373,7 +376,7 @@ class _SignInOtpState extends State<SignInOtp> {
                         Expanded(
                           child: Container(
                             width: double.infinity,
-                            decoration:  BoxDecoration(
+                            decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(30),
@@ -381,7 +384,9 @@ class _SignInOtpState extends State<SignInOtp> {
                               ),
                             ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 17, vertical: 20),
+                              horizontal: 17,
+                              vertical: 20,
+                            ),
                             child: Form(
                               key: _formKey,
                               child: Column(
@@ -395,6 +400,7 @@ class _SignInOtpState extends State<SignInOtp> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
+
                                   /// Phone Input
                                   AppTextField(
                                     label: "Enter Phone Number",
@@ -405,8 +411,9 @@ class _SignInOtpState extends State<SignInOtp> {
                                       if (value == null || value.isEmpty) {
                                         return "Please enter phone number";
                                       } else if (value.length != 8 ||
-                                          !RegExp(r'^[0-9]+$')
-                                              .hasMatch(value)) {
+                                          !RegExp(
+                                            r'^[0-9]+$',
+                                          ).hasMatch(value)) {
                                         return "Phone number must be 8 digits";
                                       }
                                       return null;
@@ -440,28 +447,30 @@ class _SignInOtpState extends State<SignInOtp> {
                                       child: Pinput(
                                         controller: _otpController,
                                         length: 4,
-                                        
+
                                         defaultPinTheme: defaultPinTheme,
-                                        focusedPinTheme:
-                                            defaultPinTheme.copyWith(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            border:
-                                                Border.all(color: Colors.green),
-                                          ),
-                                        ),
-                                        submittedPinTheme:
-                                            defaultPinTheme.copyWith(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            border:
-                                                Border.all(color: Colors.blue),
-                                          ),
-                                        ),
+                                        focusedPinTheme: defaultPinTheme
+                                            .copyWith(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            ),
+                                        submittedPinTheme: defaultPinTheme
+                                            .copyWith(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                            ),
                                         errorPinTheme: errorPinTheme,
                                         forceErrorState: _isOtpError,
                                         keyboardType: TextInputType.number,
@@ -482,8 +491,9 @@ class _SignInOtpState extends State<SignInOtp> {
                                           await OTPphoneverify();
                                         } else {
                                           setState(() => _isOtpError = true);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text("Enter valid OTP"),
                                             ),
@@ -509,4 +519,3 @@ class _SignInOtpState extends State<SignInOtp> {
     );
   }
 }
-

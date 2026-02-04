@@ -16,7 +16,7 @@ class AdminQuestioner {
       throw err ?? "Something went wrong";
     }
   }
-
+  // Get all admin questions
 Future<Adminquestioner> fetchadminrequestquestion() async {
   try {
     final response = await _dio.get('questionnaire/');
@@ -25,6 +25,23 @@ Future<Adminquestioner> fetchadminrequestquestion() async {
   } on DioException catch (e) {
     debugPrint("DIO ERROR: ${e.response?.data}");
     throw e.response?.data['message'] ?? "API error";
+  }
+}
+
+//submit al questions 
+
+Future<Map<String,dynamic>> submitquestiondatas({
+    required Map<String, dynamic> payload,
+}) async{
+  try{
+     final response = await _dio.post(
+      "questionnaire/submit",
+      data: payload
+      );
+      return response.data;
+  }on DioException catch(e){
+    final err = e.response?.data['message'];
+    throw err;
   }
 }
 

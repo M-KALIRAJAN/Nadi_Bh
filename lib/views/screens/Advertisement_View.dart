@@ -13,8 +13,7 @@ class AdvertisementCarousel extends ConsumerStatefulWidget {
       _AdvertisementCarouselState();
 }
 
-class _AdvertisementCarouselState
-    extends ConsumerState<AdvertisementCarousel> {
+class _AdvertisementCarouselState extends ConsumerState<AdvertisementCarousel> {
   VideoPlayerController? _controller;
   bool _videoError = false;
   String? _currentVideoUrl;
@@ -37,14 +36,12 @@ class _AdvertisementCarouselState
 
       _controller = VideoPlayerController.networkUrl(
         Uri.parse(url),
-        videoPlayerOptions: VideoPlayerOptions(
-          mixWithOthers: true,
-        ),
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
 
       await _controller!.initialize();
       await _controller!.setLooping(true);
-      await _controller!.setVolume(0); 
+      await _controller!.setVolume(0);
       await _controller!.play();
 
       if (mounted) setState(() {});
@@ -71,15 +68,12 @@ class _AdvertisementCarouselState
         if (datum.video != null &&
             datum.video.toString().isNotEmpty &&
             datum.video.toString().endsWith(".mp4")) {
-
-   
-          final String videoUrl =
-              "${ImageBaseUrl.baseUrl}/${datum.video}";
+          final String videoUrl = "${ImageBaseUrl.baseUrl}/${datum.video}";
 
           _setupVideo(videoUrl);
 
           return Padding(
-            padding: const EdgeInsets.only(top: 10,left: 7,right: 7),
+            padding: const EdgeInsets.only(top: 10, left: 7, right: 7),
             child: SizedBox(
               height: 180,
               width: double.infinity,
@@ -93,22 +87,17 @@ class _AdvertisementCarouselState
                           color: Colors.grey,
                         ),
                       )
-                    : (_controller != null &&
-                            _controller!.value.isInitialized)
-                        ? AspectRatio(
-                            aspectRatio:
-                                _controller!.value.aspectRatio,
-                            child: VideoPlayer(_controller!),
-                          )
-                        : const Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                    : (_controller != null && _controller!.value.isInitialized)
+                    ? AspectRatio(
+                        aspectRatio: _controller!.value.aspectRatio,
+                        child: VideoPlayer(_controller!),
+                      )
+                    : const Center(child: CircularProgressIndicator()),
               ),
             ),
           );
         }
 
-      
         if (datum.ads.isEmpty) return const SizedBox();
 
         return CarouselSlider(
@@ -119,14 +108,24 @@ class _AdvertisementCarouselState
             enlargeCenterPage: true,
           ),
           items: datum.ads.map((ad) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                "${ImageBaseUrl.baseUrl}/${ad.image}",
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.broken_image),
-              ),
+            return Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    "${ImageBaseUrl.baseUrl}/${ad.image}",
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.broken_image),
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  right: 10,
+                  child: Text("Advertation"),
+                ),
+              ],
             );
           }).toList(),
         );

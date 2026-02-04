@@ -13,10 +13,7 @@ import 'package:pinput/pinput.dart';
 
 class Otp extends StatefulWidget {
   final String? receivedOtp;
-    const Otp({
-    super.key,
-    this.receivedOtp,
-  });
+  const Otp({super.key, this.receivedOtp});
 
   @override
   State<Otp> createState() => _OtpState();
@@ -25,7 +22,6 @@ class Otp extends StatefulWidget {
 class _OtpState extends State<Otp> {
   final otpController = TextEditingController();
   final AuthService _authService = AuthService();
-
 
   bool isOtpError = false;
   bool isLoading = false;
@@ -36,7 +32,6 @@ class _OtpState extends State<Otp> {
   @override
   void initState() {
     super.initState();
-      
 
     /// AUTO FILL OTP
     if (widget.receivedOtp != null) {
@@ -44,10 +39,9 @@ class _OtpState extends State<Otp> {
     }
     _startTimer();
     _loadPhoneNumber();
-sendOtp(context);
+    sendOtp(context);
   }
 
- 
   @override
   void dispose() {
     _timer?.cancel();
@@ -64,11 +58,14 @@ sendOtp(context);
 
   void _showOtpError(String message) {
     setState(() => isOtpError = true);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message,style: TextStyle(color: Colors.red),)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.red)),
+      ),
+    );
   }
-   Future<void> sendOtp(BuildContext context) async {
+
+  Future<void> sendOtp(BuildContext context) async {
     final userId = await AppPreferences.getUserId();
     // final fcmToken = await AppPreferences.getfcmToken();
     setState(() {
@@ -79,7 +76,6 @@ sendOtp(context);
     try {
       final response = await _authService.SendOTP(userId: userId!);
       AppLogger.success("Resend OTP response: $response");
-
     } on DioException catch (e) {
       final message = e.response?.data["message"] ?? "Failed to resend OTP";
       _showOtpError(message);
@@ -95,17 +91,20 @@ sendOtp(context);
     try {
       final response = await _authService.OTPverify(otp: otp, userId: userId!);
       if (response["message"] == "OTP verified successfully") {
-        final  completeuseraccount =
-        await _authService.CompleteuserAccount(userId: userId);
-        
+        final completeuseraccount = await _authService.CompleteuserAccount(
+          userId: userId,
+        );
+
         AppLogger.warn("prettyString $completeuseraccount");
         if (completeuseraccount != null &&
             completeuseraccount.containsKey('token')) {
           await AppPreferences.saveToken(completeuseraccount['token']);
-           await AppPreferences.saveAccountType(completeuseraccount['accountType']);
+          await AppPreferences.saveAccountType(
+            completeuseraccount['accountType'],
+          );
         }
-          await AppPreferences.setLoggedIn(true);
-          //  await AppPreferences.setLoggedIn(true);
+        await AppPreferences.setLoggedIn(true);
+        //  await AppPreferences.setLoggedIn(true);
         context.push(RouteNames.accountcreated);
       } else {
         _showOtpError(response["message"] ?? "Invalid OTP");
@@ -137,8 +136,6 @@ sendOtp(context);
     ),
   );
 
- 
-
   void _startTimer() {
     _secountleft = 60;
     _canResend = false;
@@ -154,20 +151,23 @@ sendOtp(context);
     });
   }
 
-
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-      @override
-  final defaultPinTheme = PinTheme(
-    width: 50,
-    height: 50,
-    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-    decoration: BoxDecoration(
-       color: isDark ? Colors.black : Colors.black,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.grey),
-    ),
-  );
+    @override
+    final defaultPinTheme = PinTheme(
+      width: 50,
+      height: 50,
+      textStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).textTheme.bodyMedium?.color,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.black : Colors.black,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey),
+      ),
+    );
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -175,7 +175,7 @@ sendOtp(context);
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-             const Text(
+              const Text(
                 "Enter Verification code",
                 style: TextStyle(
                   fontSize: AppFontSizes.large,
@@ -183,7 +183,7 @@ sendOtp(context);
                 ),
               ),
               SizedBox(height: 20),
-             const Text(
+              const Text(
                 "We have sent you a 4 digit verification code on",
                 style: TextStyle(
                   fontSize: AppFontSizes.small,

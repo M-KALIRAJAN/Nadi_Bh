@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/providers/AdminQuestionRequest_Provider.dart';
+import 'package:nadi_user_app/providers/AdminQuestioner_Provider.dart';
+import 'package:nadi_user_app/services/admin_questioner.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 
 class AdminQuestionerview extends ConsumerStatefulWidget {
@@ -14,12 +17,23 @@ class AdminQuestionerview extends ConsumerStatefulWidget {
 
 class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
   final Map<int, int> selectedAnswers = {};
+  final AdminQuestioner adminQuestioner = AdminQuestioner();
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       ref.refresh(fetchadminquestionrequestprovider);
     });
+  }
+
+  Future<void> submitthequestion(BuildContext context, payload) async {
+    try {
+      await adminQuestioner.submitquestiondatas(payload: payload);
+      ref.refresh(fetchadminquestionerprovider);
+      context.pop();
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -188,7 +202,21 @@ class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
                     color: AppColors.gold_coin,
                     height: 50,
                     onPressed: () {
-                      print("selectedAnswers${selectedAnswers}");
+                      final payload = {
+                        "questionnaireId": adminList.first.questionnaireId.id,
+                        "answers": selectedAnswers.entries.map((e) {
+                          return {
+                            "questionIndex": e.key,
+                            "selectedOption": e.value,
+                            // "question": questions[e.key].question,
+                            // "selectedAnswer": questions[e.key].options[e.value],
+                          };
+                        }).toList(),
+                      };
+                      submitthequestion(context, payload);
+                      debugPrint("===== SUBMIT QUESTION PAYLOAD =====");
+                      debugPrint(payload.toString());
+                      debugPrint("===================================");
                     },
                   ),
                 ),
@@ -196,7 +224,6 @@ class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
             ),
           );
         },
-
         error: (e, _) => Text(e.toString()),
         loading: () => const CircularProgressIndicator(),
       ),

@@ -25,16 +25,18 @@ class AboutsView extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children: item.content
-                        .map(
-                          (text) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(text, textAlign: TextAlign.center),
-                          ),
-                        )
-                        .toList(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: item.content
+                          .map(
+                            (text) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Text(text, textAlign: TextAlign.center),
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
                 ),
 
