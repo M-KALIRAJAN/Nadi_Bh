@@ -44,7 +44,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
   DateTime? lastBackPressed;
 
   Map<String, dynamic>? _ongoing;
-
+  Map<String, dynamic>? _aprovetech;
   bool _isPopupOpen = false;
   String? _shownQuestionId;
   // @override
@@ -70,7 +70,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
     get_preferencevalue();
     fetchongoinproces();
-
+    fetchapprovetechnician();
     Future.microtask(() {
       ref.read(serviceListProvider.notifier).refresh();
       ref.refresh(fetchpointsnodification);
@@ -78,10 +78,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
       ref.refresh(userdashboardprovider);
       ref.refresh(fetchquestionsdataprovider);
     });
-
-
   }
-
 
   Future<void> fetchongoinproces() async {
     try {
@@ -95,12 +92,26 @@ class _DashboardState extends ConsumerState<Dashboard> {
     }
   }
 
+  Future<void> fetchapprovetechnician() async {
+    try {
+      final aprovedata = await _ongoingService.fetchaprovetech();
+
+      // 🔹 Log the full raw response
+      debugPrint("fetchapprovetechnician raw response: $aprovedata");
+
+      // 🔹 Update state
+      setState(() {
+        _aprovetech = aprovedata;
+      });
+    } catch (e) {
+      debugPrint("fetchapprovetechnician error: $e");
+    }
+  }
+
   Future<void> get_preferencevalue() async {
     final type = await AppPreferences.getaccounttype();
     final name = await AppPreferences.getusername();
-
     if (!mounted) return;
-
     setState(() {
       accountType = type == "IA" ? "Individual" : "Family";
       userName = name ?? "";
@@ -154,120 +165,109 @@ class _DashboardState extends ConsumerState<Dashboard> {
     );
   }
 
-
-
-Future<void> showQuestionPopup(BuildContext context, QuestionerDatum question) {
-  return showGeneralDialog(
-    context: context,
-    barrierDismissible: false,
-    barrierLabel: "Question Popup",
-    barrierColor: Colors.black.withOpacity(0.5),
-    transitionDuration: const Duration(milliseconds: 300),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return Center(
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(
-                    question.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+  Future<void> showQuestionPopup(
+    BuildContext context,
+    QuestionerDatum question,
+  ) {
+    return showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: "Question Popup",
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      question.title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                const Divider(height: 1),
-                QuestionerView(
-                  scrollController: ScrollController(),
-                  questionerDatum: question,
-                 
-                ),
-              ],
+                  const Divider(height: 1),
+                  QuestionerView(
+                    scrollController: ScrollController(),
+                    questionerDatum: question,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: animation.value,
-        child: Opacity(
-          opacity: animation.value,
-          child: child,
-        ),
-      );
-    },
-  ).then((_) {
-    if (mounted) {
-      setState(() {
-        _isPopupOpen = false;
-      });
-    }
-  });
-}
-// ...existing code...
-
-
-
-  Widget build(BuildContext context) {
-
-
-  final services = ref.watch(serviceListProvider);
-
-    final dashboardAsync = ref.watch(userdashboardprovider);
-    final notificationCount = ref.watch(fetchpointsnodification);
-    final adAsync = ref.watch(fetchadvertisementprovider);
-
-    final data = _ongoing?['data'];
-    final bool isOngoing = data != null && data['status'] == 'inProgress';
-
-  final questionProvider = ref.watch(fetchquestionsdataprovider);
-
-  questionProvider.whenData((model) {
-
-    if (!mounted) return;
-
-    if (model.data.isEmpty) {
-      _shownQuestionId = null;
-      _isPopupOpen = false;
-      return;
-    }
-
-    final question = model.data.first;
-
-    /// 🚨 prevent duplicate popup
-    if (_isPopupOpen) return;
-
-    /// 🚨 prevent reopening same question
-    if (_shownQuestionId == question.id) return;
-
-    _isPopupOpen = true;
-    _shownQuestionId = question.id;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-
-      if (!mounted) return;
-
-      await showQuestionPopup(context, question);
-
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: animation.value,
+          child: Opacity(opacity: animation.value, child: child),
+        );
+      },
+    ).then((_) {
       if (mounted) {
         setState(() {
           _isPopupOpen = false;
         });
       }
     });
+  }
 
-  });
+  Widget build(BuildContext context) {
+    final services = ref.watch(serviceListProvider);
+    final dashboardAsync = ref.watch(userdashboardprovider);
+    final notificationCount = ref.watch(fetchpointsnodification);
+    final adAsync = ref.watch(fetchadvertisementprovider);
+
+    final data = _ongoing?['data'];
+
+    final bool isOngoing = data != null && data['status'] == 'inProgress';
+
+    final questionProvider = ref.watch(fetchquestionsdataprovider);
+    final aprovetech = _aprovetech?['data'];
+    questionProvider.whenData((model) {
+      if (!mounted) return;
+
+      if (model.data.isEmpty) {
+        _shownQuestionId = null;
+        _isPopupOpen = false;
+        return;
+      }
+
+      final question = model.data.first;
+
+      /// 🚨 prevent duplicate popup
+      if (_isPopupOpen) return;
+
+      /// 🚨 prevent reopening same question
+      if (_shownQuestionId == question.id) return;
+
+      _isPopupOpen = true;
+      _shownQuestionId = question.id;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+
+        await showQuestionPopup(context, question);
+
+        if (mounted) {
+          setState(() {
+            _isPopupOpen = false;
+          });
+        }
+      });
+    });
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -275,7 +275,7 @@ Future<void> showQuestionPopup(BuildContext context, QuestionerDatum question) {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/background_img.png"),
-            fit: BoxFit.cover, // this makes the image cover the whole screen
+            fit: BoxFit.cover,
           ),
         ),
         child: SingleChildScrollView(
@@ -555,6 +555,28 @@ Future<void> showQuestionPopup(BuildContext context, QuestionerDatum question) {
                   ],
                 ),
               ),
+              aprovetech != null
+                  ? Card(
+                      margin: const EdgeInsets.all(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 8),
+                            Text(
+                              "User Service ID: ${aprovetech['userServiceId']}",
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Technician ID: ${aprovetech['techniciainId']}",
+                            ),
+                           
+                          ],
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
               data != null
                   ? Container(
                       margin: const EdgeInsets.symmetric(
@@ -730,7 +752,9 @@ Future<void> showQuestionPopup(BuildContext context, QuestionerDatum question) {
                               final String name = service['name'] ?? '';
                               final String serviceId = service['_id'] ?? "";
                               final String? logo = service['serviceLogo'];
-                              final int points = int.tryParse(service['points'].toString()) ?? 0;
+                              final int points =
+                                  int.tryParse(service['points'].toString()) ??
+                                  0;
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -746,7 +770,7 @@ Future<void> showQuestionPopup(BuildContext context, QuestionerDatum question) {
                                             "imagePath":
                                                 "${ImageBaseUrl.baseUrl}/${service['serviceImage']}",
                                             'serviceId': serviceId,
-                                            "points":points
+                                            "points": points,
                                           },
                                         );
                                       },
