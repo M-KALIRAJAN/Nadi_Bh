@@ -79,6 +79,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     if (result == true && mounted) {
       ref.refresh(pointshistoryprovider);
       ref.refresh(userdashboardprovider);
+      ref.refresh(fetchrequestpeoplelistprovider);
     }
   }
 
@@ -419,7 +420,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                               children: const [
                                 CircleAvatar(
                                   radius: 24,
-                                  backgroundColor: Colors.grey,
+                                  backgroundColor: AppColors.gold_coin,
                                   child: Icon(Icons.keyboard_arrow_down),
                                 ),
                                 SizedBox(height: 4),
@@ -435,34 +436,51 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            InkWell(
-                              onTap: () {
-                                _peopledetails(
-                                  context,
-                                  item.id,
-                                  item.basicInfo.fullName,
-                                  item.basicInfo.image,
-                                );
-                              },
-                              child: ClipOval(
-                                child: CachedNetworkImage(
-                                  imageUrl:
-                                      "${ImageBaseUrl.baseUrl}/${item.basicInfo.image}",
-                                  width: 48,
-                                  height: 48,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (_, __, ___) => CircleAvatar(
-                                    radius: 24,
-                                    backgroundColor: Colors.grey,
-                                    child: Text(
-                                      item.basicInfo.fullName.isNotEmpty
-                                          ? item.basicInfo.fullName[0]
-                                                .toUpperCase()
-                                          : "?",
+                            Stack(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    _peopledetails(
+                                      context,
+                                      item.id,
+                                      item.basicInfo.fullName,
+                                      item.basicInfo.image,
+                                    );
+                                  },
+                                  child: ClipOval(
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          "${ImageBaseUrl.baseUrl}/${item.basicInfo.image}",
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                      errorWidget: (_, __, ___) => CircleAvatar(
+                                        radius: 24,
+                                        backgroundColor: AppColors.gold_coin,
+                                        child: Text(
+                                          item.basicInfo.fullName.isNotEmpty
+                                              ? item.basicInfo.fullName[0]
+                                                    .toUpperCase()
+                                              : "?",
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                                if (!item.read)
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: Container(
+                                      height: 15,
+                                      width: 15,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColors.btn_primery,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -480,69 +498,14 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               },
             ),
 
-            //  adminquestionlist.when(
-            //     data: (adminlist) {
-            //       final data = adminlist;
-            //       if(data.isEmpty){
-            //         return const SizedBox();
-            //       }
-            //       final image = data['image'] ?? "";
-            //       final name = data['name'] ?? "Admin";
-            //       return Padding(
-            //         padding: const EdgeInsets.only(left: 10, bottom: 4),
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             const SizedBox(height: 10),
-            //             const Text(
-            //               "Admin Requests:",
-            //               style: TextStyle(fontWeight: FontWeight.bold),
-            //             ),
-            //             const SizedBox(height: 5),
-            //             Column(
-            //               children: [
-            //                 InkWell(
-            //                   onTap: () =>
-            //                       context.push(RouteNames.adminrequestquestion),
-            //                   child: CircleAvatar(
-            //                     radius: 25,
-            //                     child: image.isEmpty
-            //                         ? const Icon(Icons.person)
-            //                         : CachedNetworkImage(
-            //                             imageUrl:
-            //                                 "${ImageAssetUrl.baseUrl}$image",
-            //                             errorWidget: (_, __, ___) =>
-            //                                 const Icon(Icons.person),
-            //                           ),
-            //                   ),
-            //                 ),
-            //                 const SizedBox(height: 3),
-            //                 Text(name, style: const TextStyle(fontSize: 12)),
-            //               ],
-            //             ),
-            //           ],
-            //         ),
-            //       );
-            //     },
-            //     error: (e, _) => Center(child: Text(e.toString())),
-            //     loading: () => const SizedBox(),
-            //   ),
             adminquestionlist.when(
               data: (adminlist) {
-                // adminlist is Map
-                final List adminData = adminlist['data'] ?? [];
-
-                // 🔥 If API returns data: []
-                if (adminData.isEmpty) {
-                  return const SizedBox.shrink(); // show NOTHING
+                final data = adminlist;
+                if (adminlist == null || adminlist.isEmpty) {
+                  return const SizedBox.shrink(); // show nothing
                 }
-
-                // If data exists, take first item
-                final admin = adminData.first;
-
-                final String image = admin['image'] ?? '';
-                final String name = admin['name'] ?? 'Admin';
-
+                final image = data['image'] ?? "";
+                final name = data['name'] ?? "Admin";
                 return Padding(
                   padding: const EdgeInsets.only(left: 10, bottom: 4),
                   child: Column(
@@ -559,33 +522,31 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           InkWell(
                             onTap: () =>
                                 context.push(RouteNames.adminrequestquestion),
-                            child: image.isEmpty
-                                ? const SizedBox.shrink()
-                                : CircleAvatar(
-                                    radius: 25,
-                                    child: CachedNetworkImage(
+                            child: CircleAvatar(
+                              radius: 25,
+                              child: image.isEmpty
+                                  ? const Icon(Icons.person)
+                                  : CachedNetworkImage(
                                       imageUrl:
                                           "${ImageAssetUrl.baseUrl}$image",
-                                      fit: BoxFit.cover,
                                       errorWidget: (_, __, ___) =>
-                                          const SizedBox.shrink(),
+                                          const Icon(Icons.person),
                                     ),
-                                  ),
+                            ),
                           ),
-                          if (name.isNotEmpty) ...[
-                            const SizedBox(height: 3),
-                            Text(name, style: const TextStyle(fontSize: 12)),
-                          ],
+                          const SizedBox(height: 3),
+                          Text(name, style: const TextStyle(fontSize: 12)),
                         ],
                       ),
                     ],
                   ),
                 );
               },
-              error: (e, _) => Center(child: Text(e.toString())),
-              loading: () => const SizedBox.shrink(),
+              error: (e, _) => const SizedBox(),
+              loading: () => const SizedBox(),
             ),
 
+          
             Padding(
               padding: const EdgeInsets.only(
                 left: 15,

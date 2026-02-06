@@ -2,10 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/utils/BlinkingDot.dart';
 import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
-import 'package:nadi_user_app/core/utils/logger.dart';
-import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+
 import 'package:nadi_user_app/models/Questioner_Model.dart';
-import 'package:nadi_user_app/models/Userdashboard_model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/Advertisement_Provider.dart';
 import 'package:nadi_user_app/providers/Questioner_Provider.dart';
@@ -39,30 +37,82 @@ class Dashboard extends ConsumerStatefulWidget {
 
 class _DashboardState extends ConsumerState<Dashboard> {
   @override
-  bool isLoading = true;
+
   String userName = "";
   String accountType = "";
   final HomeViewService _homeViewService = HomeViewService();
   final OngoingService _ongoingService = OngoingService();
   DateTime? lastBackPressed;
-  bool _questionPopupShown = false;
+ 
   Map<String, dynamic>? _ongoing;
-  String? _lastShownQuestionnaireId;
+
+  bool _isPopupOpen = false;
+bool _dialogAlreadyShown = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   get_preferencevalue();
+
+  //   fetchongoinproces();
+
+  //   Future.microtask(() {
+  //     ref.read(serviceListProvider.notifier).refresh();
+  //     ref.refresh(fetchpointsnodification);
+  //     ref.refresh(fetchadvertisementprovider);
+  //     ref.refresh(userdashboardprovider);
+  //     ref.refresh(fetchquestionsdataprovider);
+
+  //   });
+  // }
+
   @override
-  void initState() {
-    super.initState();
-    get_preferencevalue();
+void initState() {
+  super.initState();
 
-    fetchongoinproces();
-    Future.microtask(() {
-      ref.read(serviceListProvider.notifier).refresh();
-      ref.refresh(fetchpointsnodification);
-      ref.refresh(fetchadvertisementprovider);
-      ref.refresh(userdashboardprovider);
+  get_preferencevalue();
+  fetchongoinproces();
 
-      ref.refresh(fetchquestionsdataprovider);
+  Future.microtask(() {
+    ref.read(serviceListProvider.notifier).refresh();
+    ref.refresh(fetchpointsnodification);
+    ref.refresh(fetchadvertisementprovider);
+    ref.refresh(userdashboardprovider);
+    ref.refresh(fetchquestionsdataprovider);
+  });
+
+ref.listenManual(fetchquestionsdataprovider, (previous, next) {
+
+  next.whenData((model) {
+
+    if (!mounted) return;
+
+    if (model.data.isEmpty) return;
+
+    /// ⭐ IMPORTANT — show only once
+    if (_dialogAlreadyShown) return;
+
+    final question = model.data.first;
+
+    _dialogAlreadyShown = true;   // mark as shown
+    _isPopupOpen = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+      if (!mounted) return;
+
+      showQuestionPopup(context, question);
+
     });
-  }
+
+  });
+
+});
+
+
+
+}
+
 
   Future<void> fetchongoinproces() async {
     try {
@@ -135,146 +185,66 @@ class _DashboardState extends ConsumerState<Dashboard> {
     );
   }
 
-  void showQuestionPopup(
-    BuildContext context,
-    QuestionerDatum questionerDatum,
-  ) {
-    final ScrollController scrollController = ScrollController();
-    Map<int, int> selectedAnswersMap = {};
+void showQuestionPopup(
+  BuildContext context,
+  QuestionerDatum questionerDatum,
+) {
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.5),
-      builder: (dialogContext) {
-        bool isSubmitting = false; // ✅ LOCAL STATE
+  final ScrollController scrollController = ScrollController();
 
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 24,
-              ),
-              backgroundColor: Colors.transparent,
-              child: Container(
-                constraints: const BoxConstraints(maxHeight: 560),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+
+      return Dialog(
+        child: SizedBox(
+          height: 520,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+
+                const Text(
+                  "Questionnaire",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    // 🔹 HEADER
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 16, 12, 8),
-                      child: Text(
-                        "Questionnaire",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
 
-                    const Divider(height: 1),
+                const SizedBox(height: 10),
 
-                    // 🔹 QUESTIONS
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: QuestionerView(
-                          scrollController: scrollController,
-                          questionerDatum: questionerDatum,
-                          onSubmit: (answers) {
-                            selectedAnswersMap = Map<int, int>.from(answers);
-                          },
-                        ),
-                      ),
-                    ),
+                Expanded(
+                  child: QuestionerView(
+                    scrollController: scrollController,
+                    questionerDatum: questionerDatum,
 
-                    // 🔹 SUBMIT BUTTON
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: AppButton(
-                          text: isSubmitting ? "Submitting..." : "Submit",
-                          color: AppColors.btn_primery,
-                          width: double.infinity,
-                          onPressed: isSubmitting
-                              ? null
-                              : () async {
-                                  if (selectedAnswersMap.isEmpty) {
-                                    SnackbarHelper.showError(
-                                      context,
-                                      "Please answer all questions",
-                                    );
-                                    return;
-                                  }
+onSubmitted: () {
 
-                                  setDialogState(() {
-                                    isSubmitting = true;
-                                  });
+  Navigator.pop(dialogContext);
 
-                                  final payload = {
-                                    "questionnaireId": questionerDatum.id,
-                                    "answers": selectedAnswersMap.entries
-                                        .map(
-                                          (e) => {
-                                            "questionIndex": e.key,
-                                            "selectedOption": e.value,
-                                          },
-                                        )
-                                        .toList(),
-                                  };
+  /// reset AFTER close
+  Future.microtask(() {
+    _isPopupOpen = false;
+  });
 
-                                  try {
-                                    await QuestionerService()
-                                        .submitQuestionsData(payload: payload);
+}
 
-                                    // ✅ RESET FLAG
-                                    _questionPopupShown = false;
-
-                                    // FORCE FRESH DATA
-                                    ref.invalidate(fetchquestionsdataprovider);
-                                    ref.refresh(userdashboardprovider);
-
-                                    if (context.mounted) {
-                                      Navigator.of(
-                                        dialogContext,
-                                        rootNavigator: true,
-                                      ).pop();
-                                    }
-                                  } catch (e) {
-                                    setDialogState(() {
-                                      isSubmitting = false;
-                                    });
-                                    SnackbarHelper.showError(context, "$e");
-                                  }
-                                },
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
   Widget build(BuildContext context) {
+
     final services = ref.watch(serviceListProvider);
     final dashboardAsync = ref.watch(userdashboardprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
@@ -282,6 +252,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
     final quesAsync = ref.watch(fetchquestionsdataprovider);
     final data = _ongoing?['data'];
     final bool isOngoing = data != null && data['status'] == 'inProgress';
+
+    
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -318,6 +290,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
+
                     Padding(
                       padding: const EdgeInsets.only(top: 35),
                       child: Row(
@@ -606,9 +580,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                               size: 22,
                             ),
                           ),
-
                           const SizedBox(width: 12),
-
                           // CENTER: Technician name + Request ID
                           Expanded(
                             child: Column(
@@ -683,27 +655,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   return const AdvertisementCarousel();
                 },
               ),
-         
-              quesAsync.when(
-                data: (model) {
-                  if (model.data.isEmpty) return const SizedBox();
-
-                  final question = model.data.first;
-
-                  if (_lastShownQuestionnaireId != question.id) {
-                    _lastShownQuestionnaireId = question.id;
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      showQuestionPopup(context, question);
-                    });
-                  }
-
-                  return const SizedBox();
-                },
-                loading: () => const SizedBox(),
-                error: (_, __) => const SizedBox(),
-              ),
-
+        
               SizedBox(height: 10),
               Column(
                 children: [

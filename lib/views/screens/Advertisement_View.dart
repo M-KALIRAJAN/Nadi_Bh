@@ -65,7 +65,7 @@ class _AdvertisementCarouselState extends ConsumerState<AdvertisementCarousel> {
 
         final datum = model.data.first;
 
-        /// ===================== 🎥 VIDEO =====================
+        /// =====================  VIDEO =====================
         if (datum.video != null &&
             datum.video.toString().isNotEmpty &&
             datum.video.toString().endsWith(".mp4")) {
@@ -99,31 +99,34 @@ class _AdvertisementCarouselState extends ConsumerState<AdvertisementCarousel> {
           );
         }
         if (datum.ads.isEmpty) return const SizedBox();
-        return CarouselSlider(
-          options: CarouselOptions(
-            height: 180,
-            autoPlay: true,
-            viewportFraction: 0.95,
-            enlargeCenterPage: true,
-          ),
-          items: datum.ads.map((ad) {
-            return InkWell(
-              onTap: () async {
-                await launchUrl(
-                  Uri.parse(ad.link),
-                  mode: LaunchMode.externalApplication,
-                );
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  "${ImageBaseUrl.baseUrl}/${ad.image}",
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+        return Padding(
+           padding: const EdgeInsets.only(top: 5, left: 7, right: 7),
+          child: CarouselSlider(
+            options: CarouselOptions(
+              height: 180,
+              autoPlay: true,
+              viewportFraction: 0.95,
+              enlargeCenterPage: true,
+            ),
+            items: datum.ads.map((ad) {
+              return InkWell(
+                onTap: () async {
+                  await launchUrl(
+                    Uri.parse(ad.link),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    "${ImageBaseUrl.baseUrl}/${ad.image}",
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+                  ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
+          ),
         );
       },
     );

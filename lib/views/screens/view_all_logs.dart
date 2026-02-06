@@ -33,7 +33,7 @@ class _ViewAllLogsState extends State<ViewAllLogs> {
                     context.pop();
                   }),
                  const Text(
-                    "MY Recent Activity",
+                    "My Recent Activity",
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: AppFontSizes.large,

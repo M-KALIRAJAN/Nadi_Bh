@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 
 import 'package:nadi_user_app/providers/theme_provider.dart';
 
 import 'package:flutter/services.dart';
 import 'package:nadi_user_app/routing/route_names.dart';
+import 'package:nadi_user_app/services/AppListener.dart';
 import 'package:nadi_user_app/services/firebase_background_handler.dart';
 import 'package:nadi_user_app/services/notification_service.dart';
-
+final container = ProviderContainer(); 
 ///  STEP 1: ADD THIS HERE (TOP LEVEL, NOT INSIDE CLASS)
 Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -45,9 +47,19 @@ void main() async {
       title: message.notification?.title ?? 'OTP',
       body: message.notification?.body ?? 'Your OTP is ${message.data['otp']}',
     );
+container.invalidate(fetchpointsnodification);
   });
 
-  runApp(const ProviderScope(child: MyApp()));
+runApp(
+  UncontrolledProviderScope(
+    container: container,
+    child: const AppListener(
+      child: MyApp(),
+    ),
+  ),
+);
+
+
 }
 
 class MyApp extends ConsumerWidget {

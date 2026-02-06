@@ -33,14 +33,15 @@ class Datum {
   final String id;
   final BasicInfo basicInfo;
   final int? points;
-
-  Datum({required this.id, required this.basicInfo, this.points});
+ final bool read;
+  Datum({required this.id, required this.basicInfo, this.points, required this.read});
 
   factory Datum.fromJson(Map<String, dynamic> json) {
     return Datum(
       id: json['_id'] ?? '',
       basicInfo: BasicInfo.fromJson(json['basicInfo'] ?? {}),
       points: json['points'] is int ? json['points'] : null,
+       read:json['read'] ?? false,
     );
   }
 
@@ -48,6 +49,7 @@ class Datum {
     '_id': id,
     'basicInfo': basicInfo.toJson(),
     'points': points,
+    'read':read
   };
 }
 

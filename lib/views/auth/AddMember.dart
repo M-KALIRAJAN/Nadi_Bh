@@ -509,12 +509,12 @@ class _AddmemberState extends State<Addmember> {
 
                 const SizedBox(height: 15),
 
-                AppTextField(
-                  controller: controller.password,
+                // AppTextField(
+                //   controller: controller.password,
 
-                  label: "Password*",
-                  validator: (value) => controller.validatepassword(value),
-                ),
+                //   label: "Password*",
+                //   validator: (value) => controller.validatepassword(value),
+                // ),
 
                 const SizedBox(height: 15),
 

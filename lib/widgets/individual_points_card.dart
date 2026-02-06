@@ -17,9 +17,9 @@ class IndividualPointsCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {  
     return Container(
-      height: 60,
+      
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -45,8 +45,9 @@ class IndividualPointsCard extends StatelessWidget {
                   ),
                   Text(
                     text,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    // maxLines: 1,
+                    // overflow: TextOverflow.ellipsis,
                     style:  TextStyle(
                       color: Theme.of(context).textTheme.bodyMedium?.color,
                       fontWeight: FontWeight.w500,

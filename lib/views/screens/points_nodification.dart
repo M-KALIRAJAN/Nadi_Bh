@@ -18,9 +18,11 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
   void _deletesingle(BuildContext context, String id) async {
     await _notificationapiservice.deleteonenotification(id: id);
   }
- void _clearallnotification() async{
-  await _notificationapiservice.deleteallnotification();
- }
+
+  void _clearallnotification() async {
+    await _notificationapiservice.deleteallnotification();
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncNotifications = ref.watch(fetchpointsnodification);
@@ -28,7 +30,10 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.btn_primery,
-        title: const Text("Notifications",style: TextStyle(color: Colors.white),),
+        title: const Text(
+          "Notifications",
+          style: TextStyle(color: Colors.white),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         actions: [
@@ -37,7 +42,7 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
             child: TextButton(
               onPressed: () {
                 _clearallnotification();
-                      ref.refresh(fetchpointsnodification);
+                ref.refresh(fetchpointsnodification);
               },
               child: const Text(
                 "Clear All",
@@ -59,36 +64,26 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
         data: (response) {
           final notifications = response.data;
 
-        if (notifications.isEmpty) {
-  return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(
-          "assets/images/New.png", 
-          height: 160,
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          "No Notifications",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          "You're all caught up!",
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
+          if (notifications.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/New.png", height: 160),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No Notifications",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    "You're all caught up!",
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -156,10 +151,9 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
                             children: [
                               Text(
                                 n.type,
-                                style:  TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
-                                   
                                 ),
                               ),
                               const SizedBox(height: 6),

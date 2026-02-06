@@ -224,8 +224,19 @@ class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
             ),
           );
         },
-        error: (e, _) => Text(e.toString()),
-        loading: () => const CircularProgressIndicator(),
+        error: (e, _) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(e.toString()),
+                backgroundColor: Colors.red,
+              ),
+            );
+          });
+
+          return const SizedBox(); 
+        },
+        loading: () => Center(child: const CircularProgressIndicator()),
       ),
     );
   }
