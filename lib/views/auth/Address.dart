@@ -80,10 +80,7 @@ class _AddressState extends State<Address> {
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
-    
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Submit failed: $e")));
+      SnackbarHelper.showError(context, "Submit failed: $e");
     }
   }
 

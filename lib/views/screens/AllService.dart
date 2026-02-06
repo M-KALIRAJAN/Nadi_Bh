@@ -65,7 +65,8 @@ class _AllserviceState extends ConsumerState<Allservice> {
                       final String name = service['name'] ?? '';
                       final String serviceId = service['_id'] ?? "";
                       final String? image = service['serviceImage'];
-
+                      final int points =
+                          int.tryParse(service['points'].toString()) ?? 0;
                       return AnimationConfiguration.staggeredGrid(
                         position: index,
                         columnCount: 2,
@@ -87,12 +88,13 @@ class _AllserviceState extends ConsumerState<Allservice> {
                                         "${ImageBaseUrl.baseUrl}/$image",
                                     'serviceId': serviceId,
                                     'heroTag': "serviceHero$index",
+                                    "points": points,
                                   },
                                 );
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color:Theme.of(context).colorScheme.surface,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(

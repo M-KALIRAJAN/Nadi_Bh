@@ -152,7 +152,7 @@ class _OtpState extends State<Otp> {
   }
 
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // final isDark = Theme.of(context).brightness == Brightness.dark;
     @override
     final defaultPinTheme = PinTheme(
       width: 50,
@@ -160,10 +160,11 @@ class _OtpState extends State<Otp> {
       textStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).textTheme.bodyMedium?.color,
+        color: Colors.black
       ),
       decoration: BoxDecoration(
-        color: isDark ? Colors.black : Colors.black,
+        // color: isDark ? Colors.black : Colors.black,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey),
       ),

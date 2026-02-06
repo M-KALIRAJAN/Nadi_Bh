@@ -357,39 +357,39 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       ),
 
                       const SizedBox(height: 18),
-                      const Text(
-                        "Perfered Date",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
+                      // const Text(
+                      //   "Perfered Date",
+                      //   style: TextStyle(
+                      //     fontSize: 18,
+                      //     fontWeight: FontWeight.w600,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 10),
 
-                      AppDatePicker(
-                        controller: _dateController,
-                        label: "Select Date",
-                        onDateSelected: (date) {
-                          print("Selected Date: $date");
-                        },
-                      ),
-                      const SizedBox(height: 18),
-                      const Text(
-                        "Preferred Time",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      AppTimePicker(
-                        controller: _timeController,
-                        label: "Preferred Time",
-                        onTimeSelected: (time) {
-                          // Do something with the selected time
-                          print("User selected: $time");
-                        },
-                      ),
+                      // AppDatePicker(
+                      //   controller: _dateController,
+                      //   label: "Select Date",
+                      //   onDateSelected: (date) {
+                      //     print("Selected Date: $date");
+                      //   },
+                      // ),
+                      // const SizedBox(height: 18),
+                      // const Text(
+                      //   "Preferred Time",
+                      //   style: TextStyle(
+                      //     fontSize: 18,
+                      //     fontWeight: FontWeight.w600,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 10),
+                      // AppTimePicker(
+                      //   controller: _timeController,
+                      //   label: "Preferred Time",
+                      //   onTimeSelected: (time) {
+                      //     // Do something with the selected time
+                      //     print("User selected: $time");
+                      //   },
+                      // ),
 
                       const SizedBox(height: 18),
                       const Text(
@@ -435,21 +435,21 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                         },
                       ),
 
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: isChecked,
-                            activeColor: AppColors.btn_primery,
-                            checkColor: Colors.white,
-                            onChanged: (bool? newValue) {
-                              setState(() {
-                                isChecked = newValue!;
-                              });
-                            },
-                          ),
-                          const Text("Need immitated Asstience"),
-                        ],
-                      ),
+                      // Row(
+                      //   children: [
+                      //     Checkbox(
+                      //       value: isChecked,
+                      //       activeColor: AppColors.btn_primery,
+                      //       checkColor: Colors.white,
+                      //       onChanged: (bool? newValue) {
+                      //         setState(() {
+                      //           isChecked = newValue!;
+                      //         });
+                      //       },
+                      //     ),
+                      //     const Text("Need immitated Asstience"),
+                      //   ],
+                      // ),
 
                       SizedBox(height: 10),
                       AppButton(

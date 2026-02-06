@@ -326,14 +326,16 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "Your Current Points Balance",
-                            style: TextStyle(
-                              fontSize: AppFontSizes.small,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "Your Current Points Balance",
+                              style: TextStyle(
+                                fontSize: AppFontSizes.small,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),

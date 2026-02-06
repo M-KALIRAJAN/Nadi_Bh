@@ -15,7 +15,7 @@ import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/ongoing_service.dart';
 import 'package:nadi_user_app/views/screens/Advertisement_View.dart';
 import 'package:nadi_user_app/views/screens/Questioner_View.dart';
-import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
+
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -37,18 +37,16 @@ class Dashboard extends ConsumerStatefulWidget {
 
 class _DashboardState extends ConsumerState<Dashboard> {
   @override
-
   String userName = "";
   String accountType = "";
   final HomeViewService _homeViewService = HomeViewService();
   final OngoingService _ongoingService = OngoingService();
   DateTime? lastBackPressed;
- 
+
   Map<String, dynamic>? _ongoing;
 
   bool _isPopupOpen = false;
-bool _dialogAlreadyShown = false;
-
+  String? _shownQuestionId;
   // @override
   // void initState() {
   //   super.initState();
@@ -67,51 +65,22 @@ bool _dialogAlreadyShown = false;
   // }
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  get_preferencevalue();
-  fetchongoinproces();
+    get_preferencevalue();
+    fetchongoinproces();
 
-  Future.microtask(() {
-    ref.read(serviceListProvider.notifier).refresh();
-    ref.refresh(fetchpointsnodification);
-    ref.refresh(fetchadvertisementprovider);
-    ref.refresh(userdashboardprovider);
-    ref.refresh(fetchquestionsdataprovider);
-  });
-
-ref.listenManual(fetchquestionsdataprovider, (previous, next) {
-
-  next.whenData((model) {
-
-    if (!mounted) return;
-
-    if (model.data.isEmpty) return;
-
-    /// ⭐ IMPORTANT — show only once
-    if (_dialogAlreadyShown) return;
-
-    final question = model.data.first;
-
-    _dialogAlreadyShown = true;   // mark as shown
-    _isPopupOpen = true;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-
-      if (!mounted) return;
-
-      showQuestionPopup(context, question);
-
+    Future.microtask(() {
+      ref.read(serviceListProvider.notifier).refresh();
+      ref.refresh(fetchpointsnodification);
+      ref.refresh(fetchadvertisementprovider);
+      ref.refresh(userdashboardprovider);
+      ref.refresh(fetchquestionsdataprovider);
     });
 
-  });
 
-});
-
-
-
-}
+  }
 
 
   Future<void> fetchongoinproces() async {
@@ -185,53 +154,43 @@ ref.listenManual(fetchquestionsdataprovider, (previous, next) {
     );
   }
 
-void showQuestionPopup(
-  BuildContext context,
-  QuestionerDatum questionerDatum,
-) {
 
-  final ScrollController scrollController = ScrollController();
 
-  showDialog(
+Future<void> showQuestionPopup(BuildContext context, QuestionerDatum question) {
+  return showGeneralDialog(
     context: context,
     barrierDismissible: false,
-    builder: (dialogContext) {
-
-      return Dialog(
-        child: SizedBox(
-          height: 520,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+    barrierLabel: "Question Popup",
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-
-                const Text(
-                  "Questionnaire",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    question.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 10),
-
-                Expanded(
-                  child: QuestionerView(
-                    scrollController: scrollController,
-                    questionerDatum: questionerDatum,
-
-onSubmitted: () {
-
-  Navigator.pop(dialogContext);
-
-  /// reset AFTER close
-  Future.microtask(() {
-    _isPopupOpen = false;
-  });
-
-}
-
-                  ),
+                const Divider(height: 1),
+                QuestionerView(
+                  scrollController: ScrollController(),
+                  questionerDatum: question,
+                 
                 ),
               ],
             ),
@@ -239,21 +198,76 @@ onSubmitted: () {
         ),
       );
     },
-  );
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return Transform.scale(
+        scale: animation.value,
+        child: Opacity(
+          opacity: animation.value,
+          child: child,
+        ),
+      );
+    },
+  ).then((_) {
+    if (mounted) {
+      setState(() {
+        _isPopupOpen = false;
+      });
+    }
+  });
 }
+// ...existing code...
+
 
 
   Widget build(BuildContext context) {
 
-    final services = ref.watch(serviceListProvider);
+
+  final services = ref.watch(serviceListProvider);
+
     final dashboardAsync = ref.watch(userdashboardprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
     final adAsync = ref.watch(fetchadvertisementprovider);
-    final quesAsync = ref.watch(fetchquestionsdataprovider);
+
     final data = _ongoing?['data'];
     final bool isOngoing = data != null && data['status'] == 'inProgress';
 
-    
+  final questionProvider = ref.watch(fetchquestionsdataprovider);
+
+  questionProvider.whenData((model) {
+
+    if (!mounted) return;
+
+    if (model.data.isEmpty) {
+      _shownQuestionId = null;
+      _isPopupOpen = false;
+      return;
+    }
+
+    final question = model.data.first;
+
+    /// 🚨 prevent duplicate popup
+    if (_isPopupOpen) return;
+
+    /// 🚨 prevent reopening same question
+    if (_shownQuestionId == question.id) return;
+
+    _isPopupOpen = true;
+    _shownQuestionId = question.id;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+
+      if (!mounted) return;
+
+      await showQuestionPopup(context, question);
+
+      if (mounted) {
+        setState(() {
+          _isPopupOpen = false;
+        });
+      }
+    });
+
+  });
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -290,8 +304,6 @@ onSubmitted: () {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-
-
                     Padding(
                       padding: const EdgeInsets.only(top: 35),
                       child: Row(
@@ -655,7 +667,7 @@ onSubmitted: () {
                   return const AdvertisementCarousel();
                 },
               ),
-        
+
               SizedBox(height: 10),
               Column(
                 children: [
@@ -718,6 +730,7 @@ onSubmitted: () {
                               final String name = service['name'] ?? '';
                               final String serviceId = service['_id'] ?? "";
                               final String? logo = service['serviceLogo'];
+                              final int points = int.tryParse(service['points'].toString()) ?? 0;
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -733,6 +746,7 @@ onSubmitted: () {
                                             "imagePath":
                                                 "${ImageBaseUrl.baseUrl}/${service['serviceImage']}",
                                             'serviceId': serviceId,
+                                            "points":points
                                           },
                                         );
                                       },

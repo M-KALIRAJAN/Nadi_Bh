@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nadi_user_app/controllers/signup_controller.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
@@ -63,14 +64,14 @@ class _AccountFormViewState extends State<AccountFormView> {
             e.response?.data.toString() ??
             "Something went wrong";
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+        // ScaffoldMessenger.of(
+        //   context,
+        // ).showSnackBar(SnackBar(content: Text(errorMessage)));
+         SnackbarHelper.showError(context, errorMessage);
       } else {
         if (mounted) setState(() => _isLoading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Something went wrong")));
+         SnackbarHelper.showError(context, "Something went wrong");
+       
       }
     }
   }

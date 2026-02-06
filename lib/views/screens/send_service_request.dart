@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ import 'dart:async';
 class SendServiceRequest extends StatefulWidget {
   final String title;
   final String serviceId;
+  final int points;
   final String? imagePath;
 
   const SendServiceRequest({
@@ -30,6 +32,7 @@ class SendServiceRequest extends StatefulWidget {
     required this.title,
     this.imagePath,
     required this.serviceId,
+    required this.points,
   });
 
   @override
@@ -51,6 +54,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
   File? recordedVoice;
   bool isPlaying = false;
   final TextEditingController _timeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -173,7 +177,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          decoration:  BoxDecoration(
+          decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
@@ -233,6 +237,68 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                               : imageShimmer(),
                         ),
                         const SizedBox(height: 25),
+
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.btn_primery.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.btn_primery.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              /// POINT ICON
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.btn_primery,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.stars_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              /// TEXT
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Service Points Required",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      widget.points == 0
+                                          ? "Service Free"
+                                          : "${widget.points} Points",
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
                         const Text(
                           "Issue  Details",
                           style: TextStyle(
@@ -274,6 +340,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                           },
                         ),
                         const SizedBox(height: 15),
+
                         // DESCRIPTION FIELD
                         TextField(
                           controller: descriptionController,
@@ -302,41 +369,41 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                           ),
                         ),
 
-                        const SizedBox(height: 22),
-                        const Text(
-                          "Perfered Date",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        // const SizedBox(height: 22),
+                        // const Text(
+                        //   "Perfered Date",
+                        //   style: TextStyle(
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.w600,
+                        //   ),
+                        // ),
 
-                        const SizedBox(height: 10),
+                        // const SizedBox(height: 10),
 
-                        AppDatePicker(
-                          controller: _dateController,
-                          label: "Select Date",
-                          onDateSelected: (date) {
-                            print("Selected Date: $date");
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          "Perfered Time",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        AppTimePicker(
-                          controller: _timeController,
-                          label: "selected Time",
-                          onTimeSelected: (time) {
-                            // Do something with the selected time
-                            print("User selected********************8: $time");
-                          },
-                        ),
+                        // AppDatePicker(
+                        //   controller: _dateController,
+                        //   label: "Select Date",
+                        //   onDateSelected: (date) {
+                        //     print("Selected Date: $date");
+                        //   },
+                        // ),
+                        // const SizedBox(height: 10),
+                        // const Text(
+                        //   "Perfered Time",
+                        //   style: TextStyle(
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.w600,
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 10),
+                        // AppTimePicker(
+                        //   controller: _timeController,
+                        //   label: "selected Time",
+                        //   onTimeSelected: (time) {
+                        //     // Do something with the selected time
+                        //     print("User selected********************8: $time");
+                        //   },
+                        // ),
                         const SizedBox(height: 22),
 
                         const Text(
@@ -374,27 +441,27 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                         ),
 
                         const SizedBox(height: 15),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: isChecked,
-                              activeColor: AppColors.btn_primery,
-                              checkColor: Colors.white,
-                              onChanged: (bool? newValue) {
-                                setState(() {
-                                  isChecked = newValue!;
-                                });
-                              },
-                            ),
-                            const Text("Need immitated Asstience"),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     Checkbox(
+                        //       value: isChecked,
+                        //       activeColor: AppColors.btn_primery,
+                        //       checkColor: Colors.white,
+                        //       onChanged: (bool? newValue) {
+                        //         setState(() {
+                        //           isChecked = newValue!;
+                        //         });
+                        //       },
+                        //     ),
+                        //     const Text("Need immitated Asstience"),
+                        //   ],
+                        // ),
                         RecordWidget(
                           onRecordComplete: (file) {
                             recordedVoice = file;
                           },
                         ),
-                      
+
                         const SizedBox(height: 15),
                         // ACTION BUTTONS
                         AppButton(
@@ -431,8 +498,16 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
           child: Wrap(
             children: [
               ListTile(
-                leading:  Icon(Icons.camera_alt,color: Theme.of(context).textTheme.bodyMedium?.color,),
-                title:  Text("Camera",style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color,),),
+                leading: Icon(
+                  Icons.camera_alt,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+                title: Text(
+                  "Camera",
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   pickImage(ImageSource.camera);

@@ -9,7 +9,11 @@ class HomeViewService {
   Future<List<Map<String, dynamic>>> servicelists() async {
     try {
       final response = await _dio.get("service");
+   /// 🔥 LOG FULL RESPONSE
+    AppLogger.info("Service API FULL RESPONSE => ${response.data}");
 
+    /// 🔥 LOG ONLY DATA FIELD
+    AppLogger.info("Service API DATA => ${response.data["data"]}");
       return List<Map<String, dynamic>>.from(response.data["data"]);
     } catch (e) {
       AppLogger.error("servicelist Api: $e");

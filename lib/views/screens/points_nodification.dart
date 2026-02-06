@@ -44,16 +44,7 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
                 _clearallnotification();
                 ref.refresh(fetchpointsnodification);
               },
-              child: const Text(
-                "Clear All",
-                style: TextStyle(
-                  color: Color.fromARGB(255, 229, 30, 30),
-                  decoration: TextDecoration.underline,
-                  decorationThickness: 2,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: Image.asset("assets/images/notification.png"),
             ),
           ),
         ],

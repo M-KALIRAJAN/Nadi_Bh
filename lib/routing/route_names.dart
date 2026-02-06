@@ -203,6 +203,7 @@ GoRoute(
           title: data['title'],
           imagePath: data['imagePath'],
           serviceId: data['serviceId'],
+          points:data['points'],
         );
       },
     ),
