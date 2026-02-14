@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -366,11 +364,16 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               ],
             ),
             const SizedBox(height: 50),
+
             requestedpointspeoplelist.when(
               loading: () => const SizedBox(),
               error: (_, __) => const SizedBox(),
               data: (res) {
                 final people = res.data;
+                //  IF EMPTY → show nothing
+                if (people.isEmpty) {
+                  return const SizedBox();
+                }
                 final list = people.length > 7
                     ? people.take(7).toList()
                     : people;
@@ -378,14 +381,13 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10, bottom: 4),
-                      child: const Text(
+                    const Padding(
+                      padding: EdgeInsets.only(left: 10, bottom: 4),
+                      child: Text(
                         "Points Requests:",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -548,7 +550,6 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               loading: () => const SizedBox(),
             ),
 
-          
             Padding(
               padding: const EdgeInsets.only(
                 left: 15,
@@ -565,7 +566,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                   ),
                   InkWell(
                     onTap: () {
-                      context.push(RouteNames.allPointHistory);
+                      context.push(RouteNames.allPointHistorys);
                     },
                     child: Row(
                       children: const [

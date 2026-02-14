@@ -1,14 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
+import 'package:nadi_user_app/providers/connectivity_provider.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
-
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:nadi_user_app/widgets/no_internet_widget.dart';
 
 class Allservice extends ConsumerStatefulWidget {
   const Allservice({super.key});
@@ -22,10 +24,15 @@ class _AllserviceState extends ConsumerState<Allservice> {
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
 
-    return Scaffold(
+
+    return 
+     Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
       body: SafeArea(
-        child: Column(
+
+        child: 
+          Column(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -124,7 +131,7 @@ class _AllserviceState extends ConsumerState<Allservice> {
                                                 width: 140,
                                               ),
                                           errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error),
+                                                 const Icon(Icons.image_not_supported),
                                         ),
                                       ),
                                     ),
@@ -150,6 +157,7 @@ class _AllserviceState extends ConsumerState<Allservice> {
               ),
             ),
           ],
+       
         ),
       ),
     );

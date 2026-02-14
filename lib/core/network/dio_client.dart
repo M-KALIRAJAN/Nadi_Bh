@@ -18,7 +18,24 @@ class DioClient {
           }
           return handler.next(options);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
+          // Retry logic for 429 Too Many Requests
+          if (error.response?.statusCode == 429) {
+            int retryCount = error.requestOptions.extra['retryCount'] ?? 0;
+            if (retryCount < 3) {
+              // Exponential backoff: 2^retryCount seconds
+              final delay = Duration(seconds: 1 << retryCount);
+              await Future.delayed(delay);
+              final options = error.requestOptions;
+              options.extra['retryCount'] = retryCount + 1;
+              try {
+                final response = await dio.fetch(options);
+                return handler.resolve(response);
+              } catch (e) {
+                return handler.next(error);
+              }
+            }
+          }
           return handler.next(error);
         },
       ),
@@ -28,11 +45,12 @@ class DioClient {
 // onRequest -Runs before every API
 // options.headers[...] -  Adds header automatically 
 
+
 class ImageBaseUrl {
   static const baseUrl = "https://srv1252888.hstgr.cloud/uploads";
 }
 
 class ImageAssetUrl{
-    static const baseUrl = "https://srv1252888.hstgr.cloud";
+  static const baseUrl = "https://srv1252888.hstgr.cloud";
 }
  

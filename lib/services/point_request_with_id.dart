@@ -18,7 +18,7 @@ class PointRequestWithId {
         } 
      
         );
-        debugPrint("fetchrequestwithid ${response.data}");
+   
     }on DioException catch(e){
       final err = e.response?.data['message'];
       throw err;

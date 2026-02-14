@@ -12,7 +12,7 @@ class LanguangeView extends StatefulWidget {
 }
 
 class _LanguangeViewState extends State<LanguangeView> {
-    bool _isLoading = false;
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +24,7 @@ class _LanguangeViewState extends State<LanguangeView> {
           ),
         ),
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               SizedBox(
@@ -51,7 +52,7 @@ class _LanguangeViewState extends State<LanguangeView> {
                     child: Column(
                       children: [
                         const SizedBox(height: 20),
-                      const  Text(
+                        const Text(
                           "Choose The Language",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -62,33 +63,33 @@ class _LanguangeViewState extends State<LanguangeView> {
                         const SizedBox(height: 30),
 
                         AppButton(
-                           text: "عربي",
+                          text: "عربي",
                           onPressed: () {
                             // context.go(RouteNames.accountverfy);
-                             _showLanguageInProcessDialog(context);
+                            _showLanguageInProcessDialog(context);
                           },
                           color: AppColors.btn_primery,
                           width: double.infinity,
                         ),
 
                         const SizedBox(height: 25),
-                       
+
                         AppButton(
                           text: "English",
-                          onPressed: ()async {
-                             setState(() => _isLoading = true); 
+                          onPressed: () async {
+                            setState(() => _isLoading = true);
                             await Future.delayed(const Duration(seconds: 1));
                             if (!mounted) return; //  safety check
                             context.go(RouteNames.welcome);
                           },
                           color: AppColors.button_secondary,
                           width: double.infinity,
-                          isLoading:_isLoading
+                          isLoading: _isLoading,
                         ),
 
                         const SizedBox(height: 10),
 
-                       const Text(
+                        const Text(
                           "Your language preference can be changed any time in Settings",
 
                           style: TextStyle(
@@ -109,34 +110,31 @@ class _LanguangeViewState extends State<LanguangeView> {
       ),
     );
   }
-  void _showLanguageInProcessDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false, // user must tap OK
-    builder: (context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        title: const Text(
-          "Language",
-          textAlign: TextAlign.center,
-        ),
-        content: const Text(
-          "Arabic language is in process",
-          textAlign: TextAlign.center,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text("OK"),
-          ),
-        ],
-      );
-    },
-  );
-}
 
+  void _showLanguageInProcessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap OK
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text("Language", textAlign: TextAlign.center),
+          content: const Text(
+            "Arabic language is in process",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

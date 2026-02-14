@@ -195,53 +195,115 @@ class _QuestionerViewState extends ConsumerState<QuestionerView> {
   }
 
   /// ================= SUCCESS UI =================
-
 bool isDoneLoading = false;
-  Widget successUI() {
-    return Center(
-      key: const ValueKey("success"),
-      child: Padding(
+
+Widget successUI() {
+  return Center(
+    key: const ValueKey("success"),
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Container(
         padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 20,
+              color: Colors.black.withOpacity(0.08),
+              offset: const Offset(0, 8),
+            )
+          ],
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 80),
 
-            const SizedBox(height: 16),
+            /// ✅ Modern success icon
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.green.shade400,
+                    Colors.green.shade600,
+                  ],
+                ),
+              ),
+              child: const Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
             const Text(
               "Success!",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
-            Text(successMessage, textAlign: TextAlign.center),
-            const SizedBox(height: 8),
             Text(
-              "Points Earned: ${pointsEarned}",
+              successMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                height: 1.4,
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              "TotalUserPoints: ${totalUserPoints}",
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
 
+            const SizedBox(height: 18),
+
+            /// ✅ Points card modern style
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    "Points Earned: $pointsEarned",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text("Total Points: $totalUserPoints"),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            /// ✅ Modern button
             AppButton(
-              isLoading:isDoneLoading ,
+              isLoading: isDoneLoading,
               onPressed: () async {
-                   setState(() => isDoneLoading = true);
-                await Future.delayed(const Duration(seconds: 2));
+
+                setState(() => isDoneLoading = true);
+
+                await Future.delayed(const Duration(seconds: 1));
 
                 if (!mounted) return;
 
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
-                 setState(() => isDoneLoading = true);
+
+                setState(() => isDoneLoading = false);
               },
               text: "Done",
               width: double.infinity,
@@ -250,8 +312,9 @@ bool isDoneLoading = false;
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Future<void> submitAnswers() async {
     setState(() => isSubmitting = true);

@@ -5,6 +5,7 @@ import 'package:nadi_user_app/views/auth/forgotpassword.dart';
 import 'package:nadi_user_app/views/auth/sign_in_otp.dart';
 import 'package:nadi_user_app/views/screens/AboutView.dart';
 import 'package:nadi_user_app/views/screens/Admin_QuestionerView.dart';
+import 'package:nadi_user_app/views/screens/ChatDetailsScreen.dart';
 import 'package:nadi_user_app/views/screens/HelpSupportView.dart';
 import 'package:nadi_user_app/views/screens/PrivacyPolicyView.dart';
 import 'package:nadi_user_app/views/screens/allPointHistory.dart';
@@ -53,6 +54,22 @@ final appRouter = GoRouter(
       path: RouteNames.forgotpassword,
       builder: (context, state) => const Forgotpassword(),
     ),
+  GoRoute(
+  path: "/chatDetails",
+  builder: (context, state) {
+
+    final data = state.extra as Map<String, dynamic>;
+
+    final userId = data["id"] as String?;
+    final userName = data["name"] as String?;
+
+    return ChatDetailsScreen(
+      userId: userId,
+      userName: userName,
+    );
+  },
+),
+
     GoRoute(
       path: RouteNames.requestcreatesucess,
       builder: (context, state) {
@@ -103,26 +120,26 @@ final appRouter = GoRouter(
       path: RouteNames.privacyPolicy,
       builder: (context, state) => const PrivacyPolicyView(),
     ),
-GoRoute(
-  path: RouteNames.allPointHistory,
-  builder: (context, state) => const AllPointHistory(),
-),
-GoRoute(
-  path: RouteNames.requestPeopleDetails,
-  builder: (context, state) {
-    final data = state.extra as Map<String, dynamic>;
+    GoRoute(
+      path: RouteNames.allPointHistorys,
+      builder: (context, state) => const AllPointHistory(),
+    ),
+    GoRoute(
+      path: RouteNames.requestPeopleDetails,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
 
-    final peopleId = data['peopleId'] as String;
-    final fullName = data['fullName'] as String;
-    final image = data['image'] as String;
+        final peopleId = data['peopleId'] as String;
+        final fullName = data['fullName'] as String;
+        final image = data['image'] as String;
 
-    return RequestPeopleDetails(
-      peopleId: peopleId,
-      fullName: fullName, 
-      image: image,
-    );
-  },
-),
+        return RequestPeopleDetails(
+          peopleId: peopleId,
+          fullName: fullName,
+          image: image,
+        );
+      },
+    ),
 
     GoRoute(
       path: RouteNames.accountverfy,
@@ -203,19 +220,17 @@ GoRoute(
           title: data['title'],
           imagePath: data['imagePath'],
           serviceId: data['serviceId'],
-          points:data['points'],
+          points: data['points'],
         );
       },
     ),
-GoRoute(
-  path: RouteNames.adminrequestquestion,
-  builder: (context, state) => const AdminQuestionerview(),
-  ),
+    GoRoute(
+      path: RouteNames.adminrequestquestion,
+      builder: (context, state) => const AdminQuestionerview(),
+    ),
     GoRoute(
       path: RouteNames.bottomnav,
       builder: (context, state) => const BottomNav(),
     ),
   ],
 );
-
-

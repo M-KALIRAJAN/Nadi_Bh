@@ -353,6 +353,7 @@ class _SignInOtpState extends State<SignInOtp> {
           ),
         ),
         child: SafeArea(
+          bottom: false,
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(

@@ -10,7 +10,7 @@ class PointshistoryService {
   Future<PointsHistory> fetchpointhistory( ) async{
     try{
           final response = await _dio.post('points/history');
-                 debugPrint("fetchpointhistory ******************** ${response.data}");
+       
           return PointsHistory.fromJson(response.data);
     }on DioException catch(e){
        final errmsg = e.response?.data['message'];

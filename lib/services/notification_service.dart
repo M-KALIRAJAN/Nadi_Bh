@@ -2,7 +2,7 @@
 // import 'package:flutter/material.dart';
 
 // class NotificationService {
-   
+
 //    static void initialize(BuildContext context) {
 //     // FOREGROUND MESSAGE
 
@@ -33,9 +33,6 @@
 //    }
 // }
 
-
-
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -46,15 +43,24 @@ class NotificationService {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings settings =
-        InitializationSettings(android: androidSettings);
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
+
+    const InitializationSettings settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings, // ✅ ADD THIS
+      macOS: iosSettings, // ✅ mac uses same Darwin settings
+    );
 
     await _plugin.initialize(settings);
   }
 
   static Future<void> createChannel() async {
-    const AndroidNotificationChannel channel =
-        AndroidNotificationChannel(
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'high_importance_channel',
       'High Importance Notifications',
       description: 'Used for OTP notifications',
@@ -63,7 +69,8 @@ class NotificationService {
 
     await _plugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
   }
 
@@ -73,14 +80,15 @@ class NotificationService {
   }) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'high_importance_channel',
-      'High Importance Notifications',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
+          'high_importance_channel',
+          'High Importance Notifications',
+          importance: Importance.high,
+          priority: Priority.high,
+        );
 
-    const NotificationDetails details =
-        NotificationDetails(android: androidDetails);
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+    );
 
     await _plugin.show(
       DateTime.now().millisecondsSinceEpoch ~/ 1000,

@@ -2,11 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/utils/BlinkingDot.dart';
 import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
+import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
 
 import 'package:nadi_user_app/models/Questioner_Model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/Advertisement_Provider.dart';
 import 'package:nadi_user_app/providers/Questioner_Provider.dart';
+import 'package:nadi_user_app/providers/connectivity_provider.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/providers/userDashboard_provider.dart';
@@ -15,6 +18,7 @@ import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/ongoing_service.dart';
 import 'package:nadi_user_app/views/screens/Advertisement_View.dart';
 import 'package:nadi_user_app/views/screens/Questioner_View.dart';
+import 'package:nadi_user_app/widgets/no_internet_widget.dart';
 
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
@@ -86,9 +90,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
       setState(() {
         _ongoing = result;
       });
-      debugPrint("RESULT: $_ongoing");
+      AppLogger.warn("RESULT: $_ongoing");
     } catch (e) {
-      debugPrint("ERROR: $e");
+      AppLogger.success("ERROR: $e");
     }
   }
 
@@ -97,14 +101,44 @@ class _DashboardState extends ConsumerState<Dashboard> {
       final aprovedata = await _ongoingService.fetchaprovetech();
 
       // 🔹 Log the full raw response
-      debugPrint("fetchapprovetechnician raw response: $aprovedata");
+      AppLogger.warn("fetchapprovetechnician raw response: $aprovedata");
 
       // 🔹 Update state
       setState(() {
         _aprovetech = aprovedata;
       });
     } catch (e) {
-      debugPrint("fetchapprovetechnician error: $e");
+      AppLogger.error("fetchapprovetechnician error: $e");
+    }
+  }
+
+  Future<void> approvework() async {
+    if (_aprovetech == null || _aprovetech!['data'] == null) return;
+
+    final aprovetech = _aprovetech!['data'];
+
+    final payload = {
+      "userServiceId": aprovetech['userServiceId'],
+      "techniciainId": aprovetech['techniciainId'],
+    };
+
+    try {
+      final result = await _ongoingService.fetchabrovework(payload: payload);
+
+      if (mounted) {
+        setState(() {
+          _aprovetech = null;
+        });
+      }
+
+      SnackbarHelper.ShowSuccess(context, "Work approved successfully");
+
+      /// OPTIONAL refresh API (background)
+      fetchapprovetechnician();
+
+      AppLogger.info("Approve result: $result");
+    } catch (e) {
+      AppLogger.error("Approve error: $e");
     }
   }
 
@@ -229,7 +263,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
     final dashboardAsync = ref.watch(userdashboardprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
     final adAsync = ref.watch(fetchadvertisementprovider);
-
+final connectivity = ref.watch(connectivityProvider);
     final data = _ongoing?['data'];
 
     final bool isOngoing = data != null && data['status'] == 'inProgress';
@@ -269,7 +303,13 @@ class _DashboardState extends ConsumerState<Dashboard> {
       });
     });
     return Scaffold(
-      body: Container(
+      body:   connectivity.when( 
+        
+         data: (isOnline) {
+            if (!isOnline) {
+      return  NoInternetScreen();
+    }
+    return    Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
@@ -429,6 +469,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                             ),
                             child: InkWell(
                               onTap: () {
+                                print("clicked********** ");
                                 context.push(RouteNames.pointnodification);
                               },
                               child: Center(
@@ -555,28 +596,102 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   ],
                 ),
               ),
+
               aprovetech != null
-                  ? Card(
-                      margin: const EdgeInsets.all(16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 8),
-                            Text(
-                              "User Service ID: ${aprovetech['userServiceId']}",
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          /// ✅ Left icon
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.1),
+                              shape: BoxShape.circle,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Technician ID: ${aprovetech['techniciainId']}",
+                            child: const Icon(
+                              Icons.engineering,
+                              color: Colors.green,
                             ),
-                           
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  "Approval Needed",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Technician wants to start the work. Kindly approve.",
+                                  style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          InkWell(
+                            onTap: () {
+                              approvework();
+                            },
+                            borderRadius: BorderRadius.circular(30),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "Approve",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   : const SizedBox(),
+
               data != null
                   ? Container(
                       margin: const EdgeInsets.symmetric(
@@ -971,7 +1086,13 @@ class _DashboardState extends ConsumerState<Dashboard> {
             ],
           ),
         ),
-      ),
+      );
+         },
+           loading: () => const Center(child: CircularProgressIndicator()),
+
+  error: (e, s) =>  NoInternetScreen(),
+      )
     );
+
   }
 }

@@ -47,6 +47,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
   bool _isLoading = false;
   String? selectedIssueId;
   String? selectcategoryId;
+  String? selectedServicePoints;
   StreamSubscription? _playerCompleteSub;
   StreamSubscription? _playerStateSub;
   Timer? timer;
@@ -284,10 +285,80 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                         onChanged: (value) {
                           setState(() {
                             selectcategoryId = value;
+
+                            // find selected service
+                            final selectedService = serviceLst.firstWhere(
+                              (service) => service["_id"] == value,
+                              orElse: () => {},
+                            );
+
+                            selectedServicePoints = selectedService["points"];
                           });
                         },
                       ),
-                      SizedBox(height: 18),
+                      const SizedBox(height: 20,),
+                      if (selectedServicePoints != null)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.btn_primery.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.btn_primery.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              /// POINT ICON
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.btn_primery,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.stars_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              /// TEXT
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Service Points Required",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      selectedServicePoints == 0
+                                          ? "Service Free"
+                                          : "${selectedServicePoints} Points",
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                 
                       const Text(
                         "Issuse Details",
                         style: TextStyle(
@@ -357,6 +428,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       ),
 
                       const SizedBox(height: 18),
+
                       // const Text(
                       //   "Perfered Date",
                       //   style: TextStyle(
@@ -390,7 +462,6 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       //     print("User selected: $time");
                       //   },
                       // ),
-
                       const SizedBox(height: 18),
                       const Text(
                         "Media Upload (optional)",
@@ -450,7 +521,6 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       //     const Text("Need immitated Asstience"),
                       //   ],
                       // ),
-
                       SizedBox(height: 10),
                       AppButton(
                         text: "Send Request",
@@ -484,16 +554,32 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
           child: Wrap(
             children: [
               ListTile(
-                leading:  Icon(Icons.camera_alt,color: Theme.of(context).textTheme.bodyMedium?.color,),
-                title:  Text("Camera",style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),),
+                leading: Icon(
+                  Icons.camera_alt,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+                title: Text(
+                  "Camera",
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   pickImage(ImageSource.camera);
                 },
               ),
               ListTile(
-                leading:  Icon(Icons.photo_library, color: Theme.of(context).textTheme.bodyMedium?.color),
-                title:  Text("Gallery",style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),),
+                leading: Icon(
+                  Icons.photo_library,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+                title: Text(
+                  "Gallery",
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   pickImage(ImageSource.gallery);

@@ -478,7 +478,7 @@ class _AddmemberState extends State<Addmember> {
                     "Mother",
                     "Son",
                     "Daughter",
-                    "Spouse",
+                    "Add Other",
                   ],
                   value: controller.relation,
                   onChanged: (val) => setState(() => controller.relation = val),
@@ -515,7 +515,6 @@ class _AddmemberState extends State<Addmember> {
                   validator: (value) => controller.validateemail(value),
                 ),
                 const SizedBox(height: 15),
-
                 AppDropdown(
                   label: "Gender*",
                   items: const ["Male", "Female", "Other"],

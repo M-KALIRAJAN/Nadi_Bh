@@ -34,7 +34,7 @@ class AppTimePicker extends StatelessWidget {
           final String formattedTime = _formatTime(pickedTime);
           controller.text = formattedTime;
           onTimeSelected?.call(formattedTime);
-          debugPrint("Selected Time: $formattedTime");
+    
         }
       },
       child: AbsorbPointer(

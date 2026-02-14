@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
@@ -24,11 +25,24 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    ref.refresh(fetchpointsnodification);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final asyncNotifications = ref.watch(fetchpointsnodification);
 
     return Scaffold(
       appBar: AppBar(
+        // automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+               context.pop();
+          },
+        ),
         backgroundColor: AppColors.btn_primery,
         title: const Text(
           "Notifications",

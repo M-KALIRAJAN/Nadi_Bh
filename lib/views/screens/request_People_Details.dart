@@ -29,11 +29,13 @@ class RequestPeopleDetails extends ConsumerStatefulWidget {
 class _RequestPeopleDetailsState extends ConsumerState<RequestPeopleDetails> {
   final TextEditingController _pointsController = TextEditingController();
   final PointRequestWithId _pointRequestWithId = PointRequestWithId();
+  final ScrollController _scrollController = ScrollController();
   String? currentUserId;
 
   @override
   void dispose() {
     _pointsController.dispose();
+    _scrollController.dispose(); //  add this
     super.dispose();
   }
 
@@ -137,8 +139,22 @@ class _RequestPeopleDetailsState extends ConsumerState<RequestPeopleDetails> {
                 if (list.isEmpty) {
                   return const Center(child: Text("No requests found"));
                 }
+                // ✅ AUTO SCROLL TO LAST ITEM
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (_scrollController.hasClients) {
+                    _scrollController.jumpTo(
+                      _scrollController.position.maxScrollExtent,
+                    );
 
+                    //  _scrollController.animateTo(
+                    //   _scrollController.position.maxScrollExtent,
+                    //   duration: const Duration(milliseconds: 300),
+                    //   curve: Curves.easeOut,
+                    // );
+                  }
+                });
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(12),
                   itemCount: list.length,
                   itemBuilder: (context, index) {

@@ -14,9 +14,11 @@ class LockoutService {
         debugPrint('Response: ${response.data}');
       }
     } catch (e, stackTrace) {
+        if (kDebugMode) {
       debugPrint('❌ Logout API Failed');
       debugPrint('Error: $e');
       debugPrint('StackTrace: $stackTrace');
+        }
 
       rethrow; // important if caller needs to know failure
     }

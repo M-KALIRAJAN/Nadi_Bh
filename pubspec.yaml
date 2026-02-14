@@ -3,7 +3,7 @@ description: "A new Flutter project."
 publish_to: "none"
 
 # App Version
-version: 1.0.0+1
+version: 1.0.0+2
 
 # -----------------------------------------------------------------------------
 # 🌐 Environment Configuration
@@ -47,6 +47,7 @@ dependencies:
   url_launcher: ^6.3.2
   carousel_slider: ^5.1.1
   socket_io_client: ^3.1.4
+  connectivity_plus: ^7.0.0
  
 
 # -----------------------------------------------------------------------------

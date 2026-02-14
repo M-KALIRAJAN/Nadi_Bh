@@ -262,6 +262,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/controllers/login_controller.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
@@ -315,14 +316,14 @@ class _LoginViewState extends State<LoginView> {
 
     final loginData = controller.getLoginData();
     final fcmToken = await AppPreferences.getfcmToken();
-  print(" fcmToken******************: $fcmToken");
+    print(" fcmToken******************: $fcmToken");
     try {
       final response = await _authService.LoginApi(
         email: loginData.email,
         password: loginData.password,
-        fcmToken:fcmToken
+        fcmToken: fcmToken,
       );
-     debugPrint("loginData: ${response?['data']}");
+      AppLogger.warn("loginData: ${response?['data']}");
       if (response != null && response['token'] != null) {
         await AppPreferences.saveToken(response['token']);
         await AppPreferences.setLoggedIn(true);
@@ -373,17 +374,20 @@ class _LoginViewState extends State<LoginView> {
           ),
 
           SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 SizedBox(height: height * 0.07),
+
                 /// LOGO
                 Image.asset("assets/icons/logo.png", height: 170),
                 SizedBox(height: height * 0.10),
+
                 /// FORM
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration:  BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30),
@@ -414,20 +418,21 @@ class _LoginViewState extends State<LoginView> {
                             decoration: InputDecoration(
                               labelText: "Email Address",
                               filled: true,
-                              fillColor:Colors.white,
-                              floatingLabelStyle: TextStyle(color: AppColors.btn_primery),
+                              fillColor: Colors.white,
+                              floatingLabelStyle: TextStyle(
+                                color: AppColors.btn_primery,
+                              ),
                               errorText: emailError,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
                                   color: AppColors.btn_primery,
-                                  width: 1.5
-                                )
-                              )
+                                  width: 1.5,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 15),
@@ -436,19 +441,22 @@ class _LoginViewState extends State<LoginView> {
                             obscureText: _obscure,
                             decoration: InputDecoration(
                               labelText: "Password",
-                                         filled: true,
-                              fillColor:Colors.white,
-                              floatingLabelStyle: const TextStyle(color: AppColors.btn_primery),
+                              filled: true,
+                              fillColor: Colors.white,
+                              floatingLabelStyle: const TextStyle(
+                                color: AppColors.btn_primery,
+                              ),
                               errorText: passwordError,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                                 focusedBorder: OutlineInputBorder(
-                                borderRadius:  BorderRadius.circular(12),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
                                   color: AppColors.btn_primery,
-                                  width: 1.5
-                                )),
+                                  width: 1.5,
+                                ),
+                              ),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscure

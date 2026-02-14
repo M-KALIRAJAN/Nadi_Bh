@@ -141,7 +141,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
         // Navigate to splash
         context.go(RouteNames.splash);
       } catch (e) {
-        debugPrint('❌ Logout failed: $e');
+   
         // Still force logout if backend fails
         await AppPreferences.clearAll();
         await AppPreferences.setLoggedIn(false);

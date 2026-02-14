@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
+import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/models/Adminquestioner_Model.dart';
 
 class AdminQuestioner {
@@ -20,10 +21,10 @@ class AdminQuestioner {
 Future<Adminquestioner> fetchadminrequestquestion() async {
   try {
     final response = await _dio.get('questionnaire/');
-    debugPrint("RAW RESPONSE: ${response.data}", wrapWidth: 1024);
+    AppLogger.info("RAW RESPONSE: ${response.data}", );
     return Adminquestioner.fromJson(response.data);
   } on DioException catch (e) {
-    debugPrint("DIO ERROR: ${e.response?.data}");
+     AppLogger.error("DIO ERROR: ${e.response?.data}");
     throw e.response?.data['message'] ?? "API error";
   }
 }

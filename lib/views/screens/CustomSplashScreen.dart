@@ -1,5 +1,3 @@
-
-
 // import 'dart:convert';
 // import 'package:flutter/material.dart';
 // import 'package:go_router/go_router.dart';
@@ -33,7 +31,6 @@
 //   late AnimationController _animationController;
 //   late Animation<double> _scaleAnimation;
 
-
 //   @override
 //   void initState() {
 //     super.initState();
@@ -53,11 +50,9 @@
 //     _loadSplashMedia();
 //   }
 
-
 //   // LOAD IMAGE / VIDEO FROM BACKEND
 
 //   Future<void> _loadSplashMedia() async {
-   
 
 //     try {
 //       final response = await _onbordingService.loading();
@@ -100,7 +95,6 @@
 //     }
 //   }
 
-
 //   // FIREBASE NOTIFICATIONS
 
 //   Future<void> _initNotifications() async {
@@ -115,7 +109,6 @@
 //       await AppPreferences.savefcmToken(token);
 //     }
 //   }
-
 
 //   // NAVIGATION
 
@@ -142,9 +135,8 @@
 //     }
 //   }
 
-
 //   // MEDIA UI WITH ANIMATION
- 
+
 //   Widget _buildMedia() {
 //     Widget child;
 
@@ -183,7 +175,6 @@
 //     );
 //   }
 // }
-
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -236,26 +227,31 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
     );
 
     // ✅ Smooth rotation (2–3 turns)
-    _rotationAnimation = Tween<double>(
-      begin: 0,
-      end: 3, // 3 full rotations
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _rotationAnimation =
+        Tween<double>(
+          begin: 0,
+          end: 3, // 3 full rotations
+        ).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
 
     // ✅ Smooth zoom in
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.3, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.3,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 1.5)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 1.0,
+          end: 1.5,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 50,
       ),
     ]).animate(_animationController);
@@ -291,8 +287,9 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
       // VIDEO
       if (video != null && video.toString().isNotEmpty) {
         videoUrl = "${ImageBaseUrl.baseUrl}/$video";
-        _videoController =
-            VideoPlayerController.networkUrl(Uri.parse(videoUrl!));
+        _videoController = VideoPlayerController.networkUrl(
+          Uri.parse(videoUrl!),
+        );
 
         await _videoController!.initialize();
         _videoController!
@@ -313,15 +310,29 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
 
   // ================= FCM =================
   Future<void> _initNotifications() async {
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission(alert: true, badge: true, sound: true);
 
-    final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) {
+    AppLogger.success("Permission: ${settings.authorizationStatus}");
+
+    // Token refresh listener
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+      AppLogger.success("FCM Token refreshed: $token");
       await AppPreferences.savefcmToken(token);
+    });
+
+    /// ✅ SAFE TOKEN GET (important for iOS simulator)
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+
+      if (token != null) {
+        AppLogger.success("FCM Token: $token");
+        await AppPreferences.savefcmToken(token);
+      } else {
+        AppLogger.error("FCM token is null (maybe simulator)");
+      }
+    } catch (e) {
+      AppLogger.error("FCM not available (Simulator): $e");
     }
   }
 
@@ -343,46 +354,43 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
   }
 
   // ================= UI =================
-Widget _buildMedia() {
-  // 🎥 VIDEO → NO ANIMATION
-  if (_videoController != null && _videoController!.value.isInitialized) {
-    return AspectRatio(
-      aspectRatio: _videoController!.value.aspectRatio,
-      child: VideoPlayer(_videoController!),
-    );
-  }
+  Widget _buildMedia() {
+    // 🎥 VIDEO → NO ANIMATION
+    if (_videoController != null && _videoController!.value.isInitialized) {
+      return AspectRatio(
+        aspectRatio: _videoController!.value.aspectRatio,
+        child: VideoPlayer(_videoController!),
+      );
+    }
 
-  // 🖼 IMAGE / LOGO → WITH ANIMATION
-  Widget imageWidget;
+    // 🖼 IMAGE / LOGO → WITH ANIMATION
+    Widget imageWidget;
 
-  if (imageUrl != null) {
-    imageWidget = Image.network(
-      imageUrl!,
-      width: 180,
-      height: 180,
-      fit: BoxFit.contain,
-    );
-  } else {
-    imageWidget = Image.asset(
-      'assets/icons/logo.png',
-      width: 150,
-      height: 150,
-    );
-  }
+    if (imageUrl != null) {
+      imageWidget = Image.network(
+        imageUrl!,
+        width: 180,
+        height: 180,
+        fit: BoxFit.contain,
+      );
+    } else {
+      imageWidget = Image.asset(
+        'assets/icons/logo.png',
+        width: 150,
+        height: 150,
+      );
+    }
 
-  return FadeTransition(
-    opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
-    ),
-    child: RotationTransition(
-      turns: _rotationAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: imageWidget,
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
       ),
-    ),
-  );
-}
+      child: RotationTransition(
+        turns: _rotationAnimation,
+        child: ScaleTransition(scale: _scaleAnimation, child: imageWidget),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -390,25 +398,24 @@ Widget _buildMedia() {
     _videoController?.dispose();
     super.dispose();
   }
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF0D5F48),
-            Color(0xFF0ABF8F),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0D5F48), Color(0xFF0ABF8F)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : _buildMedia(),
         ),
       ),
-      child: Center(
-        child: isLoading ? const CircularProgressIndicator(color: Colors.white) : _buildMedia(),
-      ),
-    ),
-  );
-}
-
+    );
+  }
 }

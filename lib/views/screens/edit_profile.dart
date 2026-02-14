@@ -202,7 +202,7 @@ class _EditProfileState extends State<EditProfile> {
                   AppCircleIconButton(
                     icon: Icons.arrow_back,
                     onPressed: () {
-                      context.pop(context);
+                      context.pop();
                     },
                   ),
                   const Text(
@@ -400,7 +400,9 @@ class _EditProfileState extends State<EditProfile> {
                           Expanded(
                             child: AppButton(
                               text: "Cancel",
-                              onPressed: () { context.pop();},
+                              onPressed: () {
+                                context.pop();
+                              },
                               color: Color.fromRGBO(76, 149, 129, 1),
                               width: double.infinity,
                             ),

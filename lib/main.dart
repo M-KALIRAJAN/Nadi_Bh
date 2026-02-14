@@ -1,9 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:nadi_user_app/providers/language_provider.dart';
+import 'firebase_options.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 
 import 'package:nadi_user_app/providers/theme_provider.dart';
@@ -11,9 +15,11 @@ import 'package:nadi_user_app/providers/theme_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:nadi_user_app/routing/route_names.dart';
 import 'package:nadi_user_app/services/AppListener.dart';
-import 'package:nadi_user_app/services/firebase_background_handler.dart';
+
 import 'package:nadi_user_app/services/notification_service.dart';
-final container = ProviderContainer(); 
+
+final container = ProviderContainer();
+
 ///  STEP 1: ADD THIS HERE (TOP LEVEL, NOT INSIDE CLASS)
 Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -24,42 +30,60 @@ void main() async {
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  ///  STEP 2: INITIALIZE FIREBASE
-  await Firebase.initializeApp();
+  /// FIREBASE INIT
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  /// LOCAL NOTIFICATION INIT
   await NotificationService.initialize();
   await NotificationService.createChannel();
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  /// BACKGROUND HANDLER
+  FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+
+  /// REQUEST PERMISSION (iOS)
   await FirebaseMessaging.instance.requestPermission(
     alert: true,
     badge: true,
     sound: true,
   );
 
+  /// VERY IMPORTANT FOR IOS TOKEN
+  await FirebaseMessaging.instance.setAutoInitEnabled(true);
+
+  /// GET FCM TOKEN
+  try {
+    String? token = await FirebaseMessaging.instance.getToken();
+    print("🔥 FCM TOKEN = $token");
+  } catch (e) {
+    print("⚠️ FCM not available on simulator: $e");
+  }
+
+  /// TOKEN REFRESH LISTENER
+  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+    print("🔥 NEW FCM TOKEN = $newToken");
+  });
+
   /// Hive init
   await Hive.initFlutter();
   await Hive.openBox("aboutBox");
   await Hive.openBox("blockbox");
   await Hive.openBox("servicesBox");
-  // ✅ Add this here: Foreground notifications
+
+  /// FOREGROUND MESSAGE
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     NotificationService.show(
       title: message.notification?.title ?? 'OTP',
       body: message.notification?.body ?? 'Your OTP is ${message.data['otp']}',
     );
-container.invalidate(fetchpointsnodification);
+    container.invalidate(fetchpointsnodification);
   });
 
-runApp(
-  UncontrolledProviderScope(
-    container: container,
-    child: const AppListener(
-      child: MyApp(),
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: const AppListener(child: MyApp()),
     ),
-  ),
-);
-
-
+  );
 }
 
 class MyApp extends ConsumerWidget {
@@ -68,9 +92,14 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
+    final locale = ref.watch(languageProvider); // watch selected language
     return MaterialApp.router(
       routerConfig: appRouter,
+
+   
       debugShowCheckedModeBanner: false,
+
+      
       themeMode: themeMode,
       theme: ThemeData(
         fontFamily: 'Poppins',
@@ -93,12 +122,10 @@ class MyApp extends ConsumerWidget {
         colorScheme: const ColorScheme.dark(
           primary: AppColors.btn_primery,
           secondary: AppColors.button_secondary,
-           surface: Color.fromARGB(255, 56, 56, 56),
+          surface: Color.fromARGB(255, 56, 56, 56),
           onSurface: Color.fromARGB(255, 53, 53, 53),
         ),
-        textTheme: const TextTheme(
-    bodyMedium: TextStyle(color: Colors.white),
-  ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
       ),
     );
   }

@@ -22,8 +22,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
       final email = _emailCtrl.text.trim();
       AppLogger.warn("Email: $email");
 
-      final response =
-          await _authService.Forgetpassword(email: email);
+      final response = await _authService.Forgetpassword(email: email);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -34,10 +33,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
     } catch (e) {
       AppLogger.error("$e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
       );
     }
   }
@@ -57,93 +53,80 @@ class _ForgotpasswordState extends State<Forgotpassword> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical, // ✅ ONLY vertical
-            keyboardDismissBehavior:
-                ScrollViewKeyboardDismissBehavior.onDrag,
+          bottom: false,
+          child: Column(
+            children: [
+              SizedBox(height: size.height * 0.03),
 
-            /// 🔴 THIS BLOCK PREVENTS HORIZONTAL SCROLL COMPLETELY
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: constraints.maxWidth,
-                    maxWidth: constraints.maxWidth, // 🔒 lock width
+              /// LOGO
+              Image.asset(
+                "assets/images/logo.png",
+                height: isLandscape ? size.height * 0.35 : size.height * 0.40,
+                fit: BoxFit.contain,
+              ),
+
+              const SizedBox(height: 20),
+
+              /// WHITE CONTAINER fills remaining space
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: size.height * 0.03),
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 20),
 
-                      /// LOGO (Landscape safe)
-                      Image.asset(
-                        "assets/images/logo.png",
-                        height: isLandscape
-                            ? size.height * 0.35
-                            : size.height * 0.40,
-                        fit: BoxFit.contain,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      /// WHITE CONTAINER
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+                          const Text(
+                            "Change your Password",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 20),
 
-                              const Text(
-                                "Change your Password",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                          const SizedBox(height: 15),
 
-                              const SizedBox(height: 15),
-
-                              AppTextField(
-                                label: "Enter Email",
-                                keyboardType:
-                                    TextInputType.emailAddress,
-                                controller: _emailCtrl,
-                              ),
-
-                              const SizedBox(height: 30),
-
-                              AppButton(
-                                height: 48,
-                                width: double.infinity,
-                                color: AppColors.btn_primery,
-                                text: "Send Email",
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    emailVerify();
-                                  }
-                                },
-                              ),
-
-                              const SizedBox(height: 40),
-                            ],
+                          AppTextField(
+                            label: "Enter Email",
+                            keyboardType: TextInputType.emailAddress,
+                            controller: _emailCtrl,
                           ),
-                        ),
+
+                          const SizedBox(height: 30),
+
+                          AppButton(
+                            height: 48,
+                            width: double.infinity,
+                            color: AppColors.btn_primery,
+                            text: "Send Email",
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                emailVerify();
+                              }
+                            },
+                          ),
+
+                          const SizedBox(height: 40),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

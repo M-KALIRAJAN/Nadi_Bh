@@ -1,0 +1,71 @@
+{
+
+  "accountType": "Account Type",
+  "individualAccount": "Individual Account",
+  "familyAccount": "Family Account",
+  "individualAccountDesc": "Manage your services and profile independently.",
+  "familyAccountDesc": "Register and manage services for multiple family members.",
+   
+"enterVerificationCode": "Enter Verification code",
+  "otpDescription": "We have sent you a 4 digit verification code on",
+  "resendOtp": "Resend OTP",
+  "resendOtpTimer": "Resend OTP in 00:{seconds}",
+  "@resendOtpTimer": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+
+  "signIn": "Sign In",
+  "pleaseEnterOtp": "Please enter 4 digit OTP",
+  "invalidOtp": "Invalid OTP",
+  "failedResendOtp": "Failed to resend OTP",
+  "somethingWentWrong": "Something went wrong",
+    
+  "signUp": "Sign up",
+  "uploadIdCard": "Upload ID Card",
+  "frontSideId": "Front Side of ID Card",
+  "backSideId": "Back Side of ID Card",
+  "idSubtitle": "Ensure your name, photo, and expiry date are clearly visible.",
+  "continue": "Continue",
+  "uploadBothImages": "Please upload both front and back images",
+  "userNotFound": "User not found",
+
+  "signInWithOtp": "Sign In with OTP",
+  "enterPhoneNumber": "Enter Phone Number",
+  "pleaseEnterPhoneNumber": "Please enter phone number",
+  "phoneMustBe8Digits": "Phone number must be 8 digits",
+  "sendOtp": "Send OTP",
+  "enterOtp": "Enter OTP",
+  "signIn": "Sign In",
+  "enterValidOtp": "Enter valid OTP",
+
+  "settings": "Settings",
+  "aboutApp": "About App",
+  "helpSupport": "Help & Support",
+  "notification": "Notification",
+  "changeLanguage": "Change Language",
+  "history": "History",
+  "privacyPolicy": "Privacy Policy",
+  "theme": "Theme",
+  "logout": "Log Out",
+
+  "profileDetails": "Profile Details",
+  "welcome": "Welcome",
+  "loading": "Loading...",
+  "fullName": "Full Name",
+  "emailAddress": "Email Address",
+  "phoneNumber": "Phone Number",
+  "address": "Address",
+  "errorLoadingProfile": "Error loading profile",
+  "noProfileData": "No profile data",
+
+  "editProfile": "Edit Profile",
+  "building": "Building",
+  "city": "City",
+  "floor": "Floor",
+  "apartment": "Apartment",
+  "additionalInfo": "Additional Info",
+  "cancel": "Cancel",
+  "save": "Save"
+}

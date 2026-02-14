@@ -5,16 +5,30 @@ import 'package:nadi_user_app/core/utils/Time_Date.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
 import 'package:nadi_user_app/widgets/individual_points_card.dart';
 
-class AllPointHistory extends ConsumerWidget {
+class AllPointHistory extends ConsumerStatefulWidget {
   const AllPointHistory({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AllPointHistory> createState() => _AllPointHistoryState();
+}
+
+class _AllPointHistoryState extends ConsumerState<AllPointHistory> {
+     @override
+     void initState() {
+       super.initState();
+      ref.refresh(pointshistoryprovider);
+     }
+  @override
+  Widget build(BuildContext context) {
+
     final pointhistoryAsync = ref.watch(pointshistoryprovider);
 
     return Scaffold(
-        appBar: AppBar(
-        title: const Text("Point History", style: TextStyle(color: Colors.white)),
+      appBar: AppBar(
+        title: const Text(
+          "Point History",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.gold_coin,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
@@ -28,11 +42,13 @@ class AllPointHistory extends ConsumerWidget {
           if (data.isEmpty) {
             return const Center(child: Text("No History Found"));
           }
+
           return ListView.builder(
             padding: const EdgeInsets.all(15),
             itemCount: data.length,
             itemBuilder: (context, index) {
               final item = data[index];
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: IndividualPointsCard(
