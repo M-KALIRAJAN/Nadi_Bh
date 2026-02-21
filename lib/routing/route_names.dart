@@ -60,12 +60,12 @@ final appRouter = GoRouter(
 
     final data = state.extra as Map<String, dynamic>;
 
-    final userId = data["id"] as String?;
-    final userName = data["name"] as String?;
+    final adminId = data["id"] as String?;
+    final adminName = data["name"] as String?;
 
     return ChatDetailsScreen(
-      userId: userId,
-      userName: userName,
+      adminId: adminId,
+      adminName: adminName,
     );
   },
 ),

@@ -1,232 +1,137 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
-import 'package:nadi_user_app/providers/chat_provider.dart';
-import 'package:nadi_user_app/providers/chats_history_provider.dart';
-import 'package:nadi_user_app/providers/socket_provider.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+import 'package:nadi_user_app/services/Stream_Chat_Service.dart';
 
-import 'package:nadi_user_app/widgets/inputs/app_text_field.dart';
+class ChatDetailsScreen extends StatefulWidget {
+  final String? adminId;
+  final String? adminName;
 
-class ChatDetailsScreen extends ConsumerStatefulWidget {
-  final String? userId;
-  final String? userName;
-
-  const ChatDetailsScreen({super.key, this.userId, this.userName});
+  const ChatDetailsScreen({super.key, this.adminId, this.adminName});
 
   @override
-  ConsumerState<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
+  State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
 }
 
-class _ChatDetailsScreenState extends ConsumerState<ChatDetailsScreen> {
-  final TextEditingController messageController = TextEditingController();
+class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
+  late final StreamChatClient client;
+  Channel? channel;
   String? currentUserId;
-  Map<String, String>? chatParams;
 
   @override
   void initState() {
     super.initState();
-    loadCurrentUser();
+    client = StreamChatService().client;
+    setupStreamChat();
   }
 
-  Future<void> loadCurrentUser() async {
-    final id = await AppPreferences.getUserId();
-    setState(() {
-      currentUserId = id;
-      if (widget.userId != null) {
-        chatParams = {"user1": currentUserId!, "user2": widget.userId!};
-      }
-    });
+  // Future<void> setupStreamChat() async {
+  //   // Get current user ID
+  //   currentUserId = await AppPreferences.getUserId();
+  //   final adminId = widget.adminId!;
 
-    // Fetch initial chat history
-   if (chatParams != null) {
-      final initialMessages = await ref
-          .read(fetchchathistoryprovider(chatParams!).future);
+  //   // Ensure both users exist in Stream (backend upserts them)
+  //   await StreamChatService().ensureStreamUser(currentUserId!);
+  //   await StreamChatService().ensureStreamUser(adminId);
 
-      // Cast to List<Map<String, dynamic>>
-      final messages = (initialMessages as List)
-          .map((e) => Map<String, dynamic>.from(e as Map))
-          .toList();
+  //   // Connect current user only
+  //   await StreamChatService().connectUser(currentUserId!);
 
-      ref.read(chatHistoryProvider.notifier).setMessages(messages);
-    }
+  //   // Create channel with both users as members
+  //   channel = client.channel(
+  //     'messaging',
+  //     id: '${currentUserId}_${adminId}', // Optional: unique channel id
+  //     extraData: {
+  //       'members': [currentUserId, adminId]
+  //     },
+  //   );
+  //   await channel!.watch();
 
-    // Setup socket listener
-    final socket = ref.read(socketProvider);
-        socket.emit("join", {
-  "userId": currentUserId,
-  "role": "user",
-});
-    socket.on("receive_message", (data) {
-      final message = data is Map
-          ? Map<String, dynamic>.from(data)
-          : Map<String, dynamic>.from(data);
-      ref.read(chatHistoryProvider.notifier).addMessage(message);
-      print("📩 New message received: $message");
-    });
-    socket.on("message_sent", (data) {
-  final message = Map<String, dynamic>.from(data);
-  ref.read(chatHistoryProvider.notifier).addMessage(message);
-});
+  //   setState(() {});
+  // }
 
-  }
+Future<void> setupStreamChat() async {
+  final streamService = StreamChatService();
 
-void sendMessage() {
-  final text = messageController.text.trim();
-  if (text.isEmpty || currentUserId == null) return;
+  final userId = await AppPreferences.getUserId();
+  final adminId = widget.adminId!;
 
-  final socket = ref.read(socketProvider);
+  // Connect current user ONLY once
+  await streamService.connectUser(userId!);
 
-  if (!socket.connected) {
-    print("⚠️ Socket not connected yet!");
-    return;
-  }
+  // Create channel
+  channel = streamService.client.channel(
+    'messaging',
+    extraData: {
+      'members': [userId, adminId]
+    },
+  );
 
-  socket.emit("send_message", {
-    "from": currentUserId,
-    "to": widget.userId,
-    "fromRole": "user",
-    "toRole": "admin",
-    "message": text,
-  });
-
-  messageController.clear();
+  await channel!.watch();
+  setState(() {});
 }
-
-  @override
-  Widget build(BuildContext context) {
-    if (currentUserId == null || widget.userId == null || chatParams == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final chatMessages = ref.watch(chatHistoryProvider);
-
-    String firstLetter =
-        (widget.userName != null && widget.userName!.isNotEmpty)
-            ? widget.userName![0].toUpperCase()
-            : "?";
-
+@override
+Widget build(BuildContext context) {
+  if (channel == null) {
     return Scaffold(
+      appBar: AppBar(title: Text(widget.adminName ?? "Chat")),
+      body: const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  return StreamChannel(
+    channel: channel!,
+    child: Scaffold(
       appBar: AppBar(
-        elevation: 0,
+        backgroundColor: Colors.white,
+        elevation: 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        titleSpacing: 0,
         title: Row(
           children: [
-            CircleAvatar(
+            Row(
+              children: [
+  CircleAvatar(
               radius: 18,
-              backgroundColor: const Color.fromRGBO(13, 95, 72, 1),
+              backgroundColor: AppColors.btn_primery,
               child: Text(
-                firstLetter,
+                widget.adminName != null && widget.adminName!.isNotEmpty
+                    ? widget.adminName![0].toUpperCase()
+                    : "A",
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.userName ?? "",
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const Text(
-                    "online",
-                    style: TextStyle(fontSize: 12, color: Colors.green),
-                  ),
-                ],
+            const SizedBox(width: 10),
+  
+            // Admin Name
+            Text(
+              widget.adminName ?? "Admin",
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
+              ],
+            ),
+            
           ],
         ),
-        actions: [
-          IconButton(icon: const Icon(Icons.call_outlined), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
-        ],
       ),
       body: Column(
-        children: [
-          // CHAT LIST
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              itemCount: chatMessages.length,
-              itemBuilder: (context, index) {
-                final message = chatMessages[chatMessages.length - 1 - index];
-                final isMe = message['from'] == currentUserId;
-
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? const Color.fromRGBO(13, 95, 72, 1)
-                          : Colors.grey[300],
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(12),
-                        topRight: const Radius.circular(12),
-                        bottomLeft: Radius.circular(isMe ? 12 : 0),
-                        bottomRight: Radius.circular(isMe ? 0 : 12),
-                      ),
-                    ),
-                    child: Text(
-                      message['message'] ?? '',
-                      style: TextStyle(
-                        color: isMe ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // CHAT INPUT BAR
-          SafeArea(
-            bottom: false,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: AppTextField(
-                      controller: messageController,
-                      label: "Type message...",
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color.fromRGBO(13, 95, 72, 1),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white),
-                      onPressed: sendMessage,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        children: const [
+          Expanded(child: StreamMessageListView()),
+          StreamMessageInput(),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

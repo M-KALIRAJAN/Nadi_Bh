@@ -40,7 +40,7 @@ class SignupController {
     return null;
   }
 
-  String? validateEmail() => Validators.Password(password.text);
+  String? validateEmail() => Validators.email(email.text);
 
   String? validatePassword() => Validators.Password(password.text);
 

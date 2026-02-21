@@ -349,7 +349,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
                     /// DATA
                     data: (chatModel) {
 
-                      final chats = chatModel.data ?? [];
+                      final chats = chatModel.data ;
 
                       /// ✅ AUTO SEARCH FILTER
                       final filteredChats = chats.where((user) {
@@ -364,9 +364,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
                       return ListView.builder(
                         itemCount: filteredChats.length,
                         itemBuilder: (context, index) {
-
                           final user = filteredChats[index];
-
                           return InkWell(
                             onTap: () {
                               context.push(

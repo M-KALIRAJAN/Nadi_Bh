@@ -5,10 +5,15 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus
+  desktop_drop
   file_selector_windows
   firebase_core
+  gal
+  media_kit_video
   permission_handler_windows
   record_windows
+  share_plus
+  thumblr_windows
   url_launcher_windows
 )
 

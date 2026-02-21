@@ -159,10 +159,7 @@ class _AddressState extends State<Address> {
             ],
           ),
           SizedBox(height: 17),
-          AppTextField(
-            controller: controller.city,
-            label: l10n.enterCity,
-          ),
+          AppTextField(controller: controller.city, label: l10n.enterCity),
           SizedBox(height: 17),
           AppTextField(
             controller: controller.building,
@@ -175,6 +172,7 @@ class _AddressState extends State<Address> {
               Expanded(
                 child: AppTextField(
                   controller: controller.aptNo,
+                  keyboardType: TextInputType.number,
                   label: l10n.enterAptNo,
                   validator: (value) => controller.validateAptNo(value),
                 ),
@@ -183,6 +181,7 @@ class _AddressState extends State<Address> {
               Expanded(
                 child: AppTextField(
                   controller: controller.floor,
+                  keyboardType: TextInputType.number,
                   label: l10n.enterFloorNo,
                   validator: (value) => controller.validateFloor(value),
                 ),
@@ -257,7 +256,9 @@ class _AddressState extends State<Address> {
           if (!widget.family)
             if (!_hideBottomButton)
               AppButton(
-                text: widget.accountType == "Family" ?  l10n.continueBtn :  l10n.signIn,
+                text: widget.accountType == "Family"
+                    ? l10n.continueBtn
+                    : l10n.signIn,
                 isLoading: _isLoading,
                 onPressed: () {
                   final isValid =

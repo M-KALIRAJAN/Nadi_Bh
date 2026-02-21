@@ -1,7 +1,6 @@
   
 import 'package:dio/dio.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DioClient {
   static final Dio dio = Dio(
