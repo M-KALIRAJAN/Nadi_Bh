@@ -1,65 +1,269 @@
 {
+  "@@locale": "en", 
 
-  "accountType": "Account Type",
-  "individualAccount": "Individual Account",
-  "familyAccount": "Family Account",
-  "individualAccountDesc": "Manage your services and profile independently.",
-  "familyAccountDesc": "Register and manage services for multiple family members.",
-   
-"enterVerificationCode": "Enter Verification code",
-  "otpDescription": "We have sent you a 4 digit verification code on",
-  "resendOtp": "Resend OTP",
-  "resendOtpTimer": "Resend OTP in 00:{seconds}",
-  "@resendOtpTimer": {
-    "placeholders": {
-      "seconds": {}
-    }
-  },
+  "about": "About",
+  "skip": "Skip",
+  "nadiBahrainServices": "Nadi Bahrain Services",
 
-  "signIn": "Sign In",
-  "pleaseEnterOtp": "Please enter 4 digit OTP",
-  "invalidOtp": "Invalid OTP",
-  "failedResendOtp": "Failed to resend OTP",
-  "somethingWentWrong": "Something went wrong",
-    
-  "signUp": "Sign up",
-  "uploadIdCard": "Upload ID Card",
-  "frontSideId": "Front Side of ID Card",
-  "backSideId": "Back Side of ID Card",
-  "idSubtitle": "Ensure your name, photo, and expiry date are clearly visible.",
-  "continue": "Continue",
-  "uploadBothImages": "Please upload both front and back images",
-  "userNotFound": "User not found",
-
+  "welcome": "Welcome!",
+  "getStarted": "Get Started",
+  "emailAddress": "Email Address",
+  "password": "Password",
+  "rememberMe": "Remember me",
+  "forgotPassword": "Forgot Password?",
   "signInWithOtp": "Sign In with OTP",
+  "signUp": "Sign Up",
+  "signIn": "Sign In",
+  "or": "OR",
+
+  "changePassword": "Change your Password",
+  "enterEmail": "Enter Email",
+  "sendEmail": "Send Email",
+  "emailSentMessage": "Email sent successfully",
+
+  "enterVerificationCode": "Enter Verification code",
+  "otpSentMessage": "We have sent you a 4 digit verification code on",
+  "resendOtp": "Resend OTP",
+  "resendOtpIn": "Resend OTP in 00:{seconds}",
+  "otpSignIn": "Sign In",
+  "enter4DigitOtp": "Please enter 4 digit OTP",
+
+  "accountTypeTitle": "Account Type",
+  "individualAccount": "Individual Account",
+  "individualAccountDesc": "Manage your services and profile independently.",
+  "familyAccount": "Family Account",
+  "familyAccountDesc": "Register and manage services for multiple family members." ,
+
+  "signUpTitle": "Sign up",
+  "accountVerificationTitle": "Secure Your Account With ID Verification",
+  "accountVerificationDesc1": "To ensure the highest level of security and trust within the Service Connect community, we require all users to complete a simple identity verification process. This helps protect against fraud and maintain a safe environment for everyone.",
+  "accountVerificationDesc2": "We value your safety and privacy. Your information is securely processed and used only for verification purposes.",
+  "continueButton": "Continue", 
+
+
+ 
   "enterPhoneNumber": "Enter Phone Number",
   "pleaseEnterPhoneNumber": "Please enter phone number",
   "phoneMustBe8Digits": "Phone number must be 8 digits",
   "sendOtp": "Send OTP",
   "enterOtp": "Enter OTP",
-  "signIn": "Sign In",
   "enterValidOtp": "Enter valid OTP",
 
-  "settings": "Settings",
-  "aboutApp": "About App",
-  "helpSupport": "Help & Support",
-  "notification": "Notification",
-  "changeLanguage": "Change Language",
-  "history": "History",
-  "privacyPolicy": "Privacy Policy",
-  "theme": "Theme",
-  "logout": "Log Out",
+  "enterFullName": "Enter Full Name*",
+  "gender": "Gender*",
+  "male": "Male",
+  "female": "Female",
+  "createPassword": "Create Password*",
+  "confirmPassword": "Confirm Password*",
+  "pleaseSelectRelationship": "Please select relationship",
+  "somethingWentWrong": "Something went wrong",
+
+    "pickLocation": "Pick Location",
+  "enterNumberOfKids": "Enter Number of kids*",
+  "noOfBoys": "No of boys*",
+  "noOfGirls": "No of girls*",
+  "flat": "Flat",
+  "villa": "Villa",
+  "office": "Office",
+  "enterCity": "Enter Your city/Area",
+  "enterBuilding": "Enter Your Building*",
+  "enterAptNo": "Enter Apt No*",
+  "enterFloorNo": "Enter Floor No*",
+  "selectBlock": "Select Your Block*",
+  "selectRoad": "Select Your Road*",
+  "pleaseSelectBlock": "Please select a block",
+  "pleaseSelectRoad": "Please select a road",
+  "continueBtn": "Continue",
+  "accountCreatedSuccessfully": "Account created successfully",
+  "submitFailed": "Submit failed",
+  "failedToLoadBlocks": "Failed to load blocks", 
+ 
+
+    "addMemberTitle": "Add {accountType} Member {current} of {total}",
+  "@addMemberTitle": {
+    "placeholders": {
+      "accountType": {},
+      "current": {},
+      "total": {}
+    }
+  },
+
+  "enterFamilyCount": "Enter Family Count*",
+  "addMemberBtn": "Add Member",
+  "memberFullName": "Member Full Name*",
+  "relationship": "Relationship*",
+  "selectRelationship": "Select relationship",
+  "selectGender": "Select gender",
+  "hideAddress": "Hide Address",
+  "addAddress": "Add Address",
+  "finish": "Finish",
+  "allMembersAdded": "All members added successfully",
+  "father": "Father",
+  "mother": "Mother",
+  "son": "Son",
+  "daughter": "Daughter",
+  "addOther": "Add Other",
+
+
+
+
+  "uploadIdTitle": "Upload ID Card",
+  "uploadIdFrontTitle": "Front Side of ID Card",
+  "uploadIdBackTitle": "Back Side of ID Card",
+  "uploadIdSubtitle": "Ensure your name, photo, and expiry date are clearly visible.",
+  "uploadIdError": "Please upload both front and back images",  
+
+  "accountCreated": "Account Created",
+  "successfully": "Successfully!",
+  "accountCreatedDesc": "Welcome to Nadi Bahrain Services. You can now sign in to your new account.",
+  
+
+    "termsTitle": "Terms & Conditions",
+  "ourCommitments": "Our Commitments To You",
+  "readFullTerms": "Read the full Terms & Conditions",
+  "agreeTerms": "I have read and agree to the Service Connect Terms & Conditions and Privacy Policy",
+  "completeRegistration": "Complete Registration",
+
+  
+    "navHome": "Home",
+  "navMyRequest": "My Request",
+  "navLiveChat": "Live Chat",
+  "navProfile": "Profile",
+  "navSettings": "Settings",
+  "tapAgainToExit": "Tap again to exit",
+
+    "quickAction": "Quick Action",
+  "viewAll": "View All",
+  "serviceOverview": "Service Overview",
+  "details": "Details",
+  "recentActivity": "Recent Activity",
+  "createRequest": "Create Request",
+  "addPoint": "Add point",
+  "approvalNeeded": "Approval Needed",
+  "technicianApprovalMessage": "Technician wants to start the work. Kindly approve.", 
+ 
+
+  "notifications": "Notifications",
+  "noNotifications": "No Notifications",
+  "youAreAllCaughtUp": "You're all caught up!",
+
+
+  "pointsDetails": "Points Details",
+  "yourCurrentPointsBalance": "Your Current Points Balance",
+  "pointsRequests": "Points Requests:",
+  "showMore": "Show More",
+  "adminRequests": "Admin Requests:",
+  "pointHistory": "Point History:",
+  "noHistoryFound": "No History Found",
+  "noFamilyPointsFound": "No Family Points Found",
+  "familyPoints": "Family Points", 
+
+    "myRecentActivity": "My Recent Activity",
+    
+    "requestToPoints": "Request To Points",
+  "admin": "Admin",
+  "friend": "Friend",
+  "mobileNumber": "Mobile Number*",
+  "mobileNumberRequired": "Mobile number required",
+  "enterValidMobile": "Enter valid mobile number",
+  "enterPoints": "Enter Points*",
+  "pointsRequired": "Points required",
+  "enterValidPoints": "Enter valid points",
+  "positiveIntegerHint": "Enter a positive integer value for the points.",
+  "notesOptional": "Notes (Optional)",
+  "notesHint": "For new service request.",
+  "submit": "Submit",
+  "pointsRequestSuccess": "Points request sent successfully", 
+
+  
+
+  "selectServiceIssue": "Please select service & issue",
+
+
+  "createServiceRequest": "Create Service Request",
+  "serviceCategory": "Service category",
+  "selectServices": "Select Services*",
+  "servicePointsRequired": "Service Points Required",
+  "serviceFree": "Service Free",
+  "pointsLabel": "{points} Points",
+  "@pointsLabel": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "issueDetails": "Issue Details",
+  "selectIssue": "Select Issue*",
+  "describeIssue": "Describe your issue…",
+  "mediaUploadOptional": "Media Upload (optional)",
+  "imagesSelectedCount": "{count} / 10 images selected",
+  "@imagesSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "sendRequest": "Send Request",
+  "camera": "Camera",
+  "gallery": "Gallery", 
+
+  "requestIdLabel": "Request ID: {id}",
+  "@requestIdLabel": {
+    "placeholders": {
+      "id": {}
+    }
+  },
+  "requestSuccessTitle": "Service request submitted successfully.",
+  "requestSuccessDesc": "Your request id has been received and is being processed",
+  "viewMyRequest": "View My Request",
+
+
+  "myServiceRequest": "MY Service Request",
+  "noRequestFound": "No request found",
+  "viewDetails": "View Details", 
+  
+ 
+
+  "total": "Total",
+
+  "serviceRequestDetails": "Service Request Details",
+  "complaintDetails": "Complaint Details",
+  "feedback": "Feedback",
+
+  "requestSubmitted": "Request Submitted",
+  "requestSubmittedDesc": "Your service request has been successfully submitted.",
+
+  "adminProcessing": "Admin Processing Request",
+  "adminProcessingDesc": "Nadi team is reviewing the details of your request.",
+
+  "technicianAssigned": "Technician Assigned",
+  "technicianAssignedDesc": "A technician has been assigned to your request.",
+
+  "serviceInProgress": "Service In Progress",
+  "serviceInProgressDesc": "Technician is working on your service",
+
+  "paymentInProgress": "Payment In Progress",
+  "paymentInProgressDesc": "Waiting for payment confirmation.",
+
+  "serviceCompleted": "Service Completed",
+  "serviceCompletedDesc": "Service has been successfully completed.",
+
+  "submitted": "Submitted",
+  "accepted": "Accepted",
+  "inProgress": "In Progress",
+  "paymentPending": "Payment Pending",
+  "completed": "Completed",
+  "pending": "Pending",
+
+  "close": "Close",
+  "toPay": "To Pay",
+
 
   "profileDetails": "Profile Details",
-  "welcome": "Welcome",
   "loading": "Loading...",
   "fullName": "Full Name",
-  "emailAddress": "Email Address",
   "phoneNumber": "Phone Number",
   "address": "Address",
-  "errorLoadingProfile": "Error loading profile",
   "noProfileData": "No profile data",
-
+  "errorLoadingProfile": "Error loading profile",
   "editProfile": "Edit Profile",
   "building": "Building",
   "city": "City",
@@ -67,5 +271,43 @@
   "apartment": "Apartment",
   "additionalInfo": "Additional Info",
   "cancel": "Cancel",
-  "save": "Save"
+  "save": "Save",
+
+
+    "settings": "Settings",
+  "aboutApp": "About App",
+  "helpSupport": "Help & Support",
+  "notification": "Notification",
+  "changeLanguage": "Change Language",
+  "history": "History",
+  "privacyPolicy": "Privacy Policy",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "logout": "Log Out",
+  "accountDelete": "Account Delete",
+
+
+    "helpSupportTitle": "Help & Support",
+  "sendEnquiry": "Send us an Enquiry",
+  "nameLabel": "Name",
+  "emailLabel": "Email",
+  "messageLabel": "Message",
+  "submitButton": "Submit",
+  "nameValidation": "Please enter your name",
+  "emailValidation": "Please enter your email",
+  "emailInvalid": "Please enter a valid email",
+  "messageValidation": "Please enter a message",
+  "enquirySuccess": "Enquiry submitted successfully!",
+    "phoneLabel": "Phone Number",
+  "phoneValidation": "Please enter your phone number",
+
+
+
+
+   "deleteAccountTitle": "Delete Account",
+  "deleteAccountDescription": "Select a reason before deleting your account:",
+  "delete": "Delete",
+  "pleaseSelectReason": "Please select a reason"
 }

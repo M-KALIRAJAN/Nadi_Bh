@@ -7,9 +7,14 @@ import 'package:nadi_user_app/models/About_Model.dart';
 class AboutService{
   final _dio = DioClient.dio;
 
-  Future<About> AboutList() async{
+  Future<About> AboutList(  String lang) async{
       try{
-         final response = await _dio.get("about/");
+         final response = await _dio.get(
+          "about/",
+          queryParameters: {
+            "lang":lang
+          }
+          );
       // Dio response.data is already Map<String, dynamic>
       AppLogger.warn("response ${ About.fromJson(response.data)}");
       return About.fromJson(response.data);

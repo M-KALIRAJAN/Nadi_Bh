@@ -6,9 +6,14 @@ import 'package:nadi_user_app/models/Userdashboard_model.dart';
 class HomeViewService {
   final _dio = DioClient.dio;
   // Service List API
-  Future<List<Map<String, dynamic>>> servicelists() async {
+  Future<List<Map<String, dynamic>>> servicelists( String lang) async {
     try {
-      final response = await _dio.get("service");
+      final response = await _dio.get(
+        "service",
+        queryParameters: {
+          "lang":lang
+        }
+        );
    /// 🔥 LOG FULL RESPONSE
     AppLogger.info("Service API FULL RESPONSE => ${response.data}");
 

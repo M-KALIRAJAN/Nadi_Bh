@@ -1,193 +1,99 @@
-import 'dart:convert';
+// ================= TOP LEVEL =================
 
 class Adminquestioner {
-    final bool success;
-    final List<Datum> data;
+  final bool success;
+  final List<Datum> data;
 
-    Adminquestioner({
-        required this.success,
-        required this.data,
-    });
+  Adminquestioner({
+    required this.success,
+    required this.data,
+  });
 
-    Adminquestioner copyWith({
-        bool? success,
-        List<Datum>? data,
-    }) => 
-        Adminquestioner(
-            success: success ?? this.success,
-            data: data ?? this.data,
-        );
-
-    factory Adminquestioner.fromRawJson(String str) => Adminquestioner.fromJson(json.decode(str));
-
-    String toRawJson() => json.encode(toJson());
-
-    factory Adminquestioner.fromJson(Map<String, dynamic> json) => Adminquestioner(
-        success: json["success"],
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+  factory Adminquestioner.fromJson(Map<String, dynamic> json) {
+    return Adminquestioner(
+      success: json["success"] ?? false,
+      data: (json["data"] as List<dynamic>?)
+              ?.map((e) => Datum.fromJson(e))
+              .toList() ??
+          [],
     );
-
-    Map<String, dynamic> toJson() => {
-        "success": success,
-        "data": List<dynamic>.from(data.map((x) => x.toJson())),
-    };
+  }
 }
+
+// ================= DATUM =================
 
 class Datum {
-    final String id;
-    final String userId;
-    final QuestionnaireId questionnaireId;
-    final bool status;
-    final DateTime assignedAt;
-    final int v;
+  final QuestionnaireId? questionnaireId;
 
-    Datum({
-        required this.id,
-        required this.userId,
-        required this.questionnaireId,
-        required this.status,
-        required this.assignedAt,
-        required this.v,
-    });
+  Datum({this.questionnaireId});
 
-    Datum copyWith({
-        String? id,
-        String? userId,
-        QuestionnaireId? questionnaireId,
-        bool? status,
-        DateTime? assignedAt,
-        int? v,
-    }) => 
-        Datum(
-            id: id ?? this.id,
-            userId: userId ?? this.userId,
-            questionnaireId: questionnaireId ?? this.questionnaireId,
-            status: status ?? this.status,
-            assignedAt: assignedAt ?? this.assignedAt,
-            v: v ?? this.v,
-        );
-
-    factory Datum.fromRawJson(String str) => Datum.fromJson(json.decode(str));
-
-    String toRawJson() => json.encode(toJson());
-
-    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        id: json["_id"],
-        userId: json["userId"],
-        questionnaireId: QuestionnaireId.fromJson(json["questionnaireId"]),
-        status: json["status"],
-        assignedAt: DateTime.parse(json["assignedAt"]),
-        v: json["__v"],
+  factory Datum.fromJson(Map<String, dynamic> json) {
+    return Datum(
+      questionnaireId: json["questionnaireId"] != null
+          ? QuestionnaireId.fromJson(json["questionnaireId"])
+          : null,
     );
-
-    Map<String, dynamic> toJson() => {
-        "_id": id,
-        "userId": userId,
-        "questionnaireId": questionnaireId.toJson(),
-        "status": status,
-        "assignedAt": assignedAt.toIso8601String(),
-        "__v": v,
-    };
+  }
 }
+
+// ================= QUESTIONNAIRE =================
+// ================= QUESTIONNAIRE =================
 
 class QuestionnaireId {
-    final String id;
-    final String title;
-    final int totalPoints;
-    final List<Question> questions;
-    final DateTime createdAt;
-    final int v;
+  final String id;           // ✅ ADD THIS
+  final String title;        // optional but good
+  final List<Question> questions;
 
-    QuestionnaireId({
-        required this.id,
-        required this.title,
-        required this.totalPoints,
-        required this.questions,
-        required this.createdAt,
-        required this.v,
-    });
+  QuestionnaireId({
+    required this.id,
+    required this.title,
+    required this.questions,
+  });
 
-    QuestionnaireId copyWith({
-        String? id,
-        String? title,
-        int? totalPoints,
-        List<Question>? questions,
-        DateTime? createdAt,
-        int? v,
-    }) => 
-        QuestionnaireId(
-            id: id ?? this.id,
-            title: title ?? this.title,
-            totalPoints: totalPoints ?? this.totalPoints,
-            questions: questions ?? this.questions,
-            createdAt: createdAt ?? this.createdAt,
-            v: v ?? this.v,
-        );
-
-    factory QuestionnaireId.fromRawJson(String str) => QuestionnaireId.fromJson(json.decode(str));
-
-    String toRawJson() => json.encode(toJson());
-
-    factory QuestionnaireId.fromJson(Map<String, dynamic> json) => QuestionnaireId(
-        id: json["_id"],
-        title: json["title"],
-        totalPoints: json["totalPoints"],
-        questions: List<Question>.from(json["questions"].map((x) => Question.fromJson(x))),
-        createdAt: DateTime.parse(json["createdAt"]),
-        v: json["__v"],
+  factory QuestionnaireId.fromJson(Map<String, dynamic> json) {
+    return QuestionnaireId(
+      id: json["_id"] ?? "",                // ✅ VERY IMPORTANT
+      title: json["title"] ?? "",
+      questions: (json["questions"] as List<dynamic>?)
+              ?.map((e) => Question.fromJson(e))
+              .toList() ??
+          [],
     );
-
-    Map<String, dynamic> toJson() => {
-        "_id": id,
-        "title": title,
-        "totalPoints": totalPoints,
-        "questions": List<dynamic>.from(questions.map((x) => x.toJson())),
-        "createdAt": createdAt.toIso8601String(),
-        "__v": v,
-    };
+  }
 }
+// ================= QUESTION =================
 
 class Question {
-    final String question;
-    final List<String> options;
-    final int correctAnswer;
-    final String id;
+  final String question;
+  final List<String> options;
+  final int? correctAnswer;
+  final String type;
+  final String id;
 
-    Question({
-        required this.question,
-        required this.options,
-        required this.correctAnswer,
-        required this.id,
-    });
+  Question({
+    required this.question,
+    required this.options,
+    required this.correctAnswer,
+    required this.type,
+    required this.id,
+  });
 
-    Question copyWith({
-        String? question,
-        List<String>? options,
-        int? correctAnswer,
-        String? id,
-    }) => 
-        Question(
-            question: question ?? this.question,
-            options: options ?? this.options,
-            correctAnswer: correctAnswer ?? this.correctAnswer,
-            id: id ?? this.id,
-        );
-
-    factory Question.fromRawJson(String str) => Question.fromJson(json.decode(str));
-
-    String toRawJson() => json.encode(toJson());
-
-    factory Question.fromJson(Map<String, dynamic> json) => Question(
-        question: json["question"],
-        options: List<String>.from(json["options"].map((x) => x)),
+  factory Question.fromJson(Map<String, dynamic> json) => Question(
+        question: json["question"] ?? "",
+        options: (json["options"] as List<dynamic>?)
+                ?.map((x) => x.toString())
+                .toList() ??
+            [],
         correctAnswer: json["correctAnswer"],
-        id: json["_id"],
-    );
+        type: json["type"] ?? "choose",
+        id: json["_id"] ?? "",
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "question": question,
-        "options": List<dynamic>.from(options.map((x) => x)),
+        "options": options,
         "correctAnswer": correctAnswer,
+        "type": type,
         "_id": id,
-    };
+      };
 }

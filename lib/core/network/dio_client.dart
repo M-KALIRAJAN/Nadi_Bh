@@ -1,6 +1,7 @@
   
 import 'package:dio/dio.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DioClient {
   static final Dio dio = Dio(
@@ -16,6 +17,12 @@ class DioClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+
+          /// ✅ Add Language automatically
+          // final prefs = await SharedPreferences.getInstance();
+          // final lang = prefs.getString('lang') ?? 'en';
+
+          // options.queryParameters['lang'] = lang;
           return handler.next(options);
         },
         onError: (error, handler) async {
@@ -36,7 +43,7 @@ class DioClient {
               }
             }
           }
-          return handler.next(error);
+          return handler.next(error);  
         },
       ),
     );

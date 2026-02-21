@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/language_provider.dart';
 
-class LanguageView extends StatefulWidget {
+class LanguageView extends ConsumerWidget {
   const LanguageView({super.key});
 
   @override
-  State<LanguageView> createState() => _LanguageViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
 
-class _LanguageViewState extends State<LanguageView> {
-  bool isEnglish = true;
+    final locale = ref.watch(languageProvider);
+    final isEnglish = locale.languageCode == 'en';
 
-  @override
-  Widget build(BuildContext context) {
     return Container(
       height: 27,
       decoration: BoxDecoration(
@@ -21,11 +20,14 @@ class _LanguageViewState extends State<LanguageView> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          /// English Button
+
           GestureDetector(
-            onTap: () => setState(() => isEnglish = true),
+            onTap: () {
+              ref.read(languageProvider.notifier)
+                  .changeLanguage('en');
+            },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: isEnglish ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
@@ -33,29 +35,26 @@ class _LanguageViewState extends State<LanguageView> {
               child: Text(
                 "Eng",
                 style: TextStyle(
-                  color: isEnglish ? const Color(0xFF206A56) : Colors.white,
-                  fontWeight: FontWeight.w600,
+                  color: isEnglish
+                      ? const Color(0xFF206A56)
+                      : Colors.white,
                 ),
               ),
             ),
           ),
 
-          /// Arabic Button
           GestureDetector(
-            onTap: () => setState(() => isEnglish = false),
+            onTap: () {
+              ref.read(languageProvider.notifier)
+                  .changeLanguage('ar');
+            },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 color: !isEnglish ? Colors.white : Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Text(
-                "عربي",
-                style: TextStyle(
-                  color: !isEnglish ? const Color(0xFF206A56) : Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: const Text("عربي"),
             ),
           ),
         ],

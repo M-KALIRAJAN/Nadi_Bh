@@ -1,17 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
+import 'package:nadi_user_app/providers/language_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
+import 'package:nadi_user_app/services/account_delete.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/request_service.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/widgets/app_date_picker.dart';
-import 'package:nadi_user_app/widgets/app_time_picker.dart';
+
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 import 'package:nadi_user_app/widgets/media_upload_widget.dart';
 import 'package:nadi_user_app/widgets/record_widget.dart';
@@ -19,13 +23,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
-class CreateServiceRequest extends StatefulWidget {
+class CreateServiceRequest extends ConsumerStatefulWidget {
   const CreateServiceRequest({super.key});
+
   @override
-  State<CreateServiceRequest> createState() => _CreateServiceRequestState();
+  ConsumerState<CreateServiceRequest> createState() =>
+      _CreateServiceRequestState();
 }
 
-class _CreateServiceRequestState extends State<CreateServiceRequest> {
+class _CreateServiceRequestState extends ConsumerState<CreateServiceRequest> {
   final ImagePicker _picker = ImagePicker();
   List<XFile> selectedImages = [];
   bool isChecked = false;
@@ -39,6 +45,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
   final TextEditingController _dateController = TextEditingController();
   RequestSerivices _requestSerivices = RequestSerivices();
   HomeViewService _homeViewService = HomeViewService();
+
   final TextEditingController _timeController =
       TextEditingController(); // <-- Add this
 
@@ -58,25 +65,39 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
     serviceList();
   }
 
-  Future<void> issuseList() async {
-    final response = await _requestSerivices.IssuseList();
-    if (response != null) {
-      setState(() {
-        issueList = response;
-      });
-    }
-    AppLogger.debug("respose ${jsonEncode(response)}");
+Future<void> issuseList() async {
+
+  final locale = ref.read(languageProvider);
+  final lang = locale.languageCode;
+
+  debugPrint("Selected Language = $lang");
+
+  final response = await _requestSerivices.IssuseList(lang);
+
+  if (response != null) {
+    setState(() {
+      issueList = response;
+    });
   }
 
-  Future<void> serviceList() async {
-    final response = await _homeViewService.servicelists();
-    if (response != null) {
-      setState(() {
-        serviceLst = response;
-      });
-    }
-    AppLogger.debug("respose ${jsonEncode(response)}");
+  AppLogger.debug("response ${jsonEncode(response)}");
+}
+
+
+Future<void> serviceList() async {
+  final local = ref.read(languageProvider); // FIX
+  final lang = local.languageCode;
+
+  final response = await _homeViewService.servicelists(lang);
+
+  if (response != null) {
+    setState(() {
+      serviceLst = response;
+    });
   }
+
+  AppLogger.debug("response ${jsonEncode(response)}");
+}
 
   Future<bool> requestMicPermission() async {
     try {
@@ -139,7 +160,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
         SnackBar(
           backgroundColor: Colors.red,
           content: Text(
-            "Please select service & issue",
+            AppLocalizations.of(context)!.selectServiceIssue,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyMedium?.color,
             ),
@@ -182,9 +203,11 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
         }
         //  ERROR FROM API (ACCOUNT NOT VERIFIED etc.)
         else {
+            setState(() => _isLoading = false);
           SnackbarHelper.showError(context, message);
         }
       } else {
+          setState(() => _isLoading = false);
         //  NULL RESPONSE
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -208,6 +231,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -229,8 +253,8 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       context.pop();
                     },
                   ),
-                  const Text(
-                    "Create Service Request",
+                  Text(
+                    t.createServiceRequest,
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                   ),
                   const Text(""),
@@ -248,8 +272,8 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                     crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
-                      const Text(
-                        "Service category",
+                      Text(
+                        t.serviceCategory,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -259,7 +283,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       SizedBox(height: 15),
                       DropdownButtonFormField<String>(
                         decoration: InputDecoration(
-                          labelText: "Select Services*",
+                          labelText: t.selectServices,
                           floatingLabelStyle: const TextStyle(
                             color: AppColors.btn_primery,
                           ),
@@ -296,7 +320,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                           });
                         },
                       ),
-                      const SizedBox(height: 20,),
+                      const SizedBox(height: 20),
                       if (selectedServicePoints != null)
                         Container(
                           margin: const EdgeInsets.only(bottom: 20),
@@ -334,8 +358,8 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      "Service Points Required",
+                                    Text(
+                                      t.servicePointsRequired,
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
@@ -345,8 +369,10 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                                     const SizedBox(height: 2),
                                     Text(
                                       selectedServicePoints == 0
-                                          ? "Service Free"
-                                          : "${selectedServicePoints} Points",
+                                          ? t.serviceFree
+                                          : t.pointsLabel(
+                                              selectedServicePoints.toString(),
+                                            ),
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -358,9 +384,9 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                             ],
                           ),
                         ),
-                 
-                      const Text(
-                        "Issuse Details",
+
+                      Text(
+                        t.issueDetails,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -370,7 +396,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       DropdownButtonFormField<String>(
                         value: selectedIssueId,
                         decoration: InputDecoration(
-                          labelText: "Select Issuse*",
+                          labelText:t.selectIssue,
                           floatingLabelStyle: const TextStyle(
                             color: AppColors.btn_primery,
                           ),
@@ -406,7 +432,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          labelText: "Describe your issue…",
+                          labelText:  t.describeIssue,
                           floatingLabelStyle: const TextStyle(
                             color: AppColors.btn_primery,
                           ),
@@ -463,8 +489,8 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       //   },
                       // ),
                       const SizedBox(height: 18),
-                      const Text(
-                        "Media Upload (optional)",
+                       Text(
+                        t.mediaUploadOptional,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -523,7 +549,7 @@ class _CreateServiceRequestState extends State<CreateServiceRequest> {
                       // ),
                       SizedBox(height: 10),
                       AppButton(
-                        text: "Send Request",
+                        text:t.sendRequest,
                         onPressed: () {
                           SendRequest();
                         },

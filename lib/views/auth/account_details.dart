@@ -142,6 +142,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
@@ -216,8 +217,8 @@ class _AccountDetailsState extends State<AccountDetails>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Account Type",
+                   Text(
+                    AppLocalizations.of(context)!.accountTypeTitle,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
                   const SizedBox(height: 25),
@@ -226,7 +227,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ScaleTransition(
                     scale: _animation,
                     child: AppButton(
-                      text: "Individual Account",
+                      text: AppLocalizations.of(context)!.individualAccount,
                       icon: Image.asset("assets/icons/person.png", height: 40),
                       color: AppColors.btn_primery,
                       width: double.infinity,
@@ -246,7 +247,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Manage your services and profile independently.",
+                   AppLocalizations.of(context)!.individualAccountDesc,
                     style: TextStyle(
                       fontSize: AppFontSizes.small,
                       color: AppColors.borderGrey,
@@ -259,7 +260,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ScaleTransition(
                     scale: _animation,
                     child: AppButton(
-                      text: "Family Account",
+                      text: AppLocalizations.of(context)!.familyAccount,
                       icon: Image.asset("assets/icons/persons.png", height: 40),
                       color: AppColors.btn_primery,
                       width: double.infinity,
@@ -276,7 +277,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Register and manage services for multiple family members.",
+                   AppLocalizations.of(context)!.familyAccountDesc,
                     style: TextStyle(
                       fontSize: AppFontSizes.small,
                       color: AppColors.borderGrey,

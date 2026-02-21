@@ -21,14 +21,14 @@ class AdminQuestioner {
 Future<Adminquestioner> fetchadminrequestquestion() async {
   try {
     final response = await _dio.get('questionnaire/');
-    AppLogger.info("RAW RESPONSE: ${response.data}", );
+    AppLogger.info("RAW RESPONSE: ${response.data}");
+
     return Adminquestioner.fromJson(response.data);
   } on DioException catch (e) {
-     AppLogger.error("DIO ERROR: ${e.response?.data}");
+    AppLogger.error("DIO ERROR: ${e.response?.data}");
     throw e.response?.data['message'] ?? "API error";
   }
 }
-
 //submit al questions 
 
 Future<Map<String,dynamic>> submitquestiondatas({

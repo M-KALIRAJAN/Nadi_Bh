@@ -5,9 +5,14 @@ import 'package:nadi_user_app/models/Privacypolicy_Model.dart';
 class PrivacypolicyService {
    final _dio = DioClient.dio;
 
-   Future<Privacypolicy> PrivacypolicyList() async{
+   Future<Privacypolicy> PrivacypolicyList( String lang) async{
       try{
-        final response = await _dio.get("privacy");
+        final response = await _dio.get(
+          "privacy",
+          queryParameters: {
+            "lang": lang,
+          }
+          );
         return Privacypolicy.fromJson(response.data);
 
       } on DioException catch(e){

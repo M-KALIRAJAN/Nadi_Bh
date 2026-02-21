@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/models/technician_model.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/widgets/inputs/app_text_field.dart';
@@ -30,46 +31,46 @@ class ServiceRequestDetails extends StatelessWidget {
       "paymentInProgress",
       "completed",
     ];
-
+final l10n = AppLocalizations.of(context)!;
     final steps = [
+    {
+    "key": "submitted",
+    "title": l10n.requestSubmitted,
+    "description": l10n.requestSubmittedDesc,
+    "time": timestamps["submitted"],
+  },
+  {
+    "key": "accepted",
+    "title": l10n.adminProcessing,
+    "description": l10n.adminProcessingDesc,
+    "time": timestamps["accepted"],
+  },
       {
-        "key": "submitted",
-        "title": "Request Submitted",
-        "description": "Your service request has been successfully submitted.",
-        "time": timestamps["submitted"],
-      },
+    "key": "technicianAssigned",
+    "title": l10n.technicianAssigned,
+    "description": l10n.technicianAssignedDesc,
+    "time": timestamps["technicianAssigned"],
+    "acceptedTechnicians": acceptedTechnicians,
+  },
+     {
+    "key": "inProgress",
+    "title": l10n.serviceInProgress,
+    "description": l10n.serviceInProgressDesc,
+    "time": timestamps["inProgress"],
+  },
       {
-        "key": "accepted",
-        "title": "Admin Processing Request",
-        "description": "Nadi team is reviewing the details of your request.",
-        "time": timestamps["accepted"],
-      },
-      {
-        "key": "technicianAssigned",
-        "title": "Technician Assigned",
-        "description": "A technician has been assigned to your request.",
-        "time": timestamps["technicianAssigned"],
-        "acceptedTechnicians": acceptedTechnicians,
-      },
-      {
-        "key": "inProgress",
-        "title": "Service In Progress",
-        "description": "Technician is working on your service",
-        "time": timestamps["inProgress"],
-      },
-      {
-        "key": "paymentInProgress",
-        "title": "Payment In Progress",
-        "description": "Waiting for payment confirmation.",
-        "time": timestamps["paymentInProgress"],
-        "payment": serviceData["payment"],
-      },
-      {
-        "key": "completed",
-        "title": "Service Completed",
-        "description": "Service has been successfully completed.",
-        "time": timestamps["completed"],
-      },
+    "key": "paymentInProgress",
+    "title": l10n.paymentInProgress,
+    "description": l10n.paymentInProgressDesc,
+    "time": timestamps["paymentInProgress"],
+    "payment": serviceData["payment"],
+  },
+   {
+    "key": "completed",
+    "title": l10n.serviceCompleted,
+    "description": l10n.serviceCompletedDesc,
+    "time": timestamps["completed"],
+  },
     ].map((e) => {...e, "currentStatus": serviceStatus}).toList();
 
     /// ---------- UI ----------
@@ -99,8 +100,8 @@ class ServiceRequestDetails extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
-                  const Text(
-                    "Service Request Details",
+                   Text(
+                   AppLocalizations.of(context)!.serviceRequestDetails,
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 20),
@@ -119,8 +120,8 @@ class ServiceRequestDetails extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Complaint Details",
+                         Text(
+                          AppLocalizations.of(context)!.complaintDetails,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -146,11 +147,11 @@ class ServiceRequestDetails extends StatelessWidget {
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Column(
+                    child:  Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Feedback",
+                         AppLocalizations.of(context)!.feedback,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -350,26 +351,51 @@ class _TimelineTile extends StatelessWidget {
     return Colors.grey.shade300;
   }
 
-  String get label {
-    if (isCompleted) return "Completed";
-    if (isCurrent) {
-      switch (data["key"]) {
-        case "submitted":
-          return "Submitted";
-        case "accepted":
-          return "Accepted";
-        case "technicianAssigned":
-          return "Technician Assigned";
-        case "inProgress":
-          return "In Progress";
-        case "paymentInProgress":
-          return "Payment Pending";
-        case "completed":
-          return "Completed";
-      }
+  // String get label {
+  //   if (isCompleted) return "Completed";
+  //   if (isCurrent) {
+  //     switch (data["key"]) {
+  //       case "submitted":
+  //         return "Submitted";
+  //       case "accepted":
+  //         return "Accepted";
+  //       case "technicianAssigned":
+  //         return "Technician Assigned";
+  //       case "inProgress":
+  //         return "In Progress";
+  //       case "paymentInProgress":
+  //         return "Payment Pending";
+  //       case "completed":
+  //         return "Completed";
+  //     }
+  //   }
+  //   return "Pending";
+  // }
+
+String label(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+
+  if (isCompleted) return l10n.completed;
+
+  if (isCurrent) {
+    switch (data["key"]) {
+      case "submitted":
+        return l10n.submitted;
+      case "accepted":
+        return l10n.accepted;
+      case "technicianAssigned":
+        return l10n.technicianAssigned;
+      case "inProgress":
+        return l10n.inProgress;
+      case "paymentInProgress":
+        return l10n.paymentPending;
+      case "completed":
+        return l10n.completed;
     }
-    return "Pending";
   }
+
+  return l10n.pending;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -435,7 +461,7 @@ class _TimelineTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      label,
+                      label(context),
                       style: TextStyle(
                         fontSize: 11,
                         color: dotColor,
@@ -516,7 +542,7 @@ class _TimelineTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        "To Pay: ${double.parse(data["payment"].toString()).toStringAsFixed(3)}",
+                        "${AppLocalizations.of(context)!.toPay}:" "${double.parse(data["payment"].toString()).toStringAsFixed(3)}",
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -592,7 +618,7 @@ void _showTechnicianDetails(BuildContext context, TechnicianModel tech) {
                 ),
               ),
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close", style: TextStyle(color: Colors.white)),
+              child:  Text(AppLocalizations.of(context)!.close, style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 
 
 class AppButton extends StatelessWidget {

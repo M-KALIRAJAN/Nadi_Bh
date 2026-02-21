@@ -7,9 +7,14 @@ class OnbordingService {
  final _dio = DioClient.dio;
   
   //About Api
-Future<Map<String, dynamic>?> fetchAbout() async {
+Future<Map<String, dynamic>?> fetchAbout( String lang) async {
   try {
-    final response = await _dio.get("intro");
+    final response = await _dio.get(
+      "intro",
+           queryParameters: {
+        "lang": lang,   
+      },
+      );
 
     AppLogger.debug(
       "About API Response:\n${response.data}",

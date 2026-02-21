@@ -271,6 +271,7 @@ import 'package:nadi_user_app/controllers/family_member_controller.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
@@ -372,7 +373,6 @@ class _AddmemberState extends State<Addmember> {
 
         SnackbarHelper.showError(context, errorMessage);
       } else {
-        
         SnackbarHelper.showError(context, "Something went wrong");
       }
     }
@@ -380,6 +380,7 @@ class _AddmemberState extends State<Addmember> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Form(
       key: widget.formKey,
       child: Column(
@@ -398,7 +399,11 @@ class _AddmemberState extends State<Addmember> {
                 // ),
                 if (_totalMembers > 0)
                   Text(
-                    " Add ${widget.accountType}Member $_currentMemberIndex of $_totalMembers",
+                    l10n.addMemberTitle(
+                      widget.accountType,
+                      _currentMemberIndex.toString(),
+                      _totalMembers.toString(),
+                    ),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -415,7 +420,7 @@ class _AddmemberState extends State<Addmember> {
                         keyboardType: TextInputType.number,
                         enabled: !_isFamilyCountLocked,
                         decoration: InputDecoration(
-                          labelText: "Enter Family Count*",
+                          labelText: l10n.enterFamilyCount,
                           labelStyle: TextStyle(fontSize: 12),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -451,9 +456,16 @@ class _AddmemberState extends State<Addmember> {
                       },
                       child: Row(
                         children: [
-                          Icon(Icons.person_add, size: 18,color: AppColors.btn_primery,),
+                          Icon(
+                            Icons.person_add,
+                            size: 18,
+                            color: AppColors.btn_primery,
+                          ),
                           const SizedBox(width: 4),
-                          const Text("Add Member",style: TextStyle(color: AppColors.btn_primery),),
+                          Text(
+                            l10n.addMemberBtn,
+                            style: TextStyle(color: AppColors.btn_primery),
+                          ),
                         ],
                       ),
                     ),
@@ -466,24 +478,24 @@ class _AddmemberState extends State<Addmember> {
 
                 AppTextField(
                   controller: controller.fullName,
-                  label: "Member Full Name*",
+                  label: l10n.memberFullName,
                   validator: (value) => controller.validatefullname(value),
                 ),
                 const SizedBox(height: 15),
 
                 AppDropdown(
-                  label: "Relationship*",
-                  items: const [
-                    "Father",
-                    "Mother",
-                    "Son",
-                    "Daughter",
-                    "Add Other",
+                  label: l10n.relationship,
+                  items: [
+                    l10n.father,
+                    l10n.mother,
+                    l10n.son,
+                    l10n.daughter,
+                    l10n.addOther,
                   ],
                   value: controller.relation,
                   onChanged: (val) => setState(() => controller.relation = val),
                   validator: (val) =>
-                      val == null ? "Select relationship" : null,
+                      val == null ? l10n.selectRelationship : null,
                 ),
 
                 const SizedBox(height: 15),
@@ -492,7 +504,7 @@ class _AddmemberState extends State<Addmember> {
                 AppTextField(
                   controller: controller.mobile,
                   keyboardType: TextInputType.phone,
-                  label: "Mobile Number*",
+                  label: l10n.mobileNumber,
                   prefixText: "+973 ",
                   validator: (value) => controller.validatemobilenumber(value),
                 ),
@@ -505,22 +517,21 @@ class _AddmemberState extends State<Addmember> {
                 //   label: "Password*",
                 //   validator: (value) => controller.validatepassword(value),
                 // ),
-
                 const SizedBox(height: 15),
 
                 AppTextField(
                   controller: controller.email,
                   keyboardType: TextInputType.emailAddress,
-                  label: "Email Address*",
+                  label: l10n.emailAddress,
                   validator: (value) => controller.validateemail(value),
                 ),
                 const SizedBox(height: 15),
                 AppDropdown(
-                  label: "Gender*",
-                  items: const ["Male", "Female", "Other"],
+                  label: l10n.gender,
+                  items: [l10n.male, l10n.female],
                   value: controller.gender,
                   onChanged: (val) => setState(() => controller.gender = val),
-                  validator: (val) => val == null ? "Select gender" : null,
+                  validator: (val) => val == null ? l10n.selectGender : null,
                 ),
 
                 const SizedBox(height: 20),
@@ -539,7 +550,7 @@ class _AddmemberState extends State<Addmember> {
                       });
                     },
                     child: Text(
-                      _isAddress ? "Hide Address" : "Add Address",
+                      _isAddress ? l10n.hideAddress : l10n.addAddress,
                       style: TextStyle(color: AppColors.btn_primery),
                     ),
                   ),
@@ -563,7 +574,6 @@ class _AddmemberState extends State<Addmember> {
             ),
           ),
 
-        
           if (!_hideBottomButton)
             AppButton(
               text: _currentMemberIndex < _totalMembers
@@ -575,7 +585,7 @@ class _AddmemberState extends State<Addmember> {
               width: double.infinity,
               height: 47,
             ),
-            const SizedBox(height: 10,)
+          const SizedBox(height: 10),
         ],
       ),
     );

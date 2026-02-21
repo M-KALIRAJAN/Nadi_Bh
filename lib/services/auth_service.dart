@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
@@ -128,6 +129,7 @@ class AuthService {
       throw e;
     }
   }
+
   // Upload ID
   Future<Map<String, dynamic>?> uploadIdProof({
     required File frontImage,
@@ -200,6 +202,24 @@ class AuthService {
     }
   }
 
+Future<Map<String, dynamic>> TermsAndConditionlist( String lang) async {
+  try {
+    final response = await _dio.get(
+      'terms',
+      queryParameters: {
+        "lang":lang
+      }
+      );
+
+    debugPrint("API FULL RESPONSE: ${response.data}");
+
+    return response.data;
+  } on DioException catch (e) {
+    final err = e.response?.data['message'];
+    throw err;
+  }
+}
+
   //  Complete User Account
   Future<Map<String, dynamic>?> CompleteuserAccount({
     required String userId,
@@ -251,12 +271,12 @@ class AuthService {
 
   Future<Map<String, dynamic>?> OTPwithphone({
     required String mobileNumber,
-    required String fcmToken
+    required String fcmToken,
   }) async {
     try {
       final response = await _dio.post(
         "user-account/send-signin-otp",
-        data: {"mobileNumber": mobileNumber ,"fcmToken":fcmToken},
+        data: {"mobileNumber": mobileNumber, "fcmToken": fcmToken},
       );
       return response.data;
     } catch (e) {
@@ -294,13 +314,17 @@ class AuthService {
   Future<Map<String, dynamic>?> LoginApi({
     required String email,
     required String password,
-    required String fcmToken
+    required String fcmToken,
   }) async {
     try {
       print(" fcmToken*******77777777777777 $fcmToken");
       final response = await _dio.post(
         "user-account/signin",
-        data: {"email": email, "password": password ,fcmToken:"fcmToken"},
+        data: {
+          "email": email, 
+          "password": password, 
+     "fcmToken": fcmToken
+          },
       );
       return response.data;
     } on DioException catch (e) {

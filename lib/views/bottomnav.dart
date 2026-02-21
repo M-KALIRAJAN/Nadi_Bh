@@ -151,6 +151,7 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 
 import 'package:nadi_user_app/views/screens/chats_view.dart';
 import 'package:nadi_user_app/views/screens/my_service_request.dart';
@@ -209,8 +210,8 @@ class _BottomNavState extends State<BottomNav> {
         now.difference(lastBackPressed!) > const Duration(seconds: 2)) {
       lastBackPressed = now;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Tap again to exit"),
+         SnackBar(
+          content:  Text(AppLocalizations.of(context)!.tapAgainToExit ?? "Tap again to exit"),
           duration: Duration(seconds: 2),
         ),
       );
@@ -240,6 +241,7 @@ class _BottomNavState extends State<BottomNav> {
   }
 
   Widget _buildBottomNav() {
+     final loc  = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -275,30 +277,30 @@ class _BottomNavState extends State<BottomNav> {
           selectedLabelStyle: const TextStyle(fontSize: 12),
           unselectedLabelStyle: const TextStyle(fontSize: 12),
           showUnselectedLabels: true,
-          items: const [
-            BottomNavigationBarItem(
+          items: [
+             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined, size: 28),
               activeIcon: Icon(Icons.home, size: 28),
-              label: "Home",
+              label: loc.navHome,
             ),
-            BottomNavigationBarItem(
+             BottomNavigationBarItem(
               icon: ImageIcon(
                 AssetImage("assets/icons/services.png"),
                 size: 28,
               ),
-              label: "My Request",
+              label: loc.navMyRequest,
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage("assets/icons/chat.png"), size: 28),
-              label: "Live Chat",
+              icon: const ImageIcon(AssetImage("assets/icons/chat.png"), size: 28),
+              label: loc.navLiveChat,
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage("assets/icons/profile.png"), size: 28),
-              label: "Profile",
+              icon: const ImageIcon(AssetImage("assets/icons/profile.png"), size: 28),
+              label: loc.navProfile,
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage("assets/icons/setting.png"), size: 28),
-              label: "Settings",
+              icon: const ImageIcon(AssetImage("assets/icons/setting.png"), size: 28),
+              label: loc.navSettings,
             ),
           ],
         ),

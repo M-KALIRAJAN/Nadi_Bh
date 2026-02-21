@@ -279,6 +279,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/providers/profile_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
@@ -290,7 +291,7 @@ class Myprofile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsyncValue = ref.watch(profileprovider);
-
+       final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor:Theme.of(context).scaffoldBackgroundColor,
       body: profileAsyncValue.when(
@@ -351,8 +352,8 @@ class Myprofile extends ConsumerWidget {
                           onPressed: () => context.push(RouteNames.bottomnav),
                           color: const Color.fromRGBO(183, 213, 205, 1),
                         ),
-                        const Text(
-                          "Profile Details",
+                         Text(
+                         loc.profileDetails ?? "",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -400,8 +401,8 @@ class Myprofile extends ConsumerWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Welcome",
+                                   Text(
+                                   loc.welcome,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -466,8 +467,8 @@ class Myprofile extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Full Name",
+                         Text(
+                         loc.fullName ?? "",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -480,8 +481,8 @@ class Myprofile extends ConsumerWidget {
                           enabled: false,
                         ),
                         const SizedBox(height: 10), // reduced
-                        const Text(
-                          "Email Address",
+                         Text(
+                          loc.emailAddress ,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -494,8 +495,8 @@ class Myprofile extends ConsumerWidget {
                           enabled: false,
                         ),
                         const SizedBox(height: 10),
-                        const Text(
-                          "Phone Number",
+                         Text(
+                           loc.phoneNumber ?? "",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -508,8 +509,8 @@ class Myprofile extends ConsumerWidget {
                           enabled: false,
                         ),
                         const SizedBox(height: 10),
-                        const Text(
-                          "Address",
+                         Text(
+                         loc.address ?? "",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

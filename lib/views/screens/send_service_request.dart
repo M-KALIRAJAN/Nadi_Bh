@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
+import 'package:nadi_user_app/providers/language_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/request_service.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
@@ -21,7 +24,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
-class SendServiceRequest extends StatefulWidget {
+class SendServiceRequest extends ConsumerStatefulWidget  {
   final String title;
   final String serviceId;
   final int points;
@@ -36,10 +39,10 @@ class SendServiceRequest extends StatefulWidget {
   });
 
   @override
-  State<SendServiceRequest> createState() => _SendServiceRequestState();
+  ConsumerState<SendServiceRequest> createState() => _SendServiceRequestState();
 }
 
-class _SendServiceRequestState extends State<SendServiceRequest> {
+class _SendServiceRequestState extends ConsumerState<SendServiceRequest> {
   final TextEditingController _dateController = TextEditingController();
   List<Map<String, dynamic>> issueList = [];
   final ImagePicker _picker = ImagePicker();
@@ -92,15 +95,24 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
     }
   }
 
-  Future<void> issuseList() async {
-    final response = await _requestSerivices.IssuseList();
-    if (response != null) {
-      setState(() {
-        issueList = response;
-      });
-    }
-    AppLogger.debug("respose ${jsonEncode(response)}");
+Future<void> issuseList() async {
+
+  final locale = ref.read(languageProvider);
+  final lang = locale.languageCode;
+
+  debugPrint("Selected Language = $lang");
+
+  final response = await _requestSerivices.IssuseList(lang);
+
+  if (response != null) {
+    setState(() {
+      issueList = response;
+    });
   }
+
+  AppLogger.debug("response ${jsonEncode(response)}");
+}
+
 
   Future<void> pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(
@@ -145,20 +157,30 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
         }
         //  ERROR FROM API (ACCOUNT NOT VERIFIED etc.)
         else {
+               setState(() {
+      _isLoading = false;
+    });
           SnackbarHelper.showError(context, message);
         }
       } else {
+          setState(() {
+      _isLoading = false;
+    });
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("Something went wrong")));
       }
     } catch (e) {
+           setState(() {
+      _isLoading = false;
+    });
       AppLogger.error(" $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
     Widget imageShimmer() {
       return Shimmer.fromColors(
         baseColor: Colors.grey.shade300,
@@ -173,8 +195,9 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
         ),
       );
     }
-
+ final t = AppLocalizations.of(context)!;
     return Scaffold(
+      
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
@@ -274,8 +297,8 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      "Service Points Required",
+                                     Text(
+                                     t.servicePointsRequired,
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
@@ -299,8 +322,8 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                           ),
                         ),
 
-                        const Text(
-                          "Issue  Details",
+                         Text(
+                          t.issueDetails,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -310,7 +333,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                         DropdownButtonFormField<String>(
                           value: selectedIssueId,
                           decoration: InputDecoration(
-                            labelText: "Select Issuse*",
+                            labelText: t.selectIssue,
                             floatingLabelStyle: const TextStyle(
                               color: AppColors.btn_primery,
                             ),
@@ -348,7 +371,7 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                           maxLines: null,
                           keyboardType: TextInputType.multiline,
                           decoration: InputDecoration(
-                            labelText: "Describe your issue…",
+                            labelText:  t.describeIssue,
                             floatingLabelStyle: const TextStyle(
                               color: AppColors.btn_primery,
                             ),
@@ -406,8 +429,8 @@ class _SendServiceRequestState extends State<SendServiceRequest> {
                         // ),
                         const SizedBox(height: 22),
 
-                        const Text(
-                          "Media Upload (optional)",
+                         Text(
+                          t.mediaUploadOptional,
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w600,

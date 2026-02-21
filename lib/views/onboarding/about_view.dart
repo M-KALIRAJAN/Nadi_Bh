@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
@@ -76,10 +77,10 @@ class _AboutViewState extends ConsumerState<AboutView> {
                     children: [
                       AppCircleIconButton(
                         icon: Icons.arrow_back,
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: context.pop,
                       ),
-                      const Text(
-                        "About",
+                       Text(
+                        AppLocalizations.of(context)!.about,
                         style: TextStyle(
                           fontSize: AppFontSizes.medium,
                           color: Colors.white,
@@ -101,8 +102,8 @@ class _AboutViewState extends ConsumerState<AboutView> {
                           ),
                           child: Row(
                             children: [
-                              const Text(
-                                "Skip",
+                               Text(
+                                AppLocalizations.of(context)!.skip,
                                 style: TextStyle(
                                   color: AppColors.btn_primery,
                                   fontSize: 12,
@@ -127,8 +128,8 @@ class _AboutViewState extends ConsumerState<AboutView> {
           ),
 
           const SizedBox(height: 10),
-          const Text(
-            "Nadi Bahrain Services",
+           Text(
+            AppLocalizations.of(context)!.nadiBahrainServices,
             style: TextStyle(
               fontSize: AppFontSizes.xLarge,
               fontWeight: FontWeight.w600,
@@ -142,8 +143,9 @@ class _AboutViewState extends ConsumerState<AboutView> {
             height: 250,
             child: aboutAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) =>
-                  const Center(child: Text("Failed to load content")),
+            error: (err, _) => Center(
+  child: Text("Error: $err"),
+),
               data: (textPages) {
                 if (textPages.isEmpty) {
                   return const Center(child: Text("No content available"));

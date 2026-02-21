@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/providers/connectivity_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/my_service.dart';
@@ -75,6 +76,7 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
   @override
   Widget build(BuildContext context) {
     final connectivity = ref.watch(connectivityProvider);
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: connectivity.when(
@@ -99,8 +101,8 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
                         icon: Icons.arrow_back,
                         onPressed: () => context.push(RouteNames.bottomnav),
                       ),
-                      const Text(
-                        "MY Service Request",
+                      Text(
+                        t.myServiceRequest,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: AppFontSizes.large,
@@ -135,8 +137,8 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              const Text(
-                                "No request found",
+                              Text(
+                                t.noRequestFound,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -168,7 +170,7 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
                                       serviceStatus:
                                           service['serviceStatus'] ?? "",
                                       serviceLogo:
-                                          service["serviceId"]['serviceLogo'] ??
+                                          service["serviceId"]?["serviceLogo"] ??
                                           "",
                                       onViewDetails: () {
                                         context.push(

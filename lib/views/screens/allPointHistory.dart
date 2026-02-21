@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/providers/pointshistory_provider.dart';
 import 'package:nadi_user_app/widgets/individual_points_card.dart';
 
@@ -13,22 +14,19 @@ class AllPointHistory extends ConsumerStatefulWidget {
 }
 
 class _AllPointHistoryState extends ConsumerState<AllPointHistory> {
-     @override
-     void initState() {
-       super.initState();
-      ref.refresh(pointshistoryprovider);
-     }
+  @override
+  void initState() {
+    super.initState();
+    ref.refresh(pointshistoryprovider);
+  }
+
   @override
   Widget build(BuildContext context) {
-
     final pointhistoryAsync = ref.watch(pointshistoryprovider);
-
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Point History",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text(l10n.pointHistory, style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.gold_coin,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,

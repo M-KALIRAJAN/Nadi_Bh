@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/AdminQuestioner_Provider.dart';
 import 'package:nadi_user_app/providers/family_member_points_list.dart';
@@ -86,7 +87,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
     final pointhistoryAsync = ref.watch(pointshistoryprovider);
     final notificationCount = ref.watch(fetchpointsnodification);
     final familymemberpointlist = ref.watch(FamilymemberpointslistProvider);
-
+   final t = AppLocalizations.of(context)!;
     final requestedpointspeoplelist = ref.watch(fetchrequestpeoplelistprovider);
     final dashboardAsync = ref.watch(userdashboardprovider);
     final adminquestionlist = ref.watch(fetchadminquestionerprovider);
@@ -129,8 +130,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                         onPressed: () => Navigator.pop(context),
                       ),
 
-                      const Text(
-                        "Points Details",
+                       Text(
+                        t.pointsDetails,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -289,8 +290,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            "Welcome",
+                                           Text(
+                                           t.welcome,
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 13,
@@ -328,7 +329,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Text(
-                              "Your Current Points Balance",
+                              t.yourCurrentPointsBalance,
                               style: TextStyle(
                                 fontSize: AppFontSizes.small,
                                 color: Colors.white,
@@ -381,10 +382,10 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
+                     Padding(
                       padding: EdgeInsets.only(left: 10, bottom: 4),
                       child: Text(
-                        "Points Requests:",
+                        t.pointsRequests,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -421,7 +422,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                             },
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
+                              children:  [
                                 CircleAvatar(
                                   radius: 24,
                                   backgroundColor: AppColors.gold_coin,
@@ -429,7 +430,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  "Show More",
+                                  t.showMore,
                                   style: TextStyle(fontSize: 11),
                                 ),
                               ],
@@ -516,8 +517,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      const Text(
-                        "Admin Requests:",
+                       Text(
+                       t.adminRequests,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 5),
@@ -560,8 +561,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Point History:",
+                   Text(
+                   t.pointHistory ,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   InkWell(
@@ -569,9 +570,9 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                       context.push(RouteNames.allPointHistorys);
                     },
                     child: Row(
-                      children: const [
+                      children:  [
                         Text(
-                          "View all",
+                          t.viewAll,
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: AppColors.gold_coin,
@@ -612,7 +613,7 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           data: (response) {
                             final data = response.data;
                             if (data.isEmpty) {
-                              return const Text("No History Found");
+                              return  Text("No History Found");
                             }
                             final limitedList = data.take(5).toList();
                             return ListView.builder(
@@ -648,9 +649,9 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                       data: (familypoints) {
                         final data = familypoints.data;
                         if (data.isEmpty) {
-                          return const Padding(
+                          return  Padding(
                             padding: EdgeInsets.all(15),
-                            child: Text("No Family Points Found"),
+                            child: Text(t.noFamilyPointsFound),
                           );
                         }
                         return Padding(
@@ -658,8 +659,8 @@ class _PointDetailsState extends ConsumerState<PointDetails> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "Family Points",
+                               Text(
+                                t.familyPoints,
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               ListView.builder(

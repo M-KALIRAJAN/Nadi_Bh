@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 
 class Accountcreated extends StatefulWidget {
@@ -52,6 +53,7 @@ class _AccountcreatedState extends State<Accountcreated>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -74,8 +76,8 @@ class _AccountcreatedState extends State<Accountcreated>
                     ),
                     const SizedBox(height: 10),
       
-                   const Text(
-                      "Account Created",
+                    Text(
+                       l10n.accountCreated,
                       style: TextStyle(
                         fontSize: AppFontSizes.large,
                         fontWeight: FontWeight.w700,
@@ -83,8 +85,8 @@ class _AccountcreatedState extends State<Accountcreated>
                     ),
                     const SizedBox(height: 5),
       
-                   const Text(
-                      "Successfully!",
+                    Text(
+                      l10n.successfully,
                       style: TextStyle(
                         fontSize: AppFontSizes.large,
                         fontWeight: FontWeight.w700,
@@ -93,8 +95,8 @@ class _AccountcreatedState extends State<Accountcreated>
                     ),
                     const SizedBox(height: 15),
       
-                   const Text(
-                      "Welcome to Nadi Bahrain Services. You can now\nsign in to your new account.",
+                    Text(
+                       l10n.accountCreatedDesc,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.borderGrey,

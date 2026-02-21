@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/providers/AdminQuestionRequest_Provider.dart';
 import 'package:nadi_user_app/providers/AdminQuestioner_Provider.dart';
+import 'package:nadi_user_app/providers/pointshistory_provider.dart';
 import 'package:nadi_user_app/services/admin_questioner.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 
@@ -15,47 +16,65 @@ class AdminQuestionerview extends ConsumerStatefulWidget {
       _AdminQuestionerviewState();
 }
 
-class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
+class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview>
+    with SingleTickerProviderStateMixin {
   final Map<int, int> selectedAnswers = {};
+  final Map<int, TextEditingController> inputControllers = {};
+
   final AdminQuestioner adminQuestioner = AdminQuestioner();
+
   int currentQuestionIndex = 0;
-  String? errorMessage; // Holds validation error
+  String? errorMessage;
+
   bool isSuccess = false;
+  bool isSubmitting = false;
   String successMessage = "";
   String pointsEarned = "";
   String totalUserPoints = "";
 
+  AnimationController? _controller;
+  Animation<double>? _scaleAnimation;
+  Animation<double>? _fadeAnimation;
   @override
   void initState() {
     super.initState();
+
     Future.microtask(() {
       ref.refresh(fetchadminquestionrequestprovider);
     });
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller!,
+      curve: Curves.elasticOut,
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller!,
+      curve: Curves.easeIn,
+    );
   }
 
-  Future<void> submitthequestion(BuildContext context, payload) async {
-    try {
-      final response = await adminQuestioner.submitquestiondatas(
-        payload: payload,
-      );
-      setState(() {
-        isSuccess = true;
-        successMessage = response["message"];
-        pointsEarned = response["pointsEarned"].toString();
-        totalUserPoints = response["totalUserPoints"].toString();
-      });
+  void nextQuestion(int totalQuestions, questions) {
+    final currentQuestion = questions[currentQuestionIndex];
 
-      ref.refresh(fetchadminquestionerprovider);
-    } catch (e) {
-      print(e);
+    bool isValid = false;
+
+    if (currentQuestion.type == "choose") {
+      isValid = selectedAnswers.containsKey(currentQuestionIndex);
+    } else if (currentQuestion.type == "input") {
+      isValid =
+          inputControllers[currentQuestionIndex]?.text.trim().isNotEmpty ??
+          false;
     }
-  }
 
-  void nextQuestion(int totalQuestions) {
-    // Validate before moving
-    if (!selectedAnswers.containsKey(currentQuestionIndex)) {
+    if (!isValid) {
       setState(() {
-        errorMessage = "Please select an answer before moving to next question";
+        errorMessage = "Please answer before moving next";
       });
       return;
     }
@@ -77,6 +96,55 @@ class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
     });
   }
 
+  Future<void> submitQuestions(List questions, String questionnaireId) async {
+    setState(() {
+      isSubmitting = true; //  START LOADING
+    });
+
+    List<Map<String, dynamic>> answers = [];
+    for (int i = 0; i < questions.length; i++) {
+      final question = questions[i];
+      if (question.type == "choose") {
+        answers.add({"questionIndex": i, "selectedOption": selectedAnswers[i]});
+      } else if (question.type == "input") {
+        answers.add({
+          "questionIndex": i,
+          "selectedOption": inputControllers[i]?.text.trim() ?? "",
+        });
+      }
+    }
+
+    final payload = {"questionnaireId": questionnaireId, "answers": answers};
+
+    try {
+      final response = await adminQuestioner.submitquestiondatas(
+        payload: payload,
+      );
+
+      setState(() {
+        isSuccess = true;
+        successMessage = response["message"] ?? "Submitted successfully";
+        pointsEarned = response["pointsEarned"].toString();
+        totalUserPoints = response["totalUserPoints"].toString();
+      });
+      _controller?.forward();
+      ref.refresh(fetchadminquestionerprovider);
+      ref.refresh(pointshistoryprovider);
+    } catch (e) {
+      print(e);
+    } finally {
+      setState(() {
+        isSubmitting = false; // 🔥 STOP LOADING
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final adminRequest = ref.watch(fetchadminquestionrequestprovider);
@@ -89,354 +157,286 @@ class _AdminQuestionerviewState extends ConsumerState<AdminQuestionerview> {
         ),
         backgroundColor: AppColors.gold_coin,
         iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 0,
       ),
       body: isSuccess
           ? successUI()
           : adminRequest.when(
               data: (response) {
                 final adminList = response.data;
+
                 if (adminList.isEmpty) {
                   return const Center(child: Text("No admin questions"));
                 }
 
-                final questions = adminList.first.questionnaireId.questions;
-                final totalQuestions = questions.length;
+                // Filter only items that have questionnaire
+                final validItems = adminList
+                    .where((item) => item.questionnaireId != null)
+                    .toList();
 
-                if (questions.isEmpty) {
-                  return const Center(child: Text("No questions found"));
+                if (validItems.isEmpty) {
+                  return const Center(child: Text("No questions available"));
                 }
 
+                final questionnaire = validItems.first.questionnaireId!;
+
+                if (questionnaire.questions.isEmpty) {
+                  return const Center(child: Text("No questions available"));
+                }
+
+                final questions = questionnaire.questions;
+
+                final totalQuestions = questions.length;
                 final currentQuestion = questions[currentQuestionIndex];
+
                 return Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Image.asset(
-                          "assets/images/qusimg.png",
-                          filterQuality: FilterQuality.high,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Question ${currentQuestionIndex + 1} of $totalQuestions",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 10),
-                        // Question progress
-                        Text(
-                          "Question ${currentQuestionIndex + 1} of $totalQuestions",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+
+                      /// QUESTION CARD
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        const SizedBox(height: 10),
-                        Card(
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 40,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
+                          child: SingleChildScrollView(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: AppColors.gold_coin,
-                                      child: Text(
-                                        "${currentQuestionIndex + 1}",
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        currentQuestion.question,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  currentQuestion.question,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                const SizedBox(height: 12),
-                                ...List.generate(
-                                  currentQuestion.options.length,
-                                  (oIndex) {
+                                const SizedBox(height: 20),
+
+                                /// TYPE BASED UI
+                                if (currentQuestion.type == "choose")
+                                  ...List.generate(currentQuestion.options.length, (
+                                    index,
+                                  ) {
                                     final isSelected =
                                         selectedAnswers[currentQuestionIndex] ==
-                                        oIndex;
+                                        index;
+
                                     return GestureDetector(
                                       onTap: () {
                                         setState(() {
                                           selectedAnswers[currentQuestionIndex] =
-                                              oIndex;
-                                          errorMessage =
-                                              null; // Clear error when selected
+                                              index;
+                                          errorMessage = null;
                                         });
                                       },
                                       child: Container(
                                         margin: const EdgeInsets.only(
-                                          bottom: 8,
+                                          bottom: 12,
                                         ),
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
+                                          horizontal: 16,
+                                          vertical: 14,
                                         ),
                                         decoration: BoxDecoration(
                                           color: isSelected
-                                              ? const Color.fromARGB(
-                                                  255,
-                                                  255,
-                                                  255,
-                                                  231,
+                                              ? AppColors.gold_coin.withOpacity(
+                                                  0.1,
                                                 )
                                               : Colors.white,
                                           borderRadius: BorderRadius.circular(
-                                            14,
+                                            12,
                                           ),
                                           border: Border.all(
                                             color: isSelected
                                                 ? AppColors.gold_coin
                                                 : Colors.grey.shade300,
-                                            width: 1.2,
+                                            width: 1.5,
                                           ),
                                         ),
                                         child: Row(
                                           children: [
                                             Expanded(
                                               child: Text(
-                                                currentQuestion.options[oIndex],
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
+                                                currentQuestion.options[index],
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.w600
+                                                      : FontWeight.w400,
                                                 ),
                                               ),
                                             ),
-                                            isSelected
-                                                ? const Icon(
-                                                    Icons.check_circle,
-                                                    color: AppColors.gold_coin,
-                                                  )
-                                                : const Icon(
-                                                    Icons.circle_outlined,
-                                                    color: Colors.grey,
-                                                  ),
+                                            if (isSelected)
+                                              Container(
+                                                height: 22,
+                                                width: 22,
+                                                decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: AppColors.gold_coin,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.check,
+                                                  size: 14,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
                                           ],
                                         ),
                                       ),
                                     );
-                                  },
-                                ),
+                                  })
+                                else if (currentQuestion.type == "input")
+                                  TextField(
+                                    controller: inputControllers.putIfAbsent(
+                                      currentQuestionIndex,
+                                      () => TextEditingController(),
+                                    ),
+                                    keyboardType: TextInputType.multiline,
+                                    textInputAction: TextInputAction.newline,
+                                    minLines: 3, // starting height
+                                    maxLines: null, // grows automatically
+                                    decoration: InputDecoration(
+                                      hintText: "Enter your answer",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+
+                                if (errorMessage != null) ...[
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    errorMessage!,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                      ),
 
-                        // Error message
-                        if (errorMessage != null)
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              errorMessage!,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
+                      const SizedBox(height: 10),
 
-                        // Navigation buttons
-                        // Navigation buttons
-                        Row(
-                          children: [
-                            // Previous button
-                            if (currentQuestionIndex > 0)
-                              AppButton(
+                      /// NAVIGATION BUTTONS
+                      Row(
+                        children: [
+                          if (currentQuestionIndex > 0)
+                            Expanded(
+                              child: AppButton(
+                                height: 47,
                                 text: "Previous",
-                                width: 150,
                                 color: Colors.grey,
-                                height: 50,
+                                width: double.infinity,
                                 onPressed: previousQuestion,
-                              )
-                            else
-                              const SizedBox(
-                                width: 150,
-                              ), // Keep space so Next is at right
-
-                            const Spacer(), // Push Next to the right
-                            // Next or Submit button
-                            if (currentQuestionIndex < totalQuestions - 1)
-                              AppButton(
-                                text: "Next",
-                                width: 150,
-                                color: AppColors.gold_coin,
-                                height: 50,
-                                onPressed: () => nextQuestion(totalQuestions),
-                              )
-                            else
-                              SizedBox(
-                                width: 150,
-                                child: AppButton(
-                                  width: 150,
-                                  text: "Submit",
-                                  color: AppColors.gold_coin,
-                                  height: 50,
-                                  onPressed: () {
-                                    if (!selectedAnswers.containsKey(
-                                      currentQuestionIndex,
-                                    )) {
-                                      setState(() {
-                                        errorMessage =
-                                            "Please select an answer before submitting";
-                                      });
-                                      return;
-                                    }
-                                    final payload = {
-                                      "questionnaireId":
-                                          adminList.first.questionnaireId.id,
-                                      "answers": selectedAnswers.entries.map((
-                                        e,
-                                      ) {
-                                        return {
-                                          "questionIndex": e.key,
-                                          "selectedOption": e.value,
-                                        };
-                                      }).toList(),
-                                    };
-                                    submitthequestion(context, payload);
-                                  },
-                                ),
                               ),
-                          ],
-                        ),
-                      ],
-                    ),
+                            ),
+                          if (currentQuestionIndex > 0)
+                            const SizedBox(width: 10),
+                          Expanded(
+                            child: isSubmitting
+                                ? Container(
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.gold_coin,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Center(
+                                      child: SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : AppButton(
+                                    height: 47,
+                                    text:
+                                        currentQuestionIndex ==
+                                            totalQuestions - 1
+                                        ? "Submit"
+                                        : "Next",
+                                    width: double.infinity,
+                                    color: AppColors.gold_coin,
+                                    onPressed: () {
+                                      if (currentQuestionIndex ==
+                                          totalQuestions - 1) {
+                                        submitQuestions(
+                                          questions,
+                                          questionnaire.id,
+                                        );
+                                      } else {
+                                        nextQuestion(totalQuestions, questions);
+                                      }
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               },
-              error: (e, _) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.toString()),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                });
-
-                return const SizedBox();
-              },
               loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text(e.toString())),
             ),
     );
   }
 
   Widget successUI() {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: const Color(0xfff8f8f8),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(.08),
-                  blurRadius: 20,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: FadeTransition(
+          opacity: _fadeAnimation ?? const AlwaysStoppedAnimation(1),
+          child: ScaleTransition(
+            scale: _scaleAnimation ?? const AlwaysStoppedAnimation(1),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                /// Success Icon
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xffe8f5e9),
-                  ),
-                  child: const Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 60,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
+                const Icon(Icons.check_circle, size: 90, color: Colors.green),
+                const SizedBox(height: 20),
                 const Text(
                   "Success!",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                 ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  successMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-
+                const SizedBox(height: 10),
+                Text(successMessage, textAlign: TextAlign.center),
                 const SizedBox(height: 20),
-
-                /// Points highlight box
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold_coin.withOpacity(.1),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        "+ $pointsEarned Points Earned",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.gold_coin,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "Total Points: $totalUserPoints",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                Text(
+                  "+ $pointsEarned Points Earned",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.gold_coin,
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
+                const SizedBox(height: 6),
+                Text(
+                  "Total Points: $totalUserPoints",
+                  style: const TextStyle(fontSize: 15),
+                ),
+                const SizedBox(height: 30),
                 AppButton(
                   text: "Done",
                   color: AppColors.gold_coin,
+                  onPressed: () => context.pop(),
                   width: double.infinity,
-                  onPressed: () {
-                    context.pop();
-                  },
                 ),
               ],
             ),

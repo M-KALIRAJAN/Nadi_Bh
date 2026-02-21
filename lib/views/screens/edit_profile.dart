@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/services/profile_service.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
@@ -183,6 +184,7 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+      final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -205,8 +207,8 @@ class _EditProfileState extends State<EditProfile> {
                       context.pop();
                     },
                   ),
-                  const Text(
-                    "Edit Profile",
+                   Text(
+                    loc.editProfile ?? "",
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                   ),
                   const Text(""),
@@ -283,8 +285,8 @@ class _EditProfileState extends State<EditProfile> {
                       const SizedBox(height: 30),
 
                       // Full Name
-                      const Text(
-                        "Full Name",
+                       Text(
+                      loc.fullName ?? "",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -295,8 +297,8 @@ class _EditProfileState extends State<EditProfile> {
                       const SizedBox(height: 15),
 
                       // Email Address
-                      const Text(
-                        "Email Address",
+                       Text(
+                       loc.emailAddress ,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -307,8 +309,8 @@ class _EditProfileState extends State<EditProfile> {
                       const SizedBox(height: 15),
 
                       // Phone Number
-                      const Text(
-                        "Phone Number",
+                       Text(
+                         loc.phoneNumber ?? "",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -319,8 +321,8 @@ class _EditProfileState extends State<EditProfile> {
                       const SizedBox(height: 15),
 
                       // Building (Single field)
-                      const Text(
-                        "Building",
+                       Text(
+                         loc.building ?? "",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -336,8 +338,8 @@ class _EditProfileState extends State<EditProfile> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "city",
+                                 Text(
+                                  loc.city ?? "",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -353,8 +355,8 @@ class _EditProfileState extends State<EditProfile> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  "Floor",
+                                 Text(
+                                loc.floor ?? "",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -370,8 +372,8 @@ class _EditProfileState extends State<EditProfile> {
                       const SizedBox(height: 15),
 
                       // More fields
-                      const Text(
-                        "Apartment",
+                       Text(
+                          loc.apartment ?? "",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -381,8 +383,8 @@ class _EditProfileState extends State<EditProfile> {
                       AppTextField(controller: apartmentController),
                       const SizedBox(height: 15),
 
-                      const Text(
-                        "Additional Info",
+                       Text(
+                          loc.additionalInfo ?? "",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -399,7 +401,7 @@ class _EditProfileState extends State<EditProfile> {
                         children: [
                           Expanded(
                             child: AppButton(
-                              text: "Cancel",
+                              text: loc.cancel ?? "",
                               onPressed: () {
                                 context.pop();
                               },
@@ -410,7 +412,7 @@ class _EditProfileState extends State<EditProfile> {
                           const SizedBox(width: 20),
                           Expanded(
                             child: AppButton(
-                              text: "Save",
+                              text: loc.save ?? "",
                               onPressed: () {
                                 saveProfile();
                               },

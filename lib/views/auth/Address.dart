@@ -5,6 +5,7 @@ import 'package:nadi_user_app/controllers/address_controller.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/auth_Provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
@@ -123,21 +124,25 @@ class _AddressState extends State<Address> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Form(
       key: widget.formKey,
       child: Column(
         children: [
-          AppTextField(controller: controller.building, label: "Pick Location"),
+          AppTextField(
+            controller: controller.building,
+            label: l10n.pickLocation,
+          ),
           SizedBox(height: 10),
 
           if (widget.accountType == "Family") ...[
-            AppTextField(label: "Enter Number of kids*"),
+            AppTextField(label: l10n.enterNumberOfKids),
             SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: AppTextField(label: "No of boys*")),
+                Expanded(child: AppTextField(label: l10n.noOfBoys)),
                 SizedBox(width: 10),
-                Expanded(child: AppTextField(label: "No of girls*")),
+                Expanded(child: AppTextField(label: l10n.noOfGirls)),
               ],
             ),
             SizedBox(height: 17),
@@ -148,20 +153,20 @@ class _AddressState extends State<Address> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              buildType("Flat", 'assets/icons/Flat.png'),
-              buildType("Villa", 'assets/icons/villa.png'),
-              buildType("Office", 'assets/icons/office.png'),
+              buildType(l10n.flat, 'assets/icons/Flat.png'),
+              buildType(l10n.villa, 'assets/icons/villa.png'),
+              buildType(l10n.office, 'assets/icons/office.png'),
             ],
           ),
           SizedBox(height: 17),
           AppTextField(
             controller: controller.city,
-            label: "Enter Your city/Area",
+            label: l10n.enterCity,
           ),
           SizedBox(height: 17),
           AppTextField(
             controller: controller.building,
-            label: "Enter Your Building*",
+            label: l10n.enterBuilding,
             validator: (value) => controller.validateBuilding(value),
           ),
           SizedBox(height: 17),
@@ -170,7 +175,7 @@ class _AddressState extends State<Address> {
               Expanded(
                 child: AppTextField(
                   controller: controller.aptNo,
-                  label: "Enter Apt No*",
+                  label: l10n.enterAptNo,
                   validator: (value) => controller.validateAptNo(value),
                 ),
               ),
@@ -178,7 +183,7 @@ class _AddressState extends State<Address> {
               Expanded(
                 child: AppTextField(
                   controller: controller.floor,
-                  label: "Enter Floor No*",
+                  label: l10n.enterFloorNo,
                   validator: (value) => controller.validateFloor(value),
                 ),
               ),
@@ -197,7 +202,7 @@ class _AddressState extends State<Address> {
                     children: [
                       /// BLOCK FIRST
                       AppDropdown(
-                        label: "Select Your Block*",
+                        label: l10n.selectBlock,
                         items: blocks.map((b) => b['name'] as String).toList(),
                         value: controller.block,
                         onChanged: (val) {
@@ -222,7 +227,7 @@ class _AddressState extends State<Address> {
 
                       /// ROAD SECOND
                       AppDropdown(
-                        label: "Select Your Road*",
+                        label: l10n.selectRoad,
                         items: controller.roadsForSelectedBlock
                             .map((r) => r['name'] as String)
                             .toList(),
@@ -252,7 +257,7 @@ class _AddressState extends State<Address> {
           if (!widget.family)
             if (!_hideBottomButton)
               AppButton(
-                text: widget.accountType == "Family" ? "Continue" : "Sign In",
+                text: widget.accountType == "Family" ?  l10n.continueBtn :  l10n.signIn,
                 isLoading: _isLoading,
                 onPressed: () {
                   final isValid =

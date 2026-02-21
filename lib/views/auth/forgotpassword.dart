@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 import 'package:nadi_user_app/widgets/inputs/app_text_field.dart';
@@ -89,8 +90,8 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                         children: [
                           const SizedBox(height: 20),
 
-                          const Text(
-                            "Change your Password",
+                           Text(
+                            AppLocalizations.of(context)!.changePassword,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

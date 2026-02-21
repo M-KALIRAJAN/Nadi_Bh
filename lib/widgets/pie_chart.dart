@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
@@ -47,10 +48,11 @@ class _DonutChartExampleState extends State<DonutChartExample> {
 
   Map<String, double> buildServiceDataMap() {
     if (serviceoverview == null) return {};
+      final l10n = AppLocalizations.of(context)!;
     return {
-      "Completed": serviceoverview!.serviceCompletedCount.toDouble(),
-      "In Progress": serviceoverview!.serviceProgressCount.toDouble(),
-      "Pending": serviceoverview!.servicePendingCount.toDouble(),
+    l10n.completed: serviceoverview!.serviceCompletedCount.toDouble(),
+    l10n.inProgress: serviceoverview!.serviceProgressCount.toDouble(),
+    l10n.pending: serviceoverview!.servicePendingCount.toDouble(),
     };
   }
 
@@ -94,7 +96,7 @@ class _DonutChartExampleState extends State<DonutChartExample> {
     }
 
     final serviceDataMap = buildServiceDataMap();
-
+   final l10n = AppLocalizations.of(context)!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -126,8 +128,8 @@ class _DonutChartExampleState extends State<DonutChartExample> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Text(
-                    "Total",
+                   Text(
+                    l10n.total,
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
@@ -144,17 +146,17 @@ class _DonutChartExampleState extends State<DonutChartExample> {
             children: [
               _buildLegend(
                 color: AppColors.btn_primery,
-                label: "Completed",
+                  label: l10n.completed,
                 count: serviceoverview!.serviceCompletedCount,
               ),
               _buildLegend(
                 color: AppColors.gold_coin,
-                label: "In Progress",
+                label: l10n.inProgress,
                 count: serviceoverview!.serviceProgressCount,
               ),
               _buildLegend(
                 color: Colors.grey,
-                label: "Pending",
+                label: l10n.pending,
                 count: serviceoverview!.servicePendingCount,
               ),
             ],

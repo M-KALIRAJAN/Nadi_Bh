@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:nadi_user_app/providers/language_provider.dart';
 import 'package:nadi_user_app/services/onbording_service.dart';
 
 final onbordingServiceProvider = Provider((ref) {
@@ -7,34 +8,77 @@ final onbordingServiceProvider = Provider((ref) {
 });
 
 final aboutContentProvider = FutureProvider<List<String>>((ref) async {
-  final service = ref.read(onbordingServiceProvider);
-  final box = Hive.box("aboutBox");
 
-  final hiveData = box.get("about_content")?.cast<String>();
-  final hiveUpdatedAt = box.get("about_updatedAt");
+  try {
 
-  final data = await service.fetchAbout();
-  if (data != null &&
-      data["data"] != null &&
-      data["data"]["content"] is List &&
-      data["data"]["updatedAt"] != null) {
-    final rawContent = data["data"]["content"] as List;
+    final service = ref.read(onbordingServiceProvider);
 
-    // 🔥 FIX HERE
-    final apiContent = rawContent
-        .map((item) => item.values.first.toString())
-        .toList();
+    final locale = ref.watch(languageProvider);
+    final lang = locale.languageCode;
 
-    final apiUpdatedAt = data["data"]["updatedAt"];
+    print("Selected Language = $lang");
 
-    if (hiveData == null || hiveData.isEmpty || hiveUpdatedAt != apiUpdatedAt) {
-      await box.put("about_content", apiContent);
-      await box.put("about_updatedAt", apiUpdatedAt);
-      return apiContent;
-    } else {
-      return hiveData;
+    final box = Hive.box("aboutBox");
+
+    /// 👇 LANGUAGE BASED CACHE
+    final hiveData =
+        box.get("about_content_$lang")?.cast<String>();
+
+    final hiveUpdatedAt =
+        box.get("about_updatedAt_$lang");
+
+    final data = await service.fetchAbout(lang);
+
+    print("API Response = $data");
+
+    if (data != null &&
+        data["data"] != null &&
+        data["data"]["content"] is List &&
+        data["data"]["updatedAt"] != null) {
+
+      final rawContent = data["data"]["content"] as List;
+
+      final apiContent = rawContent.map<String>((item) {
+
+        if (item is Map) {
+          return item.values.first.toString();
+        } else if (item is String) {
+          return item;
+        } else {
+          return "";
+        }
+
+      }).toList();
+
+      final apiUpdatedAt = data["data"]["updatedAt"];
+
+      /// 👇 UPDATE CACHE PER LANGUAGE
+      if (hiveData == null ||
+          hiveData.isEmpty ||
+          hiveUpdatedAt != apiUpdatedAt) {
+
+        print("Updating Hive cache for $lang");
+
+        await box.put("about_content_$lang", apiContent);
+        await box.put("about_updatedAt_$lang", apiUpdatedAt);
+
+        return apiContent;
+
+      } else {
+
+        print("Using cached data for $lang");
+
+        return hiveData;
+      }
     }
-  }
 
-  return hiveData ?? [];
+    return hiveData ?? [];
+
+  } catch (e, stack) {
+
+    print("🔥 ABOUT PROVIDER ERROR: $e");
+    print(stack);
+
+    rethrow;
+  }
 });

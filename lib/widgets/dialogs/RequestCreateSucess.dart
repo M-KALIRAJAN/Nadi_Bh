@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 
@@ -78,6 +79,7 @@ class _RequestcreatesucessState extends State<Requestcreatesucess>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     Widget animatedStar({
       required Animation<double> opacity,
       required double size,
@@ -179,15 +181,15 @@ class _RequestcreatesucessState extends State<Requestcreatesucess>
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          "Request ID: ${widget.serviceRequestId}",
+                          l10n.requestIdLabel(widget.serviceRequestId),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppColors.btn_primery,
                           ),
                         ),
-                        const Text(
-                          "Service request submitted successfully.",
+                         Text(
+                       l10n.requestSuccessTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 20,
@@ -195,14 +197,14 @@ class _RequestcreatesucessState extends State<Requestcreatesucess>
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const Text(
-                          "Your request id has been received and is being processed",
+                         Text(
+                            l10n.requestSuccessDesc,
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12, color: Colors.white70),
                         ),
                         const SizedBox(height: 20),
                         AppButton(
-                          text: "View My Request",
+                          text: l10n.viewMyRequest,
                           onPressed: () {
                             context.push(RouteNames.bottomnav);
                           },

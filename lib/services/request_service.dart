@@ -7,9 +7,14 @@ import 'package:nadi_user_app/core/utils/logger.dart';
 class RequestSerivices {
   final _dio = DioClient.dio;
 
-  Future<List<Map<String, dynamic>>?> IssuseList() async {
+  Future<List<Map<String, dynamic>>?> IssuseList( String lang) async {
     try {
-      final response = await _dio.get("issue");
+      final response = await _dio.get(
+        "issue",
+        queryParameters: {
+          "lang": lang,
+        },
+        );
       final dataList = List<Map<String, dynamic>>.from(response.data["data"]);
       return dataList;
     } catch (e) {

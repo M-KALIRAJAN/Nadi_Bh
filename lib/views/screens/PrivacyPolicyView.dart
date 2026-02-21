@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/providers/Privacypolicy_Provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,11 +13,11 @@ class PrivacyPolicyView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final privacyAsync = ref.watch(Privacypolicyprovider);
-
+  final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Privacy Policy",
+        title:  Text(
+         l10n.privacyPolicy,
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: AppColors.btn_primery,

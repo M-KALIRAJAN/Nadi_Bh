@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/services/points_request.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 
@@ -25,6 +26,7 @@ class _AddPointBottomSheetContentState
   final TextEditingController _notesController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final PointsRequest _pointsRequest = PointsRequest();
+ 
   void _handleSubmit() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -60,7 +62,7 @@ class _AddPointBottomSheetContentState
         );
         setState(() => isLoading = false);
         AppLogger.warn("API SUCCESS: $result");
-        SnackbarHelper.ShowSuccess(context, "Points request sent successfully");
+        SnackbarHelper.ShowSuccess(context,  "Points request sent successfully");
         Navigator.pop(context);
       } catch (e) {
         AppLogger.error("API ERROR: $e");
@@ -80,6 +82,7 @@ class _AddPointBottomSheetContentState
 
   @override
   Widget build(BuildContext context) {
+     final t = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       expand: true,
       initialChildSize: 0.75,
@@ -112,8 +115,8 @@ class _AddPointBottomSheetContentState
               const SizedBox(height: 20),
 
               /// Title
-              const Text(
-                "Request To Points",
+               Text(
+               t.requestToPoints,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
@@ -129,7 +132,7 @@ class _AddPointBottomSheetContentState
                         contentPadding: EdgeInsets.zero,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         title: Text(
-                          "Admin",
+                          t.admin,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -156,7 +159,7 @@ class _AddPointBottomSheetContentState
                         contentPadding: EdgeInsets.zero,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         title: Text(
-                          "Friend",
+                          t.friend,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -186,17 +189,19 @@ class _AddPointBottomSheetContentState
                     /// Mobile Number (Disabled for Admin)
                     reuseTextField(
                       controller: _mobileController,
-                      hintText: "Mobile Number*",
+                      hintText: t.mobileNumber,
                       prefix: "+973 ",
                       keyboardType: TextInputType.phone,
                       enabled: _selectedType == RecipientType.friend,
                       validator: (value) {
                         if (_selectedType == RecipientType.friend) {
                           if (value == null || value.isEmpty) {
-                            return "Mobile number required";
+                           return t.mobileNumberRequired;
+
                           }
                           if (value.length < 8) {
-                            return "Enter valid mobile number";
+                           return t.enterValidMobile;
+
                           }
                         }
                         return null;
@@ -207,29 +212,29 @@ class _AddPointBottomSheetContentState
                     /// Points
                     reuseTextField(
                       controller: _pointsController,
-                      hintText: "Enter Points*",
+                      hintText: t.enterPoints,
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Points required";
+                        return t.pointsRequired;
                         }
                         if (int.tryParse(value) == null ||
                             int.parse(value) <= 0) {
-                          return "Enter valid points";
+                        return t.enterValidPoints;
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 5),
-                    const Text(
-                      "Enter a positive integer value for the points.",
+                     Text(
+                     t.positiveIntegerHint,
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(height: 25),
 
                     /// Notes
                     Text(
-                      "Notes (Optional)",
+                    t.notesOptional,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -238,7 +243,7 @@ class _AddPointBottomSheetContentState
                     ),
                     const SizedBox(height: 10),
                     reuseTextField(
-                      hintText: "For new service request.",
+                      hintText:  t.notesHint,
                       controller: _notesController,
                       maxLines: 4,
                     ),
@@ -252,7 +257,7 @@ class _AddPointBottomSheetContentState
                 children: [
                   Expanded(
                     child: AppButton(
-                      text: "Cancel",
+                      text: t.cancel,
                       onPressed: () {
                         if (Navigator.canPop(context)) {
                           Navigator.pop(context);
@@ -266,7 +271,7 @@ class _AddPointBottomSheetContentState
                   const SizedBox(width: 12),
                   Expanded(
                     child: AppButton(
-                      text: "Submit",
+                      text: t.submit,
                       isLoading: isLoading,
                       onPressed: _handleSubmit,
                       color: const Color.fromRGBO(213, 155, 8, 1),

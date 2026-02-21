@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
@@ -176,16 +177,16 @@ class _OtpState extends State<Otp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "Enter Verification code",
+               Text(
+                AppLocalizations.of(context)!.enterVerificationCode,
                 style: TextStyle(
                   fontSize: AppFontSizes.large,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: 20),
-              const Text(
-                "We have sent you a 4 digit verification code on",
+               Text(
+               AppLocalizations.of(context)!.otpSentMessage,
                 style: TextStyle(
                   fontSize: AppFontSizes.small,
                   color: AppColors.borderGrey,
@@ -233,8 +234,8 @@ class _OtpState extends State<Otp> {
                             _startTimer();
                             sendOtp(context);
                           },
-                          child: const Text(
-                            "Resend OTP",
+                          child:  Text(
+                           AppLocalizations.of(context)!.resendOtp,
                             style: TextStyle(
                               color: AppColors.btn_primery,
                               fontWeight: FontWeight.bold,
@@ -254,12 +255,12 @@ class _OtpState extends State<Otp> {
               Padding(
                 padding: const EdgeInsets.only(top: 90, left: 25, right: 25),
                 child: AppButton(
-                  text: "Sign In",
+                  text: AppLocalizations.of(context)!.signIn,
                   onPressed: () {
                     if (otpController.text.length == 4) {
                       verifyOtp(context);
                     } else {
-                      _showOtpError("Please enter 4 digit OTP");
+                      _showOtpError(AppLocalizations.of(context)!.enter4DigitOtp);
                     }
                   },
                   color: AppColors.btn_primery,

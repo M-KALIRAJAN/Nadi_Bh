@@ -251,6 +251,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
@@ -341,6 +342,8 @@ class _SignInOtpState extends State<SignInOtp> {
         border: Border.all(color: Colors.red),
       ),
     );
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -393,8 +396,8 @@ class _SignInOtpState extends State<SignInOtp> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Sign In with OTP",
+                                   Text(
+                                     l10n.signInWithOtp,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
@@ -404,18 +407,18 @@ class _SignInOtpState extends State<SignInOtp> {
 
                                   /// Phone Input
                                   AppTextField(
-                                    label: "Enter Phone Number",
+                                     label: l10n.enterPhoneNumber,
                                     keyboardType: TextInputType.phone,
                                     controller: _phoneController,
                                     prefixText: "+973 ",
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return "Please enter phone number";
+                                          return l10n.pleaseEnterPhoneNumber;
                                       } else if (value.length != 8 ||
                                           !RegExp(
                                             r'^[0-9]+$',
                                           ).hasMatch(value)) {
-                                        return "Phone number must be 8 digits";
+                                       return l10n.phoneMustBe8Digits;
                                       }
                                       return null;
                                     },
@@ -428,7 +431,7 @@ class _SignInOtpState extends State<SignInOtp> {
                                       height: 48,
                                       width: double.infinity,
                                       color: AppColors.btn_primery,
-                                      text: "Send OTP",
+                                      text: l10n.resendOtp,
                                       onPressed: () async {
                                         if (_formKey.currentState!.validate()) {
                                           await sendOtp();
@@ -439,8 +442,8 @@ class _SignInOtpState extends State<SignInOtp> {
                                   /// OTP Input
                                   if (_showOtp) ...[
                                     const SizedBox(height: 20),
-                                    const Text(
-                                      "Enter OTP",
+                                     Text(
+                                      l10n.enterOtp,
                                       style: TextStyle(fontSize: 18),
                                     ),
                                     const SizedBox(height: 15),
@@ -486,7 +489,7 @@ class _SignInOtpState extends State<SignInOtp> {
                                       height: 48,
                                       width: double.infinity,
                                       color: AppColors.btn_primery,
-                                      text: "Sign In",
+                                      text: l10n.signIn,
                                       onPressed: () async {
                                         if (_otpController.text.length == 4) {
                                           await OTPphoneverify();
@@ -495,8 +498,8 @@ class _SignInOtpState extends State<SignInOtp> {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text("Enter valid OTP"),
+                                             SnackBar(
+                                               content: Text(l10n.enterValidOtp),
                                             ),
                                           );
                                         }

@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/providers/language_provider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 
-class LanguangeView extends StatefulWidget {
+class LanguangeView extends ConsumerStatefulWidget {
   const LanguangeView({super.key});
 
   @override
-  State<LanguangeView> createState() => _LanguangeViewState();
+  ConsumerState<LanguangeView> createState() => _LanguangeViewState();
 }
 
-class _LanguangeViewState extends State<LanguangeView> {
+class _LanguangeViewState extends ConsumerState<LanguangeView> {
   bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
+        final locale = ref.watch(languageProvider);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -64,9 +67,12 @@ class _LanguangeViewState extends State<LanguangeView> {
 
                         AppButton(
                           text: "عربي",
-                          onPressed: () {
-                            // context.go(RouteNames.accountverfy);
-                            _showLanguageInProcessDialog(context);
+                          onPressed: () async {
+                         ref.read(languageProvider.notifier)
+                  .changeLanguage('ar');
+                   await Future.delayed(const Duration(seconds: 1));
+                            if (!mounted) return; //  safety check
+                            context.go(RouteNames.welcome);
                           },
                           color: AppColors.btn_primery,
                           width: double.infinity,
@@ -77,7 +83,10 @@ class _LanguangeViewState extends State<LanguangeView> {
                         AppButton(
                           text: "English",
                           onPressed: () async {
+                                ref.read(languageProvider.notifier)
+                  .changeLanguage('en');
                             setState(() => _isLoading = true);
+
                             await Future.delayed(const Duration(seconds: 1));
                             if (!mounted) return; //  safety check
                             context.go(RouteNames.welcome);
@@ -111,30 +120,5 @@ class _LanguangeViewState extends State<LanguangeView> {
     );
   }
 
-  void _showLanguageInProcessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // user must tap OK
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text("Language", textAlign: TextAlign.center),
-          content: const Text(
-            "Arabic language is in process",
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+ 
 }

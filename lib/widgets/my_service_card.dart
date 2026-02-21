@@ -4,6 +4,7 @@ import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
 
 import 'package:nadi_user_app/core/utils/Time_Date.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 class ServiceRequestCard extends StatelessWidget {
   final String title;
   final String date;
@@ -23,6 +24,7 @@ class ServiceRequestCard extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+     final t = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -166,8 +168,8 @@ class ServiceRequestCard extends StatelessWidget {
                     bottomRight: Radius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  "View Details",
+                child:  Text(
+                  t.viewDetails,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,

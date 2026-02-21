@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/services/NotificationApiService.dart';
 
@@ -44,8 +45,8 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
           },
         ),
         backgroundColor: AppColors.btn_primery,
-        title: const Text(
-          "Notifications",
+        title:  Text(
+         AppLocalizations.of(context)!.noNotifications,
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -76,13 +77,13 @@ class _PointsNodificationState extends ConsumerState<PointsNodification> {
                 children: [
                   Image.asset("assets/images/New.png", height: 160),
                   const SizedBox(height: 16),
-                  const Text(
-                    "No Notifications",
+                   Text(
+                   AppLocalizations.of(context)!.noNotifications,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    "You're all caught up!",
+                   Text(
+                 AppLocalizations.of(context)!.youAreAllCaughtUp,
                     style: TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ],

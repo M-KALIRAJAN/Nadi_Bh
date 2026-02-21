@@ -4,6 +4,7 @@ import 'package:nadi_user_app/controllers/signup_controller.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
@@ -78,6 +79,7 @@ class _AccountFormViewState extends State<AccountFormView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Form(
       key: widget.formKey,
       child: Column(
@@ -92,7 +94,7 @@ class _AccountFormViewState extends State<AccountFormView> {
           // Name
           AppTextField(
             controller: controller.name,
-            label: "Enter Full Name*",
+            label: l10n.enterFullName,
             validator: (value) => controller.validateName(value),
           ),
           const SizedBox(height: 17),
@@ -101,7 +103,7 @@ class _AccountFormViewState extends State<AccountFormView> {
           AppTextField(
             controller: controller.mobile,
             keyboardType: TextInputType.phone,
-            label: "Mobile Number*",
+            label: l10n.mobileNumber,
             validator: (value) => controller.validateMobile(value),
             prefixText: "+973 ",
           ),
@@ -110,15 +112,15 @@ class _AccountFormViewState extends State<AccountFormView> {
           // Email
           AppTextField(
             controller: controller.email,
-            label: "Email Address*",
+            label:  l10n.emailAddress,
             validator: (_) => controller.validateEmail(),
           ),
           const SizedBox(height: 17),
 
           // Gender
           AppDropdown(
-            label: "Gender*",
-            items: ["Male", "Female"],
+            label:l10n.gender,
+           items: [l10n.male, l10n.female],
             value: controller.gender,
             onChanged: (val) {
               setState(() => controller.gender = val);
@@ -131,7 +133,7 @@ class _AccountFormViewState extends State<AccountFormView> {
           // Password
           AppTextField(
             controller: controller.password,
-            label: "Create Password*",
+            label: l10n.createPassword,
             isPassword: true,
             validator: (value) => controller.validatePassword(),
           ),
@@ -139,14 +141,14 @@ class _AccountFormViewState extends State<AccountFormView> {
 
           AppTextField(
             controller: controller.confirmPassword,
-            label: "Confirm Password*",
+            label:  l10n.confirmPassword,
             isPassword: true,
             validator: (value) => controller.validateConfirmPassword(value),
           ),
           const SizedBox(height: 40),
 
           AppButton(
-            text: "Continue",
+            text: l10n.continueButton,
             color: AppColors.btn_primery,
             width: double.infinity,
 

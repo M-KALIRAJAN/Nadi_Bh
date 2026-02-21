@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nadi_user_app/core/constants/app_consts.dart';
+import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
@@ -101,8 +102,8 @@ Future<void> UploadIDproof(BuildContext context) async {
                 children: [
                   AppCircleIconButton(icon: Icons.arrow_back, onPressed: () {}),
 
-                 const  Text(
-                    "Sign up",
+                   Text(
+                    AppLocalizations.of(context)!.signUp,
                     style: TextStyle(
                       fontSize: AppFontSizes.medium,
                       fontWeight: FontWeight.bold,
@@ -124,8 +125,8 @@ Future<void> UploadIDproof(BuildContext context) async {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    const  Text(
-                        "Upload ID Card",
+                      Text(
+                        AppLocalizations.of(context)!.uploadIdTitle ?? "Upload ID Card" ,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 22,
@@ -133,9 +134,9 @@ Future<void> UploadIDproof(BuildContext context) async {
                       ),
                       const SizedBox(height: 20),
                       IdCardSection(
-                        title: "Front Side of ID Card",
+                        title:  AppLocalizations.of(context)!.uploadIdFrontTitle ??  "Front Side of ID Card",
                         subtitle:
-                            "Ensure your name, photo, and expiry date are clearly visible.",
+                            AppLocalizations.of(context)!.uploadIdSubtitle ?? "Ensure your name, photo, and expiry date are clearly visible." ,
                         previewImage: frontImage,
                         onTakePhoto: () {
                           print("Take photo clicked");
@@ -148,9 +149,9 @@ Future<void> UploadIDproof(BuildContext context) async {
                       ),
                       const SizedBox(height: 20),
                       IdCardSection(
-                        title: "Front Side of ID Card",
+                        title: AppLocalizations.of(context)!.uploadIdBackTitle ??  "Back Side of ID Card",
                         subtitle:
-                            "Ensure your name, photo, and expiry date are clearly visible.",
+                                  AppLocalizations.of(context)!.uploadIdSubtitle ?? "Ensure your name, photo, and expiry date are clearly visible.",
                         previewImage: backImage,
                         onTakePhoto: () {
                           print("Take photo clicked");
@@ -164,7 +165,7 @@ Future<void> UploadIDproof(BuildContext context) async {
                       ),
                       SizedBox(height: 20),
                       AppButton(
-                        text: "Continue",
+                        text:       AppLocalizations.of(context)!.continueButton,
                           isLoading: _isLoading,
                         onPressed: () {
                           UploadIDproof(context);
