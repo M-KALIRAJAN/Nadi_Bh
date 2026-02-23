@@ -259,7 +259,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
     final connectivity = ref.watch(connectivityProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background_clr,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       body: connectivity.when(
         data: (isOnline) {
@@ -387,7 +387,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
 
                                   /// AVATAR
                                   CircleAvatar(
-                                    radius: 25,
+                                    radius: 23,
                                     backgroundColor: const Color.fromRGBO(
                                       13,
                                       95,
@@ -401,7 +401,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
                                           : "?",
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 22,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -425,15 +425,15 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
 
                                         const SizedBox(height: 3),
 
-                                        Text(
-                                          user.lastMessage?.message ??
-                                              "No messages",
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
+                                        // Text(
+                                        //   user.lastMessage?.message ??
+                                        //       "No messages",
+                                        //   maxLines: 1,
+                                        //   overflow: TextOverflow.ellipsis,
+                                        //   style: const TextStyle(
+                                        //     color: Colors.grey,
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                   ),

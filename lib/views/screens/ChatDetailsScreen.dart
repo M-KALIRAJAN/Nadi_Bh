@@ -25,113 +25,145 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     client = StreamChatService().client;
     setupStreamChat();
   }
+  Future<void> setupStreamChat() async {
+    try {
+      final streamService = StreamChatService();
 
-  // Future<void> setupStreamChat() async {
-  //   // Get current user ID
-  //   currentUserId = await AppPreferences.getUserId();
-  //   final adminId = widget.adminId!;
+      final userId = await AppPreferences.getUserId();
+      final username = await AppPreferences.getusername();
+      final adminId = widget.adminId;
 
-  //   // Ensure both users exist in Stream (backend upserts them)
-  //   await StreamChatService().ensureStreamUser(currentUserId!);
-  //   await StreamChatService().ensureStreamUser(adminId);
+      if (userId == null || adminId == null) {
+        print("UserId or AdminId is null ❌");
+        return;
+      }
 
-  //   // Connect current user only
-  //   await StreamChatService().connectUser(currentUserId!);
+      await streamService.connectUser(
+        userId,
+        // username ?? "User", // ✅ Safe fallback
+      );
 
-  //   // Create channel with both users as members
-  //   channel = client.channel(
-  //     'messaging',
-  //     id: '${currentUserId}_${adminId}', // Optional: unique channel id
-  //     extraData: {
-  //       'members': [currentUserId, adminId]
-  //     },
-  //   );
-  //   await channel!.watch();
+      channel = streamService.client.channel(
+        'messaging',
+        extraData: {
+          'members': [userId, adminId],
+        },
+      );
 
-  //   setState(() {});
-  // }
+      await channel!.watch();
 
-Future<void> setupStreamChat() async {
-  final streamService = StreamChatService();
-
-  final userId = await AppPreferences.getUserId();
-  final adminId = widget.adminId!;
-
-  // Connect current user ONLY once
-  await streamService.connectUser(userId!);
-
-  // Create channel
-  channel = streamService.client.channel(
-    'messaging',
-    extraData: {
-      'members': [userId, adminId]
-    },
-  );
-
-  await channel!.watch();
-  setState(() {});
-}
-@override
-Widget build(BuildContext context) {
-  if (channel == null) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.adminName ?? "Chat")),
-      body: const Center(child: CircularProgressIndicator()),
-    );
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      print("Stream setup error: $e");
+    }
   }
 
-  return StreamChannel(
-    channel: channel!,
-    child: Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+  @override
+  Widget build(BuildContext context) {
+    if (channel == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(widget.adminName ?? "Chat")),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return StreamChannel(
+      channel: channel!,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 1,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Row(
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppColors.btn_primery,
+                    child: Text(
+                      widget.adminName != null && widget.adminName!.isNotEmpty
+                          ? widget.adminName![0].toUpperCase()
+                          : "A",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    widget.adminName ?? "Admin",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        title: Row(
+        body: Column(
           children: [
-            Row(
-              children: [
-  CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.btn_primery,
-              child: Text(
-                widget.adminName != null && widget.adminName!.isNotEmpty
-                    ? widget.adminName![0].toUpperCase()
-                    : "A",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            Expanded(
+              child: StreamMessageListView(
+                messageBuilder: (context, details, messages, defaultMessage) {
+                  final message = details.message;
+                  final currentUser = StreamChat.of(context).client.state.currentUser;
+                  final isMe = message.user?.id == currentUser?.id;
+
+                  // ✅ My messages (Right side)
+                  if (isMe) {
+                    return defaultMessage.copyWith(
+                      showUsername: false,
+                      showUserAvatar: DisplayWidget.gone,
+                    );
+                  }
+
+                  // ✅ Admin messages (Left side with custom avatar)
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.btn_primery,
+                          child: Text(
+                            (widget.adminName?.isNotEmpty ?? false)
+                                ? widget.adminName![0].toUpperCase()
+                                : "A",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: defaultMessage.copyWith(
+                            showUsername: false,
+                            showUserAvatar: DisplayWidget.gone,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
-            const SizedBox(width: 10),
-  
-            // Admin Name
-            Text(
-              widget.adminName ?? "Admin",
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-              ],
-            ),
-            
+            const StreamMessageInput(),
           ],
         ),
       ),
-      body: Column(
-        children: const [
-          Expanded(child: StreamMessageListView()),
-          StreamMessageInput(),
-        ],
-      ),
-    ),
-  );
-}
+    );
+  }
 }

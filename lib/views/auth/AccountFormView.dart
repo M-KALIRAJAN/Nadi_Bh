@@ -44,7 +44,10 @@ class _AccountFormViewState extends State<AccountFormView> {
     try {
       final response = await _basicInfo.basicInfo(
         userId: userId!,
-        fullName: data.fullName,
+        fullName: data.firstName,
+          secondName: data.secondName,
+  thirdName: data.thirdName,
+  fourthName: data.fourthName,
         mobileNumber: data.mobileNumber,
         email: data.email,
         password: data.password,
@@ -68,11 +71,10 @@ class _AccountFormViewState extends State<AccountFormView> {
         // ScaffoldMessenger.of(
         //   context,
         // ).showSnackBar(SnackBar(content: Text(errorMessage)));
-         SnackbarHelper.showError(context, errorMessage);
+        SnackbarHelper.showError(context, errorMessage);
       } else {
         if (mounted) setState(() => _isLoading = false);
-         SnackbarHelper.showError(context, "Something went wrong");
-       
+        SnackbarHelper.showError(context, "Something went wrong");
       }
     }
   }
@@ -92,11 +94,85 @@ class _AccountFormViewState extends State<AccountFormView> {
           const SizedBox(height: 20),
 
           // Name
-          AppTextField(
-            controller: controller.name,
-            label: l10n.enterFullName,
-            validator: (value) => controller.validateName(value),
-          ),
+          // AppTextField(
+          //   controller: controller.name,
+          //   label: l10n.enterFullName,
+          //   validator: (value) => controller.validateName(value),
+          // ),
+          // const SizedBox(height: 17),
+          // // First Name
+          // AppTextField(
+          //   controller: controller.firstName,
+          //   label: "First Name",
+          //   validator: (value) => controller.validateName(value),
+          // ),
+          // const SizedBox(height: 17),
+
+          // // Second Name
+          // AppTextField(
+          //   controller: controller.secondName,
+          //   label: "second Name",
+          //   validator: (value) => controller.validateName(value),
+          // ),
+          // const SizedBox(height: 17),
+
+          // // Third Name
+          // AppTextField(
+          //   controller: controller.thirdName,
+          //   label: "Third Name",
+          //   validator: (value) => controller.validateName(value),
+          // ),
+          // const SizedBox(height: 17),
+
+          // // Family Name
+          // AppTextField(
+          //   controller: controller.fourthName,
+          //   label: "Fourth Name",
+          //   validator: (value) => controller.validateName(value),
+          // ),
+
+          // First Row
+Row(
+  children: [
+    Expanded(
+      child: AppTextField(
+        controller: controller.firstName,
+        label: "First Name",
+        validator: (value) => controller.validateName(value),
+      ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+      child: AppTextField(
+        controller: controller.secondName,
+        label: "Second Name",
+        validator: (value) => controller.validateName(value),
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 17),
+
+// Second Row
+Row(
+  children: [
+    Expanded(
+      child: AppTextField(
+        controller: controller.thirdName,
+        label: "Third Name",
+        validator: (value) => controller.validateName(value),
+      ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+      child: AppTextField(
+        controller: controller.fourthName,
+        label: "Fourth Name",
+        validator: (value) => controller.validateName(value),
+      ),
+    ),
+  ],
+),
           const SizedBox(height: 17),
 
           // Mobile
@@ -112,21 +188,20 @@ class _AccountFormViewState extends State<AccountFormView> {
           // Email
           AppTextField(
             controller: controller.email,
-            label:  l10n.emailAddress,
-            validator: (_) => controller.validateEmail(),
+            label: l10n.emailAddress,
+            validator: (value) => controller.validateEmail(value),
           ),
           const SizedBox(height: 17),
 
           // Gender
           AppDropdown(
-            label:l10n.gender,
-           items: [l10n.male, l10n.female],
+            label: l10n.gender,
+            items: [l10n.male, l10n.female],
             value: controller.gender,
             onChanged: (val) {
               setState(() => controller.gender = val);
             },
-            validator: (val) =>
-                val == null ? "Please select relationship" : null,
+            validator: (val) => val == null ? l10n.selectGender : null,
           ),
           const SizedBox(height: 17),
 
@@ -135,13 +210,13 @@ class _AccountFormViewState extends State<AccountFormView> {
             controller: controller.password,
             label: l10n.createPassword,
             isPassword: true,
-            validator: (value) => controller.validatePassword(),
+            validator: (value) => controller.validatePassword(value),
           ),
           const SizedBox(height: 17),
 
           AppTextField(
             controller: controller.confirmPassword,
-            label:  l10n.confirmPassword,
+            label: l10n.confirmPassword,
             isPassword: true,
             validator: (value) => controller.validateConfirmPassword(value),
           ),

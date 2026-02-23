@@ -1,14 +1,8 @@
-
 import 'package:nadi_user_app/core/network/dio_client.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
-// 
-
-
-
 class StreamChatService {
-  static final StreamChatService _instance =
-      StreamChatService._internal();
+  static final StreamChatService _instance = StreamChatService._internal();
 
   factory StreamChatService() => _instance;
 
@@ -16,23 +10,32 @@ class StreamChatService {
 
   final _dio = DioClient.dio;
 
-  final StreamChatClient client =
-      StreamChatClient('3e97f3da7ndg');
+  final StreamChatClient client = StreamChatClient('3e97f3da7ndg');
 
-  Future<String> ensureStreamUser(String userId) async {
+  Future<String> ensureStreamUser(String userId,) async {
     final response = await _dio.post(
       '/stream-chat/token',
-      data: {'userId': userId},
-    );
+      data: {
+        'userId': userId,
 
+      },
+    );
     return response.data['token'];
   }
 
-  Future<void> connectUser(String userId) async {
+  Future<void> connectUser(String userId, ) async {
+    // If a user is already connected, disconnect first
+    if (client.state.currentUser != null) {
+      await client.disconnectUser();
+    }
+
     final token = await ensureStreamUser(userId);
 
     await client.connectUser(
-      User(id: userId),
+      User(
+        id: userId,
+
+      ),
       token,
     );
 

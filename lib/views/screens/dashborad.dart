@@ -196,18 +196,79 @@ class _DashboardState extends ConsumerState<Dashboard> {
     );
   }
 
-  Future<void> showQuestionPopup(
-    BuildContext context,
-    QuestionerDatum question,
-  ) {
-    return showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierLabel: "Question Popup",
-      barrierColor: Colors.black.withOpacity(0.5),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Center(
+  // Future<void> showQuestionPopup(
+  //   BuildContext context,
+  //   QuestionerDatum question,
+  // ) {
+  //   return showGeneralDialog(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     barrierLabel: "Question Popup",
+  //     barrierColor: Colors.black.withOpacity(0.5),
+  //     transitionDuration: const Duration(milliseconds: 300),
+  //     pageBuilder: (context, animation, secondaryAnimation) {
+  //       return Center(
+  //         child: Material(
+  //           color: Colors.transparent,
+  //           child: Container(
+  //             width: MediaQuery.of(context).size.width * 0.9,
+  //             decoration: BoxDecoration(
+  //               color: Colors.white,
+  //               borderRadius: BorderRadius.circular(20),
+  //             ),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 Container(
+  //                   padding: const EdgeInsets.all(12),
+  //                   child: Text(
+  //                     question.title,
+  //                     style: const TextStyle(
+  //                       fontSize: 18,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const Divider(height: 1),
+  //                 QuestionerView(
+  //                   scrollController: ScrollController(),
+  //                   questionerDatum: question,
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //     transitionBuilder: (context, animation, secondaryAnimation, child) {
+  //       return Transform.scale(
+  //         scale: animation.value,
+  //         child: Opacity(opacity: animation.value, child: child),
+  //       );
+  //     },
+  //   ).then((_) {
+  //     if (mounted) {
+  //       setState(() {
+  //         _isPopupOpen = false;
+  //       });
+  //     }
+  //   });
+  // }
+
+Future<void> showQuestionPopup(
+  BuildContext context,
+  QuestionerDatum question,
+) {
+  return showGeneralDialog(
+    context: context,
+    barrierDismissible: true, // <-- allow dismiss on back
+    barrierLabel: "Question Popup",
+    barrierColor: Colors.black.withOpacity(0.5),
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Center(
+        child: WillPopScope(
+          onWillPop: () async => true, // <-- allow pop
           child: Material(
             color: Colors.transparent,
             child: Container(
@@ -238,22 +299,23 @@ class _DashboardState extends ConsumerState<Dashboard> {
               ),
             ),
           ),
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: animation.value,
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
-    ).then((_) {
-      if (mounted) {
-        setState(() {
-          _isPopupOpen = false;
-        });
-      }
-    });
-  }
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return Transform.scale(
+        scale: animation.value,
+        child: Opacity(opacity: animation.value, child: child),
+      );
+    },
+  ).then((_) {
+    if (mounted) {
+      setState(() {
+        _isPopupOpen = false;
+      });
+    }
+  });
+}
 
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
@@ -470,7 +532,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
                                 ),
                                 child: InkWell(
                                   onTap: () {
-                                    print("clicked********** ");
                                     context.push(RouteNames.pointnodification);
                                   },
                                   child: Center(
@@ -1018,7 +1079,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
-                                        color: Theme.of(
+                                        color: Theme.of(  
                                           context,
                                         ).textTheme.bodyMedium?.color,
                                       ),

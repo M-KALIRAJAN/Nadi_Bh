@@ -79,6 +79,15 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
     final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.btn_primery,
+        onPressed: () {
+          // context.push(RouteNames.createServiceRequest);
+          // 👆 change route if needed
+        },
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+
       body: connectivity.when(
         data: (isOnline) {
           if (!isOnline) {

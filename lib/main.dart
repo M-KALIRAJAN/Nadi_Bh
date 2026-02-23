@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:nadi_user_app/l10n/app_localizations.dart';
+import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/language_provider.dart';
 import 'package:nadi_user_app/services/Stream_Chat_Service.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
@@ -47,6 +48,11 @@ void main() async {
 
   /// VERY IMPORTANT FOR IOS TOKEN
   await FirebaseMessaging.instance.setAutoInitEnabled(true);
+
+  final userId = await AppPreferences.getUserId();
+  if(userId != null){
+        await StreamChatService().connectUser(userId);
+  }
 
   /// GET FCM TOKEN
   try {

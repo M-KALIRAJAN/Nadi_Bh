@@ -108,9 +108,11 @@ class _OtpState extends State<Otp> {
         //  await AppPreferences.setLoggedIn(true);
         context.push(RouteNames.accountcreated);
       } else {
+        setState(() => isLoading = false);
         _showOtpError(response["message"] ?? "Invalid OTP");
       }
     } on DioException catch (e) {
+      setState(() => isLoading = false);
       final errorResponse = e.response?.data;
       final message = (errorResponse is Map && errorResponse["message"] != null)
           ? errorResponse["message"]
@@ -161,7 +163,7 @@ class _OtpState extends State<Otp> {
       textStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Colors.black
+        color: Colors.black,
       ),
       decoration: BoxDecoration(
         // color: isDark ? Colors.black : Colors.black,
@@ -177,7 +179,7 @@ class _OtpState extends State<Otp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-               Text(
+              Text(
                 AppLocalizations.of(context)!.enterVerificationCode,
                 style: TextStyle(
                   fontSize: AppFontSizes.large,
@@ -185,8 +187,8 @@ class _OtpState extends State<Otp> {
                 ),
               ),
               SizedBox(height: 20),
-               Text(
-               AppLocalizations.of(context)!.otpSentMessage,
+              Text(
+                AppLocalizations.of(context)!.otpSentMessage,
                 style: TextStyle(
                   fontSize: AppFontSizes.small,
                   color: AppColors.borderGrey,
@@ -234,8 +236,8 @@ class _OtpState extends State<Otp> {
                             _startTimer();
                             sendOtp(context);
                           },
-                          child:  Text(
-                           AppLocalizations.of(context)!.resendOtp,
+                          child: Text(
+                            AppLocalizations.of(context)!.resendOtp,
                             style: TextStyle(
                               color: AppColors.btn_primery,
                               fontWeight: FontWeight.bold,
@@ -260,9 +262,12 @@ class _OtpState extends State<Otp> {
                     if (otpController.text.length == 4) {
                       verifyOtp(context);
                     } else {
-                      _showOtpError(AppLocalizations.of(context)!.enter4DigitOtp);
+                      _showOtpError(
+                        AppLocalizations.of(context)!.enter4DigitOtp,
+                      );
                     }
                   },
+                  isLoading: isLoading,
                   color: AppColors.btn_primery,
                   width: double.infinity,
                 ),

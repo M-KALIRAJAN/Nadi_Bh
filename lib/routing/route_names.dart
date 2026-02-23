@@ -185,7 +185,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: RouteNames.Terms,
-      builder: (context, state) => const Termsandconditions(),
+      builder: (context, state) => const TermsAndConditions(),
     ),
     GoRoute(
       path: RouteNames.accountcreated,

@@ -51,7 +51,7 @@ class AuthService {
     required String email,
     required String password,
     required String gender,
-    required String userId,
+    required String userId, required String secondName, required String thirdName, required String fourthName,
   }) async {
     try {
       final response = await _dio.post(
@@ -59,6 +59,9 @@ class AuthService {
         data: {
           "userId": userId,
           "fullName": fullName,
+          "secondName":secondName,
+           "thirdName":thirdName,
+            "fourthName":fourthName,
           "mobileNumber": mobileNumber,
           "email": email,
           "password": password,

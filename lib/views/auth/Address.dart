@@ -91,7 +91,7 @@ class _AddressState extends State<Address> {
     return GestureDetector(
       onTap: () => setState(() => selected = type),
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.btn_primery : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -135,18 +135,18 @@ class _AddressState extends State<Address> {
           ),
           SizedBox(height: 10),
 
-          if (widget.accountType == "Family") ...[
-            AppTextField(label: l10n.enterNumberOfKids),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(child: AppTextField(label: l10n.noOfBoys)),
-                SizedBox(width: 10),
-                Expanded(child: AppTextField(label: l10n.noOfGirls)),
-              ],
-            ),
-            SizedBox(height: 17),
-          ],
+          // if (widget.accountType == "Family") ...[
+          //   AppTextField(label: l10n.enterNumberOfKids),
+          //   SizedBox(height: 10),
+          //   Row(
+          //     children: [
+          //       Expanded(child: AppTextField(label: l10n.noOfBoys)),
+          //       SizedBox(width: 10),
+          //       Expanded(child: AppTextField(label: l10n.noOfGirls)),
+          //     ],
+          //   ),
+          //   SizedBox(height: 17),
+          // ],
           SizedBox(height: 15),
           Image.asset("assets/images/map.png", height: 84),
           SizedBox(height: 15),
@@ -155,7 +155,7 @@ class _AddressState extends State<Address> {
             children: [
               buildType(l10n.flat, 'assets/icons/Flat.png'),
               buildType(l10n.villa, 'assets/icons/villa.png'),
-              buildType(l10n.office, 'assets/icons/office.png'),
+              // buildType(l10n.office, 'assets/icons/office.png'),
             ],
           ),
           SizedBox(height: 17),
