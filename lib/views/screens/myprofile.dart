@@ -353,7 +353,7 @@ class Myprofile extends ConsumerWidget {
                           color: const Color.fromRGBO(183, 213, 205, 1),
                         ),
                          Text(
-                         loc.profileDetails ?? "",
+                         loc.profileDetails,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -468,7 +468,7 @@ class Myprofile extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                          Text(
-                         loc.fullName ?? "",
+                         loc.fullName ,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -496,7 +496,7 @@ class Myprofile extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                          Text(
-                           loc.phoneNumber ?? "",
+                           loc.phoneNumber ,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

@@ -26,7 +26,8 @@ class AppCard extends StatelessWidget {
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: color,
-        shape: BoxShape.circle, // 100% perfect circle
+        // shape: BoxShape.circle, // 100% perfect circle
+        borderRadius: BorderRadius.circular(20 )
       ),
       child: child,
     );

@@ -190,20 +190,33 @@ class AuthService {
 
   //Terms & Conditions
 
-  Future<Map<String, dynamic>?> TermsAndSonditions({
-    required String userId,
-    required String fcmToken,
-  }) async {
-    try {
-      final response = await _dio.post(
-        "user-account/terms-verify",
-        data: {"userId": userId, "fcmToken": fcmToken},
-      );
-      return response.data;
-    } catch (e) {
-      AppLogger.error("Terms & Conditions : $e");
-    }
+Future<Map<String, dynamic>?> TermsAndSonditions({
+  required String userId,
+  required String fcmToken,
+}) async {
+  try {
+    // ✅ Log request data
+    AppLogger.info("Terms API Called");
+    AppLogger.info("Sending userId: $userId");
+    AppLogger.info("Sending fcmToken: $fcmToken");
+
+    final response = await _dio.post(
+      "user-account/terms-verify",
+      data: {
+        "userId": userId,
+        "fcmToken": fcmToken,
+      },
+    );
+
+    // ✅ Log response
+    AppLogger.info("Terms API Response: ${response.data}");
+
+    return response.data;
+  } catch (e) {
+    AppLogger.error("Terms & Conditions Error: $e");
+    return null;
   }
+}
 
 Future<Map<String, dynamic>> TermsAndConditionlist( String lang) async {
   try {

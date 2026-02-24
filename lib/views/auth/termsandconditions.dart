@@ -155,14 +155,14 @@ class _TermsAndConditionsState extends ConsumerState<TermsAndConditions> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              Text(
-                                l10n.readFullTerms,
-                                style: TextStyle(
-                                  color: AppColors.btn_primery,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              // Text(
+                              //   l10n.readFullTerms,
+                              //   style: TextStyle(
+                              //     color: AppColors.btn_primery,
+                              //     fontSize: 15,
+                              //     fontWeight: FontWeight.w600,
+                              //   ),
+                              // ),
                             ],
                           ),
               ),

@@ -206,7 +206,7 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
 
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
-  late Animation<double> _scaleAnimation;
+
 
   @override
   void initState() {
@@ -238,23 +238,7 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
           ),
         );
 
-    // ✅ Smooth zoom in
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 0.3,
-          end: 1.0,
-        ).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 1.0,
-          end: 1.5,
-        ).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-    ]).animate(_animationController);
+
 
     // ✅ Navigate when animation completes
     _animationController.addStatusListener((status) {
@@ -347,6 +331,10 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
     if (!hasSeenAbout) {
       context.go(RouteNames.language);
     } else if (isLoggedIn && token.isNotEmpty) {
+  //      final userId = await AppPreferences.getUserId();
+  // if(userId != null){
+  //       await StreamChatService().connectUser(userId);
+  // }
       context.go(RouteNames.bottomnav);
     } else {
       context.go(RouteNames.login);
@@ -354,44 +342,58 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
   }
 
   // ================= UI =================
-  Widget _buildMedia() {
-    // 🎥 VIDEO → NO ANIMATION
-    if (_videoController != null && _videoController!.value.isInitialized) {
-      return AspectRatio(
-        aspectRatio: _videoController!.value.aspectRatio,
-        child: VideoPlayer(_videoController!),
-      );
-    }
-
-    // 🖼 IMAGE / LOGO → WITH ANIMATION
-    Widget imageWidget;
-
-    if (imageUrl != null) {
-      imageWidget = Image.network(
-        imageUrl!,
-        width: 180,
-        height: 180,
-        fit: BoxFit.contain,
-      );
-    } else {
-      imageWidget = Image.asset(
-        'assets/icons/logo.png',
-        width: 150,
-        height: 150,
-      );
-    }
-
-    return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
-      ),
-      child: RotationTransition(
-        turns: _rotationAnimation,
-        child: ScaleTransition(scale: _scaleAnimation, child: imageWidget),
-      ),
+Widget _buildMedia() {
+  // 🎥 VIDEO → NO ANIMATION
+  if (_videoController != null && _videoController!.value.isInitialized) {
+    return AspectRatio(
+      aspectRatio: _videoController!.value.aspectRatio,
+      child: VideoPlayer(_videoController!),
     );
   }
 
+  // 🖼 IMAGE / LOGO → ONLY ROTATION (NO ZOOM)
+  Widget imageWidget;
+
+  if (imageUrl != null) {
+    imageWidget = Image.network(
+      imageUrl!,
+      width: 180,
+      height: 180,
+      fit: BoxFit.contain,
+    );
+  } else {
+    imageWidget = Image.asset(
+      'assets/icons/logo.png',
+      width: 170,
+      height: 170,
+    );
+  }
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      RotationTransition(
+        turns: _rotationAnimation, // ✅ only rotate
+        child: imageWidget,
+      ),
+
+      const SizedBox(height: 45),
+
+      // ✅ Linear Progress Bar
+      SizedBox(
+        width: 200,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: const LinearProgressIndicator(
+            minHeight: 5,
+            backgroundColor: Colors.white24,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      ),
+    ],
+  );
+}
   @override
   void dispose() {
     _animationController.dispose();

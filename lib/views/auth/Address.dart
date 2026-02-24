@@ -129,10 +129,10 @@ class _AddressState extends State<Address> {
       key: widget.formKey,
       child: Column(
         children: [
-          AppTextField(
-            controller: controller.building,
-            label: l10n.pickLocation,
-          ),
+          // AppTextField(
+          //   controller: controller.building,
+          //   label: l10n.pickLocation,
+          // ),
           SizedBox(height: 10),
 
           // if (widget.accountType == "Family") ...[
@@ -148,8 +148,8 @@ class _AddressState extends State<Address> {
           //   SizedBox(height: 17),
           // ],
           SizedBox(height: 15),
-          Image.asset("assets/images/map.png", height: 84),
-          SizedBox(height: 15),
+          // Image.asset("assets/images/map.png", height: 84),
+          // SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

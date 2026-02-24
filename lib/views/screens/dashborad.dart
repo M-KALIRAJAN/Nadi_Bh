@@ -5,7 +5,6 @@ import 'package:nadi_user_app/core/utils/CommonNetworkImage.dart';
 import 'package:nadi_user_app/core/utils/logger.dart';
 import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
 import 'package:nadi_user_app/l10n/app_localizations.dart';
-
 import 'package:nadi_user_app/models/Questioner_Model.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/providers/Advertisement_Provider.dart';
@@ -14,7 +13,6 @@ import 'package:nadi_user_app/providers/connectivity_provider.dart';
 import 'package:nadi_user_app/providers/fetchpointsnodification.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/providers/userDashboard_provider.dart';
-import 'package:nadi_user_app/services/Questioner_Service.dart';
 import 'package:nadi_user_app/services/home_view_service.dart';
 import 'package:nadi_user_app/services/ongoing_service.dart';
 import 'package:nadi_user_app/views/screens/Advertisement_View.dart';
@@ -47,32 +45,28 @@ class _DashboardState extends ConsumerState<Dashboard> {
   final HomeViewService _homeViewService = HomeViewService();
   final OngoingService _ongoingService = OngoingService();
   DateTime? lastBackPressed;
-
   Map<String, dynamic>? _ongoing;
   Map<String, dynamic>? _aprovetech;
-  bool _isPopupOpen = false;
-  String? _shownQuestionId;
+
   // @override
   // void initState() {
   //   super.initState();
+
   //   get_preferencevalue();
-
   //   fetchongoinproces();
-
+  //   fetchapprovetechnician();
   //   Future.microtask(() {
   //     ref.read(serviceListProvider.notifier).refresh();
   //     ref.refresh(fetchpointsnodification);
   //     ref.refresh(fetchadvertisementprovider);
   //     ref.refresh(userdashboardprovider);
   //     ref.refresh(fetchquestionsdataprovider);
-
   //   });
   // }
 
   @override
   void initState() {
     super.initState();
-
     get_preferencevalue();
     fetchongoinproces();
     fetchapprovetechnician();
@@ -81,7 +75,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
       ref.refresh(fetchpointsnodification);
       ref.refresh(fetchadvertisementprovider);
       ref.refresh(userdashboardprovider);
-      ref.refresh(fetchquestionsdataprovider);
     });
   }
 
@@ -98,41 +91,31 @@ class _DashboardState extends ConsumerState<Dashboard> {
   }
 
   Future<void> fetchapprovetechnician() async {
-
-      final aprovedata = await _ongoingService.fetchaprovetech();
-      // 🔹 Log the full raw response
-      AppLogger.warn("fetchapprovetechnician raw response: $aprovedata");
-      // 🔹 Update state
-      setState(() {
-        _aprovetech = aprovedata;
-      });
-
+    final aprovedata = await _ongoingService.fetchaprovetech();
+    // 🔹 Log the full raw response
+    AppLogger.warn("fetchapprovetechnician raw response: $aprovedata");
+    // 🔹 Update state
+    setState(() {
+      _aprovetech = aprovedata;
+    });
   }
-
   Future<void> approvework() async {
     if (_aprovetech == null || _aprovetech!['data'] == null) return;
-
     final aprovetech = _aprovetech!['data'];
-
     final payload = {
       "userServiceId": aprovetech['userServiceId'],
       "techniciainId": aprovetech['techniciainId'],
     };
-
     try {
       final result = await _ongoingService.fetchabrovework(payload: payload);
-
       if (mounted) {
         setState(() {
           _aprovetech = null;
         });
       }
-
       SnackbarHelper.ShowSuccess(context, "Work approved successfully");
-
       /// OPTIONAL refresh API (background)
       fetchapprovetechnician();
-
       AppLogger.info("Approve result: $result");
     } catch (e) {
       AppLogger.error("Approve error: $e");
@@ -196,126 +179,60 @@ class _DashboardState extends ConsumerState<Dashboard> {
     );
   }
 
-  // Future<void> showQuestionPopup(
-  //   BuildContext context,
-  //   QuestionerDatum question,
-  // ) {
-  //   return showGeneralDialog(
-  //     context: context,
-  //     barrierDismissible: true,
-  //     barrierLabel: "Question Popup",
-  //     barrierColor: Colors.black.withOpacity(0.5),
-  //     transitionDuration: const Duration(milliseconds: 300),
-  //     pageBuilder: (context, animation, secondaryAnimation) {
-  //       return Center(
-  //         child: Material(
-  //           color: Colors.transparent,
-  //           child: Container(
-  //             width: MediaQuery.of(context).size.width * 0.9,
-  //             decoration: BoxDecoration(
-  //               color: Colors.white,
-  //               borderRadius: BorderRadius.circular(20),
-  //             ),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Container(
-  //                   padding: const EdgeInsets.all(12),
-  //                   child: Text(
-  //                     question.title,
-  //                     style: const TextStyle(
-  //                       fontSize: 18,
-  //                       fontWeight: FontWeight.bold,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 const Divider(height: 1),
-  //                 QuestionerView(
-  //                   scrollController: ScrollController(),
-  //                   questionerDatum: question,
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //     transitionBuilder: (context, animation, secondaryAnimation, child) {
-  //       return Transform.scale(
-  //         scale: animation.value,
-  //         child: Opacity(opacity: animation.value, child: child),
-  //       );
-  //     },
-  //   ).then((_) {
-  //     if (mounted) {
-  //       setState(() {
-  //         _isPopupOpen = false;
-  //       });
-  //     }
-  //   });
-  // }
-
-Future<void> showQuestionPopup(
-  BuildContext context,
-  QuestionerDatum question,
-) {
-  return showGeneralDialog(
-    context: context,
-    barrierDismissible: true, // <-- allow dismiss on back
-    barrierLabel: "Question Popup",
-    barrierColor: Colors.black.withOpacity(0.5),
-    transitionDuration: const Duration(milliseconds: 300),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return Center(
-        child: WillPopScope(
-          onWillPop: () async => true, // <-- allow pop
+  Future<void> showQuestionPopup(
+    BuildContext context,
+    QuestionerDatum question,
+  ) {
+    return showGeneralDialog(
+      context: context,
+      barrierDismissible: false, //  DO NOT CLOSE ON OUTSIDE CLICK
+      barrierLabel: "Question Popup",
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
           child: Material(
             color: Colors.transparent,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      question.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        question.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const Divider(height: 1),
-                  QuestionerView(
-                    scrollController: ScrollController(),
-                    questionerDatum: question,
-                  ),
-                ],
+                    const Divider(height: 1),
+                    Flexible(child: QuestionerView(questionerDatum: question)),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: animation.value,
-        child: Opacity(opacity: animation.value, child: child),
-      );
-    },
-  ).then((_) {
-    if (mounted) {
-      setState(() {
-        _isPopupOpen = false;
-      });
-    }
-  });
-}
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: animation.value,
+          child: Opacity(opacity: animation.value, child: child),
+        );
+      },
+    );
+  }
 
   Widget build(BuildContext context) {
     final services = ref.watch(serviceListProvider);
@@ -326,41 +243,24 @@ Future<void> showQuestionPopup(
     final data = _ongoing?['data'];
 
     final bool isOngoing = data != null && data['status'] == 'inProgress';
-
-    final questionProvider = ref.watch(fetchquestionsdataprovider);
     final aprovetech = _aprovetech?['data'];
-    questionProvider.whenData((model) {
-      if (!mounted) return;
 
-      if (model.data.isEmpty) {
-        _shownQuestionId = null;
-        _isPopupOpen = false;
-        return;
+    ref.listen<AsyncValue<Questioner>>(fetchquestionsdataprovider, (
+      previous,
+      next,
+    ) async {
+      if (next is AsyncData<Questioner>) {
+        final data = next.value;
+        if (data.data.isEmpty) return; 
+        // Prevent duplicate dialog
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (!context.mounted) return;
+
+        showQuestionPopup(context, data.data.first);
       }
-
-      final question = model.data.first;
-
-      /// 🚨 prevent duplicate popup
-      if (_isPopupOpen) return;
-
-      /// 🚨 prevent reopening same question
-      if (_shownQuestionId == question.id) return;
-
-      _isPopupOpen = true;
-      _shownQuestionId = question.id;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
-
-        await showQuestionPopup(context, question);
-
-        if (mounted) {
-          setState(() {
-            _isPopupOpen = false;
-          });
-        }
-      });
     });
+
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: connectivity.when(
@@ -424,7 +324,6 @@ Future<void> showQuestionPopup(
                                       ),
 
                                       const SizedBox(width: 12),
-
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -455,7 +354,7 @@ Future<void> showQuestionPopup(
                                   return Row(
                                     children: [
                                       dashboard.image == null ||
-                                              dashboard.image!.isEmpty
+                                              dashboard.image.isEmpty
                                           ? Container(
                                               width: 44,
                                               height: 44,
@@ -620,7 +519,7 @@ Future<void> showQuestionPopup(
                                       // color: Theme.of(
                                       //   context,
                                       // ).textTheme.bodyMedium?.color,
-                                      color: Colors.black
+                                      color: Colors.black,
                                     ),
                                   ),
                                   InkWell(
@@ -1079,7 +978,7 @@ Future<void> showQuestionPopup(
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
-                                        color: Theme.of(  
+                                        color: Theme.of(
                                           context,
                                         ).textTheme.bodyMedium?.color,
                                       ),

@@ -2,10 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:nadi_user_app/l10n/app_localizations.dart';
-import 'package:nadi_user_app/preferences/preferences.dart';
+
 import 'package:nadi_user_app/providers/language_provider.dart';
-import 'package:nadi_user_app/services/Stream_Chat_Service.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -49,10 +47,10 @@ void main() async {
   /// VERY IMPORTANT FOR IOS TOKEN
   await FirebaseMessaging.instance.setAutoInitEnabled(true);
 
-  final userId = await AppPreferences.getUserId();
-  if(userId != null){
-        await StreamChatService().connectUser(userId);
-  }
+  // final userId = await AppPreferences.getUserId();
+  // if(userId != null){
+  //       await StreamChatService().connectUser(userId);
+  // }
 
   /// GET FCM TOKEN
   try {
@@ -90,69 +88,17 @@ void main() async {
   );
 }
 
-// class MyApp extends ConsumerWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final themeMode = ref.watch(themeProvider);
-//  final locale = ref.watch(languageProvider);
-//      final StreamChatClient client = StreamChatService().client;
-//     return MaterialApp.router(
-//       routerConfig: appRouter,
-
-//       debugShowCheckedModeBanner: false,
-
-//       locale: locale,
-//       supportedLocales: AppLocalizations.supportedLocales,
-//       localizationsDelegates: const [
-//         AppLocalizations.delegate,
-//         GlobalMaterialLocalizations.delegate,
-//         GlobalWidgetsLocalizations.delegate,
-//         GlobalCupertinoLocalizations.delegate,
-//       ],
-      
-//       themeMode: themeMode,
-//       theme: ThemeData(
-//         fontFamily: 'Poppins',
-//         brightness: Brightness.light,
-//         scaffoldBackgroundColor: AppColors.background_clr,
-//         colorScheme: const ColorScheme.light(
-//           primary: AppColors.btn_primery,
-//           secondary: AppColors.button_secondary,
-//           surface: Colors.white,
-//           onSurface: Colors.black,
-//         ),
-//         textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
-//       ),
-//       darkTheme: ThemeData(
-//         brightness: Brightness.dark,
-//         scaffoldBackgroundColor: Colors.black,
-//         fontFamily: 'Poppins',
-//         colorScheme: const ColorScheme.dark(
-//           primary: AppColors.btn_primery,
-//           secondary: AppColors.button_secondary,
-//           surface: Color.fromARGB(255, 56, 56, 56),
-//           onSurface: Color.fromARGB(255, 53, 53, 53),
-//         ),
-//         textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-//       ),
-//     );
-//   }
-// }
-
-
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
-    final locale = ref.watch(languageProvider);
-    final StreamChatClient client = StreamChatService().client;
-
+ final locale = ref.watch(languageProvider);
+    //  final StreamChatClient client = StreamChatService().client;
     return MaterialApp.router(
       routerConfig: appRouter,
+
       debugShowCheckedModeBanner: false,
 
       locale: locale,
@@ -163,9 +109,8 @@ class MyApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-
+      
       themeMode: themeMode,
-
       theme: ThemeData(
         fontFamily: 'Poppins',
         brightness: Brightness.light,
@@ -176,8 +121,8 @@ class MyApp extends ConsumerWidget {
           surface: Colors.white,
           onSurface: Colors.black,
         ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
       ),
-
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Colors.black,
@@ -188,14 +133,66 @@ class MyApp extends ConsumerWidget {
           surface: Color.fromARGB(255, 56, 56, 56),
           onSurface: Color.fromARGB(255, 53, 53, 53),
         ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
       ),
-
-      builder: (context, child) {
-        return StreamChat(
-          client: client,
-          child: child!,
-        );
-      },
     );
   }
 }
+
+// class MyApp extends ConsumerWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final themeMode = ref.watch(themeProvider);
+//     final locale = ref.watch(languageProvider);
+//     final StreamChatClient client = StreamChatService().client;
+
+//     return MaterialApp.router(
+//       routerConfig: appRouter,
+//       debugShowCheckedModeBanner: false,
+
+//       locale: locale,
+//       supportedLocales: AppLocalizations.supportedLocales,
+//       localizationsDelegates: const [
+//         AppLocalizations.delegate,
+//         GlobalMaterialLocalizations.delegate,
+//         GlobalWidgetsLocalizations.delegate,
+//         GlobalCupertinoLocalizations.delegate,
+//       ],
+
+//       themeMode: themeMode,
+
+//       theme: ThemeData(
+//         fontFamily: 'Poppins',
+//         brightness: Brightness.light,
+//         scaffoldBackgroundColor: AppColors.background_clr,
+//         colorScheme: const ColorScheme.light(
+//           primary: AppColors.btn_primery,
+//           secondary: AppColors.button_secondary,
+//           surface: Colors.white,
+//           onSurface: Colors.black,
+//         ),
+//       ),
+
+//       darkTheme: ThemeData(
+//         brightness: Brightness.dark,
+//         scaffoldBackgroundColor: Colors.black,
+//         fontFamily: 'Poppins',
+//         colorScheme: const ColorScheme.dark(
+//           primary: AppColors.btn_primery,
+//           secondary: AppColors.button_secondary,
+//           surface: Color.fromARGB(255, 56, 56, 56),
+//           onSurface: Color.fromARGB(255, 53, 53, 53),
+//         ),
+//       ),
+
+//       builder: (context, child) {
+//         return StreamChat(
+//               client: StreamChatService().client,
+//           child: child!,
+//         );
+//       },
+//     );
+//   }
+// }

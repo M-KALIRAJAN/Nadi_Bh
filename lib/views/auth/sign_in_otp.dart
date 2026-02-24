@@ -254,6 +254,7 @@ import 'package:nadi_user_app/core/utils/snackbar_helper.dart';
 import 'package:nadi_user_app/l10n/app_localizations.dart';
 import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
+import 'package:nadi_user_app/services/Stream_Chat_Service.dart';
 import 'package:nadi_user_app/services/auth_service.dart';
 import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 import 'package:nadi_user_app/widgets/inputs/app_text_field.dart';
@@ -307,6 +308,11 @@ class _SignInOtpState extends State<SignInOtp> {
         await AppPreferences.saveToken(response['token']);
         await AppPreferences.saveAccountType(response['accountType']);
         await AppPreferences.saveUserId(response['userId']);
+
+  //            final userId = await AppPreferences.getUserId();
+  // if(userId != null){
+  //       await StreamChatService().connectUser(userId);
+  // }
         context.go(RouteNames.bottomnav);
       }
     } catch (e) {

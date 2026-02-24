@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/models/Questioner_Model.dart';
-import 'package:nadi_user_app/providers/Questioner_Provider.dart';
-import 'package:nadi_user_app/providers/userDashboard_provider.dart';
 import 'package:nadi_user_app/services/Questioner_Service.dart';
-import 'package:nadi_user_app/widgets/buttons/primary_button.dart';
 
 class QuestionerView extends ConsumerStatefulWidget {
-  final ScrollController scrollController;
   final QuestionerDatum questionerDatum;
 
   const QuestionerView({
     super.key,
-    required this.scrollController,
     required this.questionerDatum,
   });
 
@@ -23,327 +17,231 @@ class QuestionerView extends ConsumerStatefulWidget {
 
 class _QuestionerViewState extends ConsumerState<QuestionerView> {
   final Map<int, int> selectedAnswers = {};
+  final Map<int, String> inputAnswers = {};
 
-  int currentQuestionIndex = 0;
+  int currentIndex = 0;
   bool isSubmitting = false;
-  String? errorText;
-
   bool isSuccess = false;
+
   String successMessage = "";
   String pointsEarned = "";
-  String totalUserPoints = "";
+  String totalPoints = "";
+  String? errorText;
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: isSuccess ? successUI() : questionUI(),
-      ),
-    );
+    return    isSuccess ? successUI() : questionUI();
   }
 
-  /// ================= QUESTION UI =================
+Widget questionUI() {
+  final questions = widget.questionerDatum.questions;
+  final question = questions[currentIndex];
+  final isLast = currentIndex == questions.length - 1;
 
-  Widget questionUI() {
-    final questions = widget.questionerDatum.questions;
-    final question = questions[currentQuestionIndex];
-
-    final bool isLastQuestion = currentQuestionIndex == questions.length - 1;
-
-    return SingleChildScrollView(
-      key: const ValueKey("question"),
-      controller: widget.scrollController,
-      padding: const EdgeInsets.only(left: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Questions ${currentQuestionIndex + 1} of ${questions.length}",
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
-          const SizedBox(height: 5),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(13),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(blurRadius: 10, color: Colors.black.withOpacity(.05)),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  question.question,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                ...List.generate(question.options.length, (oIndex) {
-                  final bool isSelected =
-                      selectedAnswers[currentQuestionIndex] == oIndex;
-
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        errorText = null;
-                        selectedAnswers[currentQuestionIndex] = oIndex;
-                      });
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.btn_primery
-                              : Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                        color: isSelected
-                            ? AppColors.btn_primery.withOpacity(.08)
-                            : Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              question.options[oIndex],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check,
-                              size: 18,
-                              color: AppColors.btn_primery,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-
-          if (errorText != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(
-                errorText!,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-          // const SizedBox(height: 10),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.btn_primery,
-            ),
-            child: Text(
-              isSubmitting
-                  ? "Submitting..."
-                  : (isLastQuestion ? "Submit" : "Next →"),
-              style: const TextStyle(color: Colors.white),
-            ),
-            onPressed: isSubmitting
-                ? null
-                : () async {
-                    if (!selectedAnswers.containsKey(currentQuestionIndex)) {
-                      setState(() {
-                        errorText = "Please answer this question";
-                      });
-                      return;
-                    }
-
-                    if (!isLastQuestion) {
-                      setState(() {
-                        currentQuestionIndex++;
-                      });
-                      return;
-                    }
-
-                    await submitAnswers();
-                  },
-          ),
-          const SizedBox(height: 18),
-        ],
-      ),
-    );
-  }
-
-  /// ================= SUCCESS UI =================
-bool isDoneLoading = false;
-
-Widget successUI() {
-  return Center(
-    key: const ValueKey("success"),
-    child: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              color: Colors.black.withOpacity(0.08),
-              offset: const Offset(0, 8),
-            )
-          ],
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      mainAxisSize: MainAxisSize.min, // ✅ Important
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Question ${currentIndex + 1} of ${questions.length}",
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        const SizedBox(height: 20),
 
-            /// ✅ Modern success icon
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.green.shade400,
-                    Colors.green.shade600,
+        Text(
+          question.question,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        /// CHOOSE TYPE
+        if (question.type == "choose" &&
+            question.options.isNotEmpty)
+          ...List.generate(question.options.length, (i) {
+            final isSelected =
+                selectedAnswers[currentIndex] == i;
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  errorText = null;
+                  selectedAnswers[currentIndex] = i;
+                });
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.green
+                        : Colors.grey.shade300,
+                  ),
+                  color: isSelected
+                      ? Colors.green.withOpacity(.1)
+                      : Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: Text(question.options[i])),
+                    if (isSelected)
+                      const Icon(Icons.check,
+                          color: Colors.green)
                   ],
                 ),
               ),
-              child: const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 40,
-              ),
+            );
+          }),
+
+        /// INPUT TYPE
+        if (question.type == "input")
+          TextField(
+            decoration: const InputDecoration(
+              hintText: "Type your answer",
+              border: OutlineInputBorder(),
             ),
+            onChanged: (val) {
+              inputAnswers[currentIndex] = val;
+            },
+          ),
 
-            const SizedBox(height: 20),
+        if (errorText != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            errorText!,
+            style: const TextStyle(color: Colors.red),
+          )
+        ],
 
-            const Text(
-              "Success!",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        const SizedBox(height: 24),
 
-            const SizedBox(height: 10),
+        /// BUTTON
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: isSubmitting
+                ? null
+                : () async {
+                    if (question.type == "choose" &&
+                        !selectedAnswers.containsKey(
+                            currentIndex)) {
+                      setState(() =>
+                          errorText =
+                              "Please select an option");
+                      return;
+                    }
 
-            Text(
-              successMessage,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey.shade700,
-                height: 1.4,
-              ),
-            ),
+                    if (question.type == "input" &&
+                        (inputAnswers[currentIndex] ==
+                                null ||
+                            inputAnswers[currentIndex]!
+                                .trim()
+                                .isEmpty)) {
+                      setState(() =>
+                          errorText =
+                              "Please enter your answer");
+                      return;
+                    }
 
-            const SizedBox(height: 18),
+                    if (!isLast) {
+                      setState(() => currentIndex++);
+                      return;
+                    }
 
-            /// ✅ Points card modern style
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    "Points Earned: $pointsEarned",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text("Total Points: $totalUserPoints"),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            /// ✅ Modern button
-            AppButton(
-              isLoading: isDoneLoading,
-              onPressed: () async {
-
-                setState(() => isDoneLoading = true);
-
-                await Future.delayed(const Duration(seconds: 1));
-
-                if (!mounted) return;
-
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
-
-                setState(() => isDoneLoading = false);
-              },
-              text: "Done",
-              width: double.infinity,
-              color: AppColors.btn_primery,
-            ),
-          ],
+                    await submit();
+                  },
+            child: Text(isLast ? "Submit" : "Next"),
+          ),
         ),
-      ),
+      ],
     ),
   );
 }
 
-  Future<void> submitAnswers() async {
+  Widget successUI() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle,
+                color: Colors.green, size: 80),
+            const SizedBox(height: 20),
+            const Text(
+              "Success!",
+              style:
+                  TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(successMessage),
+            const SizedBox(height: 10),
+            Text("Points Earned: $pointsEarned"),
+            Text("Total Points: $totalPoints"),
+            const SizedBox(height: 20),
+            ElevatedButton(
+             onPressed: () async {
+  await Future.delayed(const Duration(seconds: 3));
+  if (context.mounted) {
+    Navigator.pop(context);
+  }
+},
+              child: const Text("Done"),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> submit() async {
     setState(() => isSubmitting = true);
 
     final payload = {
       "questionnaireId": widget.questionerDatum.id,
-      "answers": selectedAnswers.entries
-          .map((e) => {"questionIndex": e.key, "selectedOption": e.value})
-          .toList(),
+      "answers": List.generate(
+        widget.questionerDatum.questions.length,
+        (index) {
+          final question =
+              widget.questionerDatum.questions[index];
+
+          return {
+            "questionIndex": index,
+            "selectedOption":
+                question.type == "choose"
+                    ? selectedAnswers[index]
+                    : null,
+            "inputAnswer":
+                question.type == "input"
+                    ? inputAnswers[index]
+                    : null,
+          };
+        },
+      ),
     };
 
     try {
-      final response = await QuestionerService().submitQuestionsData(
-        payload: payload,
-      );
+      final response = await QuestionerService()
+          .submitQuestionsData(payload: payload);
 
       setState(() {
         isSuccess = true;
-        successMessage = response["message"];
-        pointsEarned = response["pointsEarned"].toString();
-        totalUserPoints = response["totalUserPoints"].toString();
+        successMessage = response["message"] ?? "";
+        pointsEarned =
+            response["pointsEarned"].toString();
+        totalPoints =
+            response["totalUserPoints"].toString();
       });
-
-      ref.invalidate(fetchquestionsdataprovider);
-      ref.refresh(userdashboardprovider);
     } catch (e) {
-      setState(() {
-        errorText = e.toString();
-      });
+      setState(() => errorText = e.toString());
     } finally {
       if (mounted) {
         setState(() => isSubmitting = false);
