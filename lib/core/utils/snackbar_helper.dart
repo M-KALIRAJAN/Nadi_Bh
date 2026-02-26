@@ -18,7 +18,7 @@ class SnackbarHelper {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: AppColors.btn_primery,
+          backgroundColor: AppColors.app_background_clr,
         ),
       );
   }

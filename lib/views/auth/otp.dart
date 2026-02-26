@@ -212,7 +212,7 @@ class _OtpState extends State<Otp> {
                     length: 4,
                     defaultPinTheme: defaultPinTheme,
                     focusedPinTheme: defaultPinTheme.copyDecorationWith(
-                      border: Border.all(color: AppColors.button_secondary),
+                      border: Border.all(color: AppColors.app_background_clr),
                     ),
                     submittedPinTheme: defaultPinTheme.copyDecorationWith(
                       border: Border.all(color: Colors.green),
@@ -239,7 +239,7 @@ class _OtpState extends State<Otp> {
                           child: Text(
                             AppLocalizations.of(context)!.resendOtp,
                             style: TextStyle(
-                              color: AppColors.btn_primery,
+                              color: AppColors.app_background_clr,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

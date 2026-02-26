@@ -20,7 +20,7 @@ class PrivacyPolicyView extends ConsumerWidget {
          l10n.privacyPolicy,
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: AppColors.btn_primery,
+        backgroundColor: AppColors.app_background_clr,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),

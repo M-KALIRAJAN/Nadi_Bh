@@ -268,10 +268,10 @@ Future<void> issuseList() async {
                             vertical: 14,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.btn_primery.withOpacity(0.08),
+                            color: AppColors.app_background_clr.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: AppColors.btn_primery.withOpacity(0.3),
+                              color: AppColors.app_background_clr.withOpacity(0.3),
                             ),
                           ),
                           child: Row(
@@ -335,7 +335,7 @@ Future<void> issuseList() async {
                           decoration: InputDecoration(
                             labelText: t.selectIssue,
                             floatingLabelStyle: const TextStyle(
-                              color: AppColors.btn_primery,
+                              color: AppColors.app_background_clr,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -343,7 +343,7 @@ Future<void> issuseList() async {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: AppColors.btn_primery,
+                                color: AppColors.app_background_clr,
                                 width: 1.5,
                               ),
                             ),
@@ -373,7 +373,7 @@ Future<void> issuseList() async {
                           decoration: InputDecoration(
                             labelText:  t.describeIssue,
                             floatingLabelStyle: const TextStyle(
-                              color: AppColors.btn_primery,
+                              color: AppColors.app_background_clr,
                             ),
                             alignLabelWithHint: true,
                             contentPadding: EdgeInsets.all(14),
@@ -383,7 +383,7 @@ Future<void> issuseList() async {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: AppColors.btn_primery,
+                                color: AppColors.app_background_clr,
                                 width: 1.5,
                               ),
                             ),

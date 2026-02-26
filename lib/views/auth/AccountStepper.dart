@@ -86,7 +86,7 @@ class _AccountStepperState extends State<AccountStepper> {
     return Scaffold(
       appBar: AppBar(
         title: Text("${widget.accountType} Account",style: TextStyle(color: Colors.white),),      
-          backgroundColor: AppColors.btn_primery,
+          backgroundColor: AppColors.app_background_clr,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,),
 
@@ -154,7 +154,7 @@ class CustomStepper extends StatelessWidget {
               CircleAvatar(
                 radius: 10,
                 backgroundColor: isActive || isCompleted
-                    ? const Color(0xFF0A7A55)
+                    ? AppColors.app_background_clr
                     : Colors.grey.shade400,
                 child: isCompleted
                     ? const Icon(Icons.check, color: Colors.white, size: 16)
@@ -176,7 +176,7 @@ class CustomStepper extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   color: isActive
-                      ? const Color(0xFF0A7A55)
+                      ? AppColors.app_background_clr
                       : Colors.grey.shade500,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
@@ -195,7 +195,7 @@ class CustomStepper extends StatelessWidget {
                 height: 2,
                 // margin: const EdgeInsets.symmetric(horizontal: 4),
                 color: isLeftCompleted
-                    ? const Color(0xFF0A7A55)
+                    ? AppColors.app_background_clr
                     : Colors.grey.shade300,
               ),
             ),

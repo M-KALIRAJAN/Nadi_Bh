@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import '../providers/language_provider.dart';
 
 class LanguageView extends ConsumerWidget {
@@ -13,10 +14,18 @@ class LanguageView extends ConsumerWidget {
 
     return Container(
       height: 27,
-      decoration: BoxDecoration(
-        color: const Color(0xFF82B3A5),
-        borderRadius: BorderRadius.circular(30),
+       decoration: BoxDecoration(
+    color: const Color(0xFF6473B7).withOpacity(0.7),
+    borderRadius: BorderRadius.circular(30),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.25), 
+        blurRadius: 6, 
+        spreadRadius: 1, 
+        offset: const Offset(0, 3), 
       ),
+    ],
+  ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

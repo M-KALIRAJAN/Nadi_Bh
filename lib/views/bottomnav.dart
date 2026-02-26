@@ -151,6 +151,7 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/l10n/app_localizations.dart';
 
 import 'package:nadi_user_app/views/screens/chats_view.dart';
@@ -211,7 +212,7 @@ class _BottomNavState extends State<BottomNav> {
       lastBackPressed = now;
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
-          content:  Text(AppLocalizations.of(context)!.tapAgainToExit ?? "Tap again to exit"),
+          content:  Text(AppLocalizations.of(context)!.tapAgainToExit ),
           duration: Duration(seconds: 2),
         ),
       );
@@ -272,7 +273,7 @@ class _BottomNavState extends State<BottomNav> {
           onTap: (index) => setState(() => _selectedIndex = index),
           type: BottomNavigationBarType.fixed,
           backgroundColor: Theme.of(context).colorScheme.surface,
-          selectedItemColor: const Color(0xFF0F7757),
+          selectedItemColor: AppColors.app_background_clr,
           unselectedItemColor: Colors.grey,
           selectedLabelStyle: const TextStyle(fontSize: 12),
           unselectedLabelStyle: const TextStyle(fontSize: 12),

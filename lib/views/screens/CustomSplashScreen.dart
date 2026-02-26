@@ -207,7 +207,6 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
 
-
   @override
   void initState() {
     super.initState();
@@ -237,8 +236,6 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
             curve: Curves.easeInOut,
           ),
         );
-
-
 
     // ✅ Navigate when animation completes
     _animationController.addStatusListener((status) {
@@ -331,10 +328,10 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
     if (!hasSeenAbout) {
       context.go(RouteNames.language);
     } else if (isLoggedIn && token.isNotEmpty) {
-  //      final userId = await AppPreferences.getUserId();
-  // if(userId != null){
-  //       await StreamChatService().connectUser(userId);
-  // }
+      //      final userId = await AppPreferences.getUserId();
+      // if(userId != null){
+      //       await StreamChatService().connectUser(userId);
+      // }
       context.go(RouteNames.bottomnav);
     } else {
       context.go(RouteNames.login);
@@ -342,58 +339,57 @@ class _CustomSplashScreenState extends State<CustomSplashScreen>
   }
 
   // ================= UI =================
-Widget _buildMedia() {
-  // 🎥 VIDEO → NO ANIMATION
-  if (_videoController != null && _videoController!.value.isInitialized) {
-    return AspectRatio(
-      aspectRatio: _videoController!.value.aspectRatio,
-      child: VideoPlayer(_videoController!),
-    );
-  }
+  Widget _buildMedia() {
+    // 🎥 VIDEO → NO ANIMATION
+    if (_videoController != null && _videoController!.value.isInitialized) {
+      return AspectRatio(
+        aspectRatio: _videoController!.value.aspectRatio,
+        child: VideoPlayer(_videoController!),
+      );
+    }
 
-  // 🖼 IMAGE / LOGO → ONLY ROTATION (NO ZOOM)
-  Widget imageWidget;
+    // 🖼 IMAGE / LOGO → ONLY ROTATION (NO ZOOM)
+    Widget imageWidget;
 
-  if (imageUrl != null) {
-    imageWidget = Image.network(
-      imageUrl!,
-      width: 180,
-      height: 180,
-      fit: BoxFit.contain,
-    );
-  } else {
-    imageWidget = Image.asset(
-      'assets/icons/logo.png',
-      width: 170,
-      height: 170,
-    );
-  }
+    if (imageUrl != null) {
+      imageWidget = Image.network(
+        imageUrl!,
+        width: 180,
+        height: 180,
+        fit: BoxFit.contain,
+      );
+    } else {
+      imageWidget = Image.asset(
+        'assets/icons/logo.png',
+        width: 170,
+        height: 170,
+      );
+    }
 
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      RotationTransition(
-        turns: _rotationAnimation, // ✅ only rotate
-        child: imageWidget,
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RotationTransition(
+          turns: _rotationAnimation, 
+          child: imageWidget,
+        ),
 
-      const SizedBox(height: 45),
-
-      // ✅ Linear Progress Bar
-      SizedBox(
-        width: 200,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: const LinearProgressIndicator(
-            minHeight: 5,
-            backgroundColor: Colors.white24,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        const SizedBox(height: 45),
+        SizedBox(
+          width: 150,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: const LinearProgressIndicator(
+              minHeight: 5,
+              backgroundColor: Colors.white24,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -405,9 +401,12 @@ Widget _buildMedia() {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0D5F48), Color(0xFF0ABF8F)],
+            colors: [
+              const Color(0xFF6473B7),
+              const Color(0xFF6473B7).withValues(alpha: 0.5),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

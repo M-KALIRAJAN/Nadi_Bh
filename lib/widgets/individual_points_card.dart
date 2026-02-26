@@ -83,7 +83,7 @@ class IndividualPointsCard extends StatelessWidget {
                     : Text(
                         " +${points}",
                         style: TextStyle(
-                          color: AppColors.btn_primery,
+                          color: AppColors.app_background_clr,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

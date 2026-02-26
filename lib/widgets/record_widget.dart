@@ -119,7 +119,7 @@ class _RecordWidgetState extends State<RecordWidget> {
           child: Container(
             height: 50,
             decoration: BoxDecoration(
-              color: isRecording ? Colors.red : AppColors.button_secondary,
+              color: isRecording ? Colors.red : AppColors.app_background_clr,
               borderRadius: BorderRadius.circular(12),
             ),
             alignment: Alignment.center,

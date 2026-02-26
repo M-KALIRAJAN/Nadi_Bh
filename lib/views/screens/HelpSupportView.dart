@@ -60,7 +60,7 @@ class _HelpSupportViewState extends ConsumerState<HelpSupportView> {
               AppLocalizations.of(context)!.enquirySuccess,
               style: const TextStyle(color: Colors.white),
             ),
-            backgroundColor: AppColors.btn_primery,
+            backgroundColor: AppColors.app_background_clr,
             // behavior: SnackBarBehavior.floating,
           ),
         );
@@ -90,7 +90,7 @@ class _HelpSupportViewState extends ConsumerState<HelpSupportView> {
           loc.helpSupportTitle,
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: AppColors.btn_primery,
+        backgroundColor: AppColors.app_background_clr,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),

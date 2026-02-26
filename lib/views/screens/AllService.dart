@@ -1,16 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 import 'package:nadi_user_app/core/network/dio_client.dart';
-import 'package:nadi_user_app/providers/connectivity_provider.dart';
 import 'package:nadi_user_app/providers/serviceProvider.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:nadi_user_app/widgets/no_internet_widget.dart';
+
 
 class Allservice extends ConsumerStatefulWidget {
   const Allservice({super.key});
@@ -45,7 +44,7 @@ class _AllserviceState extends ConsumerState<Allservice> {
                   ),
                   const Text(
                     "Service",
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600,color: AppColors.app_background_clr),
                   ),
                   const SizedBox(width: 24),
                 ],

@@ -7,6 +7,7 @@ import 'package:nadi_user_app/preferences/preferences.dart';
 import 'package:nadi_user_app/routing/app_router.dart';
 import 'package:nadi_user_app/widgets/app_back.dart';
 import 'package:nadi_user_app/providers/onbording_provider.dart';
+
 class AboutView extends ConsumerStatefulWidget {
   const AboutView({super.key});
   @override
@@ -79,7 +80,7 @@ class _AboutViewState extends ConsumerState<AboutView> {
                         icon: Icons.arrow_back,
                         onPressed: context.pop,
                       ),
-                       Text(
+                      Text(
                         AppLocalizations.of(context)!.about,
                         style: TextStyle(
                           fontSize: AppFontSizes.medium,
@@ -102,19 +103,19 @@ class _AboutViewState extends ConsumerState<AboutView> {
                           ),
                           child: Row(
                             children: [
-                               Text(
+                              Text(
                                 AppLocalizations.of(context)!.skip,
                                 style: TextStyle(
-                                  color: AppColors.btn_primery,
+                                  color: AppColors.app_background_clr,
                                   fontSize: 12,
                                   fontFamily: "Poppins",
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              Image.asset(
-                                "assets/icons/skip.png",
-                                height: 14,
-                                width: 14,
+                              Icon(
+                                Icons.double_arrow,
+                                size: 14,
+                                color: AppColors.app_background_clr,
                               ),
                             ],
                           ),
@@ -128,7 +129,7 @@ class _AboutViewState extends ConsumerState<AboutView> {
           ),
 
           const SizedBox(height: 10),
-           Text(
+          Text(
             AppLocalizations.of(context)!.nadiBahrainServices,
             style: TextStyle(
               fontSize: AppFontSizes.xLarge,
@@ -143,9 +144,7 @@ class _AboutViewState extends ConsumerState<AboutView> {
             height: 250,
             child: aboutAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(
-  child: Text("Error: $err"),
-),
+              error: (err, _) => Center(child: Text("Error: $err")),
               data: (textPages) {
                 if (textPages.isEmpty) {
                   return const Center(child: Text("No content available"));
@@ -217,8 +216,8 @@ class _AboutViewState extends ConsumerState<AboutView> {
                         width: 10,
                         decoration: BoxDecoration(
                           color: index == currentIndex
-                              ? AppColors.btn_primery
-                              : AppColors.btn_primery.withOpacity(0.3),
+                              ? AppColors.app_background_clr
+                              : AppColors.app_background_clr.withOpacity(0.3),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -241,7 +240,7 @@ class _AboutViewState extends ConsumerState<AboutView> {
                     width: 38,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
-                      color: AppColors.button_secondary,
+                      color: AppColors.app_background_clr,
                     ),
                     child: const Icon(
                       Icons.arrow_forward_outlined,

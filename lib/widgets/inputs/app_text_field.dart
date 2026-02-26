@@ -47,7 +47,7 @@ class _AppTextFieldState extends State<AppTextField> {
         labelText: widget.label,
         prefixText: widget.prefixText,
         labelStyle: const TextStyle(fontSize: 14, color: Color(0xFF79747E)),
-        floatingLabelStyle: const TextStyle(color: AppColors.btn_primery),
+        floatingLabelStyle: const TextStyle(color: AppColors.app_background_clr),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(
@@ -61,7 +61,7 @@ class _AppTextFieldState extends State<AppTextField> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:  BorderSide(color:AppColors.btn_primery ,width: 1.5)
+          borderSide:  BorderSide(color:AppColors.app_background_clr ,width: 1.5)
         ),
 
         //   EYE ICON (Password)

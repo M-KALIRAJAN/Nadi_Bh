@@ -108,7 +108,7 @@ class _EditProfileState extends State<EditProfile> {
     // Ensure mobile number is numeric
     final mobileNumber = int.tryParse(mobileController.text.trim());
     if (mobileNumber == null) {
-      AppLogger.error("❌ Invalid mobile number");
+      AppLogger.error(" Invalid mobile number");
       return;
     }
 
@@ -140,13 +140,13 @@ class _EditProfileState extends State<EditProfile> {
 
     final formData = FormData.fromMap(formMap);
 
-    AppLogger.info("📦 FormData payload keys: ${formMap.keys}");
+    AppLogger.info(" FormData payload keys: ${formMap.keys}");
     if (profileImage != null)
-      AppLogger.info("🖼️ Image Path: ${profileImage!.path}");
+      AppLogger.info(" Image Path: ${profileImage!.path}");
 
     try {
       final response = await _profileService.editProfile(formData: formData);
-      AppLogger.success("✅ API RESPONSE: $response");
+
 
       // Update local cache
       final updatedProfile = {
@@ -169,15 +169,15 @@ class _EditProfileState extends State<EditProfile> {
         "familyMembers": familyMembers,
       };
 
-      AppLogger.info("💾 Updated Local Profile Cache: $updatedProfile");
+      AppLogger.info("Updated Local Profile Cache: $updatedProfile");
       await AppPreferences.saveProfileData(updatedProfile);
 
       if (mounted) context.pop(true);
     } on DioException catch (e) {
-      AppLogger.error("❌ STATUS: ${e.response?.statusCode}");
-      AppLogger.error("❌ DATA: ${e.response?.data}");
+      AppLogger.error(" STATUS: ${e.response?.statusCode}");
+      AppLogger.error(" DATA: ${e.response?.data}");
     } catch (e, stack) {
-      AppLogger.error("❌ UNKNOWN ERROR: $e");
+ 
       AppLogger.error(stack.toString());
     }
   }
@@ -208,8 +208,8 @@ class _EditProfileState extends State<EditProfile> {
                     },
                   ),
                    Text(
-                    loc.editProfile ?? "",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                    loc.editProfile ,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20,color: AppColors.app_background_clr),
                   ),
                   const Text(""),
                 ],
@@ -264,7 +264,7 @@ class _EditProfileState extends State<EditProfile> {
                                   height: 38,
                                   width: 38,
                                   decoration: BoxDecoration(
-                                    color: Color(0xFF4C9581),
+                                    color: AppColors.app_background_clr,
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: Colors.white,
@@ -356,7 +356,7 @@ class _EditProfileState extends State<EditProfile> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                  Text(
-                                loc.floor ?? "",
+                                loc.floor ,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -405,18 +405,18 @@ class _EditProfileState extends State<EditProfile> {
                               onPressed: () {
                                 context.pop();
                               },
-                              color: Color.fromRGBO(76, 149, 129, 1),
+                              color: AppColors.btn_primery,
                               width: double.infinity,
                             ),
                           ),
                           const SizedBox(width: 20),
                           Expanded(
                             child: AppButton(
-                              text: loc.save ?? "",
+                              text: loc.save ,
                               onPressed: () {
                                 saveProfile();
                               },
-                              color: Color.fromRGBO(13, 95, 72, 1),
+                              color: AppColors.app_background_clr,
                               width: double.infinity,
                             ),
                           ),

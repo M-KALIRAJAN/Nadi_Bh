@@ -49,7 +49,7 @@ bool isLoadingToggle = true;
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: isActive
-            ? const Color.fromRGBO(13, 95, 72, 1)
+            ? AppColors.app_background_clr
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
@@ -82,7 +82,7 @@ bool isLoadingToggle = true;
                 width: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color.fromRGBO(76, 149, 129, 0.3),
+                  color:  const Color.fromARGB(255, 166, 176, 219),
                 ),
                 child: Padding(padding: const EdgeInsets.all(10), child: icon),
               ),
@@ -124,7 +124,7 @@ bool isLoadingToggle = true;
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color.fromRGBO(13, 95, 72, 1)
+              ? AppColors.app_background_clr
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -339,7 +339,7 @@ bool isLoadingToggle = true;
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
-                  vertical: 20,
+                  vertical: 10,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -353,15 +353,16 @@ bool isLoadingToggle = true;
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
+                        color: AppColors.app_background_clr
                       ),
                     ),
-                    const SizedBox(width: 30),
+                    const SizedBox(width: 20),
                   ],
                 ),
               ),
 
               const Divider(),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               SingleChildScrollView(
                 child: Column(
                   children: [
@@ -402,12 +403,7 @@ bool isLoadingToggle = true;
                                       width: 40,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: const Color.fromRGBO(
-                                          76,
-                                          149,
-                                          129,
-                                          0.3,
-                                        ),
+                                        color: const Color.fromARGB(255, 166, 176, 219)
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
@@ -439,7 +435,7 @@ bool isLoadingToggle = true;
                                     ),
                                     decoration: BoxDecoration(
                                       color: isToggleOn
-                                          ? AppColors.btn_primery
+                                          ? AppColors.app_background_clr
                                           : Colors.grey,
                                       borderRadius: BorderRadius.circular(20),
                                     ),
@@ -477,12 +473,7 @@ bool isLoadingToggle = true;
                                   width: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: const Color.fromRGBO(
-                                      76,
-                                      149,
-                                      129,
-                                      0.3,
-                                    ),
+                                    color: const Color.fromARGB(255, 166, 176, 219)
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(10),
@@ -504,12 +495,7 @@ bool isLoadingToggle = true;
                                   padding: const EdgeInsets.all(2),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color.fromRGBO(
-                                      178,
-                                      209,
-                                      202,
-                                      1,
-                                    ),
+                                    color: const Color.fromARGB(255, 166, 176, 219),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -547,12 +533,7 @@ bool isLoadingToggle = true;
                                   width: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: const Color.fromRGBO(
-                                      76,
-                                      149,
-                                      129,
-                                      0.3,
-                                    ),
+                                    color: const Color.fromARGB(255, 166, 176, 219),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(10),
@@ -571,12 +552,7 @@ bool isLoadingToggle = true;
                                 Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    color: const Color.fromRGBO(
-                                      178,
-                                      209,
-                                      202,
-                                      1,
-                                    ),
+                                    color: const Color.fromARGB(255, 166, 176, 219)
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

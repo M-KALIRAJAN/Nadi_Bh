@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nadi_user_app/core/constants/app_consts.dart';
 
 class MediaUploadWidget extends StatelessWidget {
   final List<XFile> images;
@@ -30,7 +31,7 @@ class MediaUploadWidget extends StatelessWidget {
               child: Container(
                 width: 88,
                 decoration: BoxDecoration(
-                  color: const Color.fromRGBO(76, 149, 129, 1),
+                  color: AppColors.app_background_clr,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -47,7 +48,6 @@ class MediaUploadWidget extends StatelessWidget {
               ),
             );
           }
-
           /// IMAGE ITEM
           return Stack(
             children: [
@@ -60,7 +60,6 @@ class MediaUploadWidget extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-
               /// REMOVE ICON
               Positioned(
                 top: 4,
@@ -70,11 +69,10 @@ class MediaUploadWidget extends StatelessWidget {
                   child: const CircleAvatar(
                     radius: 12,
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.close, size: 16),
+                    child: Icon(Icons.close, size: 16,color: Colors.black,),
                   ),
                 ),
               ),
-
               /// VIEW ICON
               Positioned.fill(
                 child: Center(

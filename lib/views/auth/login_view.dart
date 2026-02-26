@@ -420,7 +420,6 @@ class _LoginViewState extends State<LoginView> {
                   child: Column(
                     children: [
                       SizedBox(height: height * 0.07),
-
                       /// LOGO
                       Image.asset("assets/icons/logo.png", height: 190),
                       SizedBox(height: height * 0.10),
@@ -537,7 +536,7 @@ class _LoginViewState extends State<LoginView> {
                                         AppLocalizations.of(context)!.forgotPassword,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.btn_primery,
+                                          color: AppColors.app_background_clr,
                                         ),
                                       ),
                                     ),
@@ -563,7 +562,7 @@ class _LoginViewState extends State<LoginView> {
                                       child: AppButton(
                                         text: AppLocalizations.of(context)!.signIn,
                                         width: 59,
-                                        color: const Color(0xFF0D5F48),
+                                        color: AppColors.button_secondary,
                                         height: 50,
                                         onPressed: () => login(context),
                                       ),
@@ -584,7 +583,7 @@ class _LoginViewState extends State<LoginView> {
                                       AppLocalizations.of(context)!.signInWithOtp,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.btn_primery,
+                                        color: AppColors.app_background_clr,
                                       ),
                                     ),
                                   ),

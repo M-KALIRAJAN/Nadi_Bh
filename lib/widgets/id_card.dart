@@ -127,7 +127,7 @@ class IdCardSection extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(76, 149, 129, 1),
+                backgroundColor: AppColors.app_background_clr,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -150,7 +150,7 @@ class IdCardSection extends StatelessWidget {
                     child: Icon(
                       Icons.file_upload_outlined,
                       size: 27,
-                      color: AppColors.btn_primery,
+                      color: AppColors.app_background_clr,
                     ),
                   ),
                 ],

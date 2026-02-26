@@ -287,6 +287,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 20,
+                          color: AppColors.app_background_clr
                         ),
                       ),
                       const SizedBox(),
@@ -388,12 +389,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
                                   /// AVATAR
                                   CircleAvatar(
                                     radius: 23,
-                                    backgroundColor: const Color.fromRGBO(
-                                      13,
-                                      95,
-                                      72,
-                                      1,
-                                    ),
+                                    backgroundColor: AppColors.app_background_clr,
                                     child: Text(
                                       (user.name != null &&
                                               user.name!.isNotEmpty)
@@ -445,7 +441,7 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
                                       width: 12,
                                       decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Color.fromRGBO(13, 95, 72, 1),
+                                        color: AppColors.app_background_clr,
                                       ),
                                     ),
                                 ],

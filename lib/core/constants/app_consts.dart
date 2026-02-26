@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color borderGrey = Color(0xFF79747E);
-  static const Color button_secondary = Color(0xFF2D9F7F);
-  static const btn_primery = Color(0xFF0D5F48);
+  static const Color button_secondary = Color.fromRGBO(197, 218, 98, 1);
+  static const btn_primery = Color.fromRGBO(197, 218, 98, 1);
   static const gold_coin = const Color(0xFFD59B08);
   static const background_clr = Color.fromRGBO(243, 243, 243, 1);
-
+  static const Color app_background_clr =Color(0xFF6473B7);
   static get btn_secondary => null;
 
 }

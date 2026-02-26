@@ -290,8 +290,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
                         begin: AlignmentGeometry.topCenter,
                         end: AlignmentGeometry.bottomCenter,
                         colors: [
-                          Color(0xFF0D5F48),
-                          Color(0xFF75C0AC), // Bottom color
+                          AppColors.app_background_clr,
+                          const Color.fromARGB(255, 173, 183, 225),
                         ],
                       ),
                       borderRadius: const BorderRadius.only(
@@ -804,7 +804,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                                 topLeft: Radius.circular(10),
                                 bottomLeft: Radius.circular(10),
                               ),
-                              color: AppColors.btn_primery,
+                              color: AppColors.app_background_clr,
                             ),
                             child: TextButton(
                               onPressed: () {
@@ -999,7 +999,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                                             ),
                                           ),
                                           backgroundColor:
-                                              AppColors.btn_primery,
+                                              AppColors.app_background_clr,
                                           padding: EdgeInsets.zero,
                                         ),
                                         child: Center(

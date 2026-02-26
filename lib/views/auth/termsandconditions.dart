@@ -141,7 +141,7 @@ class _TermsAndConditionsState extends ConsumerState<TermsAndConditions> {
                               Text(
                                 l10n.ourCommitments,
                                 style: TextStyle(
-                                  color: AppColors.btn_primery,
+                                  color: AppColors.app_background_clr,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -175,7 +175,7 @@ class _TermsAndConditionsState extends ConsumerState<TermsAndConditions> {
                 children: [
                   Checkbox(
                     value: isChecked,
-                    activeColor: AppColors.btn_primery,
+                    activeColor: AppColors.app_background_clr,
                     checkColor: Colors.white,
                     onChanged: (bool? newValue) {
                       setState(() {

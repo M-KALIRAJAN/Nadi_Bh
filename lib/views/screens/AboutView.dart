@@ -15,7 +15,7 @@ class AboutsView extends ConsumerWidget {
         title:  Text(
           AppLocalizations.of(context)!.aboutApp,
            style: TextStyle(color: Colors.white)),
-        backgroundColor: AppColors.btn_primery,
+        backgroundColor: AppColors.app_background_clr,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),

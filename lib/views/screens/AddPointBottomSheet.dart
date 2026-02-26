@@ -140,7 +140,7 @@ class _AddPointBottomSheetContentState
                           ),
                         ),
                         value: RecipientType.admin,
-                        activeColor: AppColors.btn_primery,
+                        activeColor: AppColors.app_background_clr,
                         groupValue: _selectedType,
                         onChanged: (value) {
                           setState(() {
@@ -167,7 +167,7 @@ class _AddPointBottomSheetContentState
                           ),
                         ),
                         value: RecipientType.friend,
-                        activeColor: AppColors.btn_primery,
+                        activeColor: AppColors.app_background_clr,
                         groupValue: _selectedType,
                         onChanged: (value) {
                           setState(() {
@@ -307,7 +307,7 @@ class _AddPointBottomSheetContentState
       decoration: InputDecoration(
         labelText: hintText,
         prefixText: prefix,
-        floatingLabelStyle: TextStyle(color: AppColors.btn_primery),
+        floatingLabelStyle: TextStyle(color: AppColors.app_background_clr),
         filled: !enabled,
         fillColor: !enabled ? Colors.grey.shade200 : null,
         contentPadding: const EdgeInsets.symmetric(
@@ -320,7 +320,7 @@ class _AddPointBottomSheetContentState
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.btn_primery),
+          borderSide: const BorderSide(color: AppColors.app_background_clr),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),

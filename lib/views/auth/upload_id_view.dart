@@ -151,9 +151,9 @@ class _UploadIdViewState extends State<UploadIdView> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
-                                  color: AppColors.btn_primery.withOpacity(0.4),
+                                  color: AppColors.app_background_clr.withOpacity(0.4),
                                 ),
-                                color: AppColors.btn_primery.withOpacity(0.08),
+                                color: AppColors.app_background_clr.withOpacity(0.08),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -161,7 +161,7 @@ class _UploadIdViewState extends State<UploadIdView> {
                                   Text(
                                     AppLocalizations.of(context)!.skip,
                                     style: TextStyle(
-                                      color: AppColors.btn_primery,
+                                      color: AppColors.app_background_clr,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
                                     ),
@@ -170,7 +170,7 @@ class _UploadIdViewState extends State<UploadIdView> {
                                   Icon(
                                     Icons.arrow_forward_rounded,
                                     size: 16,
-                                    color: AppColors.btn_primery,
+                                    color: AppColors.app_background_clr,
                                   ),
                                 ],
                               ),
@@ -208,7 +208,6 @@ class _UploadIdViewState extends State<UploadIdView> {
                         },
                         onUploadGallery: () {
                           pickImage(false, ImageSource.gallery);
-
                           print("Upload gallery clicked");
                         },
                       ),

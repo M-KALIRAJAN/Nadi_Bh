@@ -115,6 +115,7 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: AppFontSizes.large,
+                          color: AppColors.app_background_clr
                         ),
                       ),
                       const Text(""),
@@ -141,7 +142,7 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
                                 width: 120, // reduce size
                                 height: 120,
                                 colorFilter: const ColorFilter.mode(
-                                  Color.fromRGBO(13, 95, 72, 1), // green color
+                                  AppColors.app_background_clr,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -151,7 +152,7 @@ class _MyServiceRequestState extends ConsumerState<MyServiceRequest> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Color.fromRGBO(13, 95, 72, 1),
+                                  color: AppColors.app_background_clr,
                                 ),
                               ),
                             ],

@@ -57,8 +57,8 @@ class _DonutChartExampleState extends State<DonutChartExample> {
   }
 
   final List<Color> serviceColors = [
-    AppColors.btn_primery, // Completed
-    AppColors.gold_coin, // In Progress
+    AppColors.app_background_clr, // Completed
+    AppColors.background_clr, // In Progress
     Colors.grey, // Pending
   ];
 
@@ -145,12 +145,12 @@ class _DonutChartExampleState extends State<DonutChartExample> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildLegend(
-                color: AppColors.btn_primery,
+                color: AppColors.app_background_clr,
                   label: l10n.completed,
                 count: serviceoverview!.serviceCompletedCount,
               ),
               _buildLegend(
-                color: AppColors.gold_coin,
+                color: AppColors.btn_primery,
                 label: l10n.inProgress,
                 count: serviceoverview!.serviceProgressCount,
               ),

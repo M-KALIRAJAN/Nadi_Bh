@@ -36,7 +36,7 @@ class _WelcomeViewState extends State<WelcomeView> {
                   child: Container(
                     height: size.height * 0.45,
                     width: double.infinity,
-                    color: AppColors.button_secondary,
+                    color: AppColors.app_background_clr,
                     alignment: Alignment.center,
                     child:  Padding(
                       padding: EdgeInsets.only(bottom: 60),

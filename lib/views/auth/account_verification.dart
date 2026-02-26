@@ -46,13 +46,13 @@ class _AccountVerificationState extends State<AccountVerification> {
                 width: 177,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
-                  color: AppColors.button_secondary,
+                  color: AppColors.app_background_clr,
                 ),
-                child: Image.asset(
-                  "assets/icons/cart.png",
-                  height: 80,
-                  width: 100,
-                ),
+                child:Icon(
+  Icons.perm_identity,
+  size: 90,
+  color: Colors.white,
+)
               ),
 
               SizedBox(height: 15),
@@ -99,7 +99,7 @@ class _AccountVerificationState extends State<AccountVerification> {
                         style: TextStyle(
                           fontSize: AppFontSizes.small,
                           height: 1.7,
-                          color: AppColors.btn_primery,
+                          color: AppColors.app_background_clr,
                         ),
                       ),
                     ],
